@@ -60,7 +60,7 @@ replace_text = scrubadub.clean(text, method="replace")
 # for more fine-grained control, you can subclass Scrubber and adapt
 # your approach for your particular data set.
 class NoEmailScrubber(scrubadub.Scrubber):
-	def clean_email(self, text):
+	def clean_email_addresses(self, text):
 		return text
 
 see_my_email_address = scrubadub.clean_email(text, cls=NoEmailScrubber)
@@ -71,10 +71,18 @@ see_my_email_address = scrubadub.clean_email(text, cls=NoEmailScrubber)
 
 1. Create a python virtual environment and install the requirements
 
-    ```
+    ```sh
     mkvirtualenv scrubadub
-    pip install -r REQUIREMENTS
+    pip install -r requirements/python-dev
     ```
+
+2. Run the test suite that is defined in `.travis.yml` to make sure
+   everything is working properly
+
+    ```sh
+	./tests/run.py
+	```
+
 
 ## Related work
 

@@ -70,7 +70,8 @@ class Scrubber(object):
         return text
 
     def clean_email_addresses(self, text, replacement="{{EMAIL}}"):
-        """Use regular expression magic to 
+        """Use regular expression magic to remove email addresses from dirty
+        dirty ``text``
         """
         # some people are super hyphen duper hyphen clever and they
         # spell out the punctuation of their email addresses period
@@ -79,8 +80,8 @@ class Scrubber(object):
         regexs = (
             r'\b[\w\.\+\-]+@[\w\-]+\.[\w\-\.]+\b',
             r'\b[\w\.\+\-]+ at [\w\-]+\.[\w\-\.]+\b',
+            r'\b[\w\.\+\-]+ AT [\w\-]+\.[\w\-\.]+\b',
         )
         for regex in regexs:
             text = re.sub(regex, replacement, text)
         return text
-
