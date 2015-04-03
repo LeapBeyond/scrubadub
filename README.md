@@ -1,4 +1,6 @@
-> This package is a work in progress and has not yet been posted on pypi
+> The syntax below is a work in progress and should be viewed as more
+> of a design spec than something that would actually work. Stay tuned
+> as this project matures and we release it on pypi...
 
 # scrubadub
 
