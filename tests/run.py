@@ -7,7 +7,8 @@ import os
 import subprocess
 
 import yaml
-from fabric.colors import green, red
+
+from scrubadub.colors import green, red
 
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

@@ -9,7 +9,6 @@ PyYAML
 pep8
 coveralls
 nose
-Fabric
 
 # for documentation
 sphinx
