@@ -2,6 +2,9 @@
 > of a design spec than something that would actually work. Stay tuned
 > as this project matures and we release it on pypi...
 
+[![Build Status](https://travis-ci.org/deanmalmgren/scrubadub.svg?branch=master)](https://travis-ci.org/deanmalmgren/scrubadub)
+[![Coverage Status](https://coveralls.io/repos/deanmalmgren/scrubadub/badge.svg)](https://coveralls.io/r/deanmalmgren/scrubadub)
+
 # scrubadub
 
 Remove personally identifiable information from free text. Sometimes
