@@ -4,6 +4,7 @@
 
 [![Build Status](https://travis-ci.org/deanmalmgren/scrubadub.svg?branch=master)](https://travis-ci.org/deanmalmgren/scrubadub)
 [![Coverage Status](https://coveralls.io/repos/deanmalmgren/scrubadub/badge.svg)](https://coveralls.io/r/deanmalmgren/scrubadub)
+[![Documentation Status](https://readthedocs.org/projects/scrubadub/badge/?version=latest)](https://readthedocs.org/projects/scrubadub/?badge=latest)
 
 # scrubadub
 
