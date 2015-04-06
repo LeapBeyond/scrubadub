@@ -34,7 +34,7 @@ class Scrubber(object):
         """
         return text.encode(encoding, 'ignore')
 
-    def clean(self, text):
+    def clean_with_placeholders(self, text):
         """This is the master method that cleans all of the filth out of the
         dirty dirty ``text``.
         """

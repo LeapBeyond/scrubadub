@@ -6,6 +6,10 @@ from .scrubbers import Scrubber
 __version__ = VERSION = "0.0.1"
 
 
-def clean(text):
-    scrubber = Scrubber()
-    return scrubber.clean(text)
+def clean_with_placeholders(text, cls=None):
+    """Public facing function to clean ``text`` using the scrubber ``cls`` by
+    replacing all personal information with ``{{PLACEHOLDERS}}``.
+    """
+    cls = cls or Scrubber
+    scrubber = cls()
+    return scrubber.clean_with_placeholders(text)
