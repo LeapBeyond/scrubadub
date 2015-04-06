@@ -18,7 +18,7 @@ text, without comprimising the privacy of the people we are trying to protect.
 
 * names
 * email addresses
-* URLs
+.. * URLs
 
 
 Quick start
@@ -40,17 +40,17 @@ incorporating it into your python scripts like this:
     >>> placeholder_text
     "{{NAME}} is a cat"
 
-    # Replace names with {{NAME-ID}} anonymous, but consistent IDs.
+..    # Replace names with {{NAME-ID}} anonymous, but consistent IDs.
     >>> identifier_text = scrubadub.clean_with_identifiers(text)
     >>> identifier_text
     "{{NAME-1287}} is a cat"
 
-    # Replace names with random, gender-consistent names
+..    # Replace names with random, gender-consistent names
     >>> surrogate_text = scrubadub.clean_with_surrogates(text)
     >>> surrogate_text
     "Billy is a cat"
 
-    # For more fine-grained control, you can subclass Scrubber and adapt your
+..    # For more fine-grained control, you can subclass Scrubber and adapt your
     # approach for your particular use case. For example, if you have a specific
     # reason to keep email addresses in the resulting output, you can disable
     # the email address cleaning like this:
