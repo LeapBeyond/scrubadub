@@ -3,6 +3,15 @@
     This package is a work in progress and is not yet ready for production use.
 
 
+.. NOTES FOR CREATING A RELEASE:
+..
+..   * bump the version number
+..   * update docs/changelog.rst
+..   * git push
+..   * python setup.py sdist upload
+..   * create a release https://github.com/deanmalmgren/scrubadub/releases
+
+
 scrubadub
 =========
 
