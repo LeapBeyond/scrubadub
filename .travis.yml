@@ -11,7 +11,6 @@ install:
 script:
   - nosetests --with-coverage --cover-package=scrubadub
   - pep8 scrubadub/
-  - pep8 bin/scrubadub
   - cd docs && make html && cd -
 
 # commands to run after the tests successfully complete

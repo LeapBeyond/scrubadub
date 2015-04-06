@@ -4,9 +4,6 @@ from setuptools import setup
 
 import scrubadub
 
-# get all of the scripts
-scripts = glob.glob("bin/*")
-
 # read in the description from README
 with open("README.rst") as stream:
     long_description = stream.read()
@@ -32,7 +29,6 @@ setup(
     author='Dean Malmgren',
     author_email='dean.malmgren@datascopeanalytics.com',
     license='MIT',
-    scripts=scripts,
     packages=[
         'scrubadub',
     ],
