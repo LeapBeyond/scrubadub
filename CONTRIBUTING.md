@@ -9,33 +9,32 @@ for the fork-branch-pull request model for github. Briefly, this means:
         git checkout master
         git pull deanmalmgren/master
 
-2. Start a feature branch with a descriptive name about what you're
-   trying to accomplish:
+2. Start a feature branch with a descriptive name about what you're trying
+   to accomplish:
 
         git checkout -b italian-name-fix
 
 3. Make commits to this feature branch (`italian-name-fix`, in this case)
-   in a way that other people can understand with good commit messages
+   in a way that other people can understand with good commit message
    to explain the changes you've made:
 
-        emacs scrubadub/parsers/csv_parser.py
-	    git add scrubadub/parsers/csv_parser.py
-	    git commit -m 'added csv_parser'
+        emacs scrubadub/__init__.py
+	    git add scrubadub/__init__.py
+	    git commit -m 'added italian name fix'
 
 4. If an issue already exists for the code you're contributing, use
-   [issue2pr](http://issue2pr.herokuapp.com/) to attach your code to
-   that issue:
+   [issue2pr](http://issue2pr.herokuapp.com/) to attach your code to that issue:
 
         git push origin italian-name-fix
 		chrome http://issue2pr.herokuapp.com
 		# enter the issue URL, HEAD=yourusername:italian-name-fix, Base=master
 
-   If the issue doesn't already exist, just send a pull
-   request in the usual way:
+   If the issue doesn't already exist, just send a pull request in the
+   usual way:
 
         git push origin italian-name-fix
 		chrome http://github.com/deanmalmgren/scrubadub/compare
- 
+
 
 Style guidelines
 ----------------
@@ -60,7 +59,6 @@ generally recommend:
    recommendations --- use an appropriate amount of whitespace. This
    is enforced in the test suite
 
-- `code comments should be about *what* is being done and *why* it is
-   being done, not *how* it is being done
-   <https://www.kernel.org/doc/Documentation/CodingStyle>`_ --- that
-   should be self-evident from the code itself.
+- `code comments should be about *what* and *why* is being done, not *how* it is
+  being done <https://www.kernel.org/doc/Documentation/CodingStyle>`_ ---
+  that should be self-evident from the code itself.
