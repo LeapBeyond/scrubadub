@@ -33,3 +33,19 @@ class PlaceholderTestCase(unittest.TestCase):
             'My email is {{EMAIL}}',
             'john AT gmail.com is not replaced with {{EMAIL}}',
         )
+
+    def test_empty(self):
+        """Make sure this returns an empty string"""
+        self.assertEqual(
+            scrubadub.clean_with_placeholders(''),
+            '',
+            'empty string is not preserved',
+        )
+
+    def test_unicode(self):
+        """Make sure unicode works, too"""
+        self.assertEqual(
+            scrubadub.clean_with_placeholders(u'John is a cat'),
+            '{{NAME}} is a cat',
+            'unicode strings work too',
+        )
