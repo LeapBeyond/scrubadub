@@ -19,6 +19,7 @@ class Scrubber(object):
 
         text = self.clean_proper_nouns(text)
         text = self.clean_email_addresses(text)
+        text = self.clean_urls(text)
         return text
 
     def clean_proper_nouns(self, text, replacement="{{NAME}}"):
@@ -43,12 +44,12 @@ class Scrubber(object):
 
     def clean_email_addresses(self, text, replacement="{{EMAIL}}"):
         """Use regular expression magic to remove email addresses from dirty
-        dirty ``text``
+        dirty ``text``, even accounting for super hyphen duper hyphen
+        clever people that spell out the punctuation of their email
+        addresses period
+
+        adapted from http://stackoverflow.com/a/719543/564709
         """
-        # some people are super hyphen duper hyphen clever and they
-        # spell out the punctuation of their email addresses period
-        #
-        # adapted from http://stackoverflow.com/a/719543/564709
         regexs = (
             r'\b[\w\.\+\-]+@[\w\-]+\.[\w\-\.]+\b',
             r'\b[\w\.\+\-]+ at [\w\-]+\.[\w\-\.]+\b',
@@ -57,3 +58,16 @@ class Scrubber(object):
         for regex in regexs:
             text = re.sub(regex, replacement, text)
         return text
+
+    def clean_urls(self, text, replacement="{{URL}}"):
+        """Use regular expressions to remove URLs that begin with ``http://``,
+        `https://`` or ``www.`` from dirty dirty ``text``.
+        """
+        # need to make a copy of result here to make sure this works correctly
+        result = text
+        for match in re.finditer(r'(?P<domain_name>(https?:\/\/(www\.)?|www\.)[\-\w@:%\.\+~#=]{2,256}\.[a-z]{2,6}/)(?P<path>[\-\w@:%\+\.~#?&//=]*)', text):
+#            replacement = match.group('domain_name') + 'PATH/TO/SOMETHING'
+            result = result.replace(match.string[match.start():match.end()],
+                                    replacement)
+        return result
+        
