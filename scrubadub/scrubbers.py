@@ -1,7 +1,8 @@
 import re
 
 from textblob import TextBlob
-import chardet
+
+import exceptions
 
 
 class Scrubber(object):
@@ -13,6 +14,9 @@ class Scrubber(object):
         """This is the master method that cleans all of the filth out of the
         dirty dirty ``text``.
         """
+        if not isinstance(text, unicode):
+            raise exceptions.UnicodeRequired
+
         text = self.clean_proper_nouns(text)
         text = self.clean_email_addresses(text)
         return text
