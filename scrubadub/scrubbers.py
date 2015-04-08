@@ -9,45 +9,13 @@ class Scrubber(object):
     dirty dirty text.
     """
 
-    def decode(self, text):
-        """Decode ``text`` using the `chardet
-        <https://github.com/chardet/chardet>`_ package.
-        """
-        # only decode byte strings into unicode if it hasn't already
-        # been done by a subclass
-        if isinstance(text, unicode):
-            return text
-
-        # empty text? nothing to decode
-        if not text:
-            return u''
-
-        # use chardet to automatically detect the encoding text. if chardet
-        # doesn't know the answer, this will throw a rather ungraceful error
-        max_confidence, max_encoding = 0.0, None
-        result = chardet.detect(text)
-        return text.decode(result['encoding'])
-
-    def encode(self, text, encoding):
-        """Encode the ``text`` in ``encoding`` byte-encoding. This ignores
-        code points that can't be encoded in byte-strings.
-        """
-        return text.encode(encoding, 'ignore')
-
     def clean_with_placeholders(self, text):
         """This is the master method that cleans all of the filth out of the
         dirty dirty ``text``.
         """
-
-        # decode the text as a unicode string as necessary
-        text = self.decode(text)
-
-        # do all the dirty work
         text = self.clean_proper_nouns(text)
         text = self.clean_email_addresses(text)
-
-        # encode the unicode as a byte string
-        return self.encode(text, 'utf-8')
+        return text
 
     def clean_proper_nouns(self, text, replacement="{{NAME}}"):
         """Use part of speech tagging to clean proper nouns out of the dirty
