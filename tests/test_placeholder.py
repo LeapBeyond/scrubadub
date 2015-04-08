@@ -42,10 +42,7 @@ class PlaceholderTestCase(unittest.TestCase):
             'empty string is not preserved',
         )
 
-    def test_unicode(self):
+    def test_not_unicode(self):
         """Make sure unicode works, too"""
-        self.assertEqual(
-            scrubadub.clean_with_placeholders(u'John is a cat'),
-            u'{{NAME}} is a cat',
-            'unicode strings work too',
-        )
+        with self.assertRaises(scrubadub.exceptions.UnicodeRequired):
+            scrubadub.clean_with_placeholders('John is a byte string')

@@ -11,6 +11,8 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+* make sure unicode is passed to ``scrubadub``
+
 
 0.1.0
 -----
