@@ -32,23 +32,23 @@ incorporating it into your python scripts like this:
     >>> import scrubadub
 
     # John may be a cat, but he doesn't want other people to know it.
-    >>> text = "John is a cat"
+    >>> text = u"John is a cat"
 
     # Replace names with {{NAME}} placeholder. This is the scrubadub default
     # because it maximally omits any information about people.
     >>> placeholder_text = scrubadub.clean_with_placeholders(text)
     >>> placeholder_text
-    "{{NAME}} is a cat"
+    u"{{NAME}} is a cat"
 
 ..    # Replace names with {{NAME-ID}} anonymous, but consistent IDs.
     >>> identifier_text = scrubadub.clean_with_identifiers(text)
     >>> identifier_text
-    "{{NAME-1287}} is a cat"
+    u"{{NAME-1287}} is a cat"
 
 ..    # Replace names with random, gender-consistent names
     >>> surrogate_text = scrubadub.clean_with_surrogates(text)
     >>> surrogate_text
-    "Billy is a cat"
+    u"Billy is a cat"
 
 ..    # For more fine-grained control, you can subclass Scrubber and adapt your
     # approach for your particular use case. For example, if you have a specific
@@ -58,10 +58,10 @@ incorporating it into your python scripts like this:
     ...     def clean_email_addresses(self, text):
     ...         return text
     ...
-    >>> text = "John's email address is cat@gmail.com"
+    >>> text = u"John's email address is cat@gmail.com"
     >>> text = scrubadub.clean_with_placeholders(text, cls=NoEmailScrubber)
     >>> text
-    "{{NAME}}'s email address is cat@gmail.com'"
+    u"{{NAME}}'s email address is cat@gmail.com'"
 
 
 
