@@ -23,6 +23,6 @@ URL_REGEX = re.compile(r'''
         (https?:\/\/(www\.)?|www\.)          # protocol http://, https://, www.
         [\-\w@:%\.\+~\#=]{2,256}\.[a-z]{2,6} # domain name
     )(?P<path>
-        [\-\w@:%\+\.~\#?&//=]*               # rest of path, query, and hash
+        [\-\w@:%\+\.~\#?&/=]*                # rest of path, query, and hash
     )
 ''', re.VERBOSE)

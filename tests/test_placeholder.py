@@ -55,7 +55,7 @@ class PlaceholderTestCase(unittest.TestCase):
         """http:// should be replaced"""
         self.assertEqual(
             self.clean(u'http://bit.ly/aser is neat'),
-            '{{URL}} is neat',
+            u'{{URL}} is neat',
             'http url is not replaced with {{URL}}',
         )
 
@@ -63,7 +63,7 @@ class PlaceholderTestCase(unittest.TestCase):
         """https:// should be replaced"""
         self.assertEqual(
             self.clean(u'https://bit.ly/aser is neat'),
-            '{{URL}} is neat',
+            u'{{URL}} is neat',
             'http url is not replaced with {{URL}}',
         )
 
@@ -71,6 +71,13 @@ class PlaceholderTestCase(unittest.TestCase):
         """www. should be replaced"""
         self.assertEqual(
             self.clean(u'www.bit.ly/aser is neat'),
-            '{{URL}} is neat',
+            u'{{URL}} is neat',
             'http url is not replaced with {{URL}}',
+        )
+
+    def test_long_url(self):
+        self.assertEqual(
+           self.clean(u'https://this.is/a/long?url=very#url is good'),
+           u'{{URL}} is good',
+           "long urls aren't working properly"
         )
