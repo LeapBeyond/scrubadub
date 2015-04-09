@@ -13,7 +13,8 @@ class Scrubber(object):
 
     def clean_with_placeholders(self, text):
         """This is the master method that cleans all of the filth out of the
-        dirty dirty ``text``.
+        dirty dirty ``text`` using the default options for all of the other
+        ``clean_*`` methods below.
         """
         if not isinstance(text, unicode):
             raise exceptions.UnicodeRequired
@@ -45,11 +46,8 @@ class Scrubber(object):
 
     def clean_email_addresses(self, text, replacement="{{EMAIL}}"):
         """Use regular expression magic to remove email addresses from dirty
-        dirty ``text``, even accounting for email addresses like
-        ``john at gmail.com``.
-
-        adapted from http://stackoverflow.com/a/719543/564709
-
+        dirty ``text``. This method also catches email addresses like ``john at
+        gmail.com``.
         """
         for regex in regexps.EMAIL_REGEXS:
             text = regex.sub(replacement, text)
@@ -58,6 +56,11 @@ class Scrubber(object):
     def clean_urls(self, text, replacement="{{URL}}", keep_domain=False):
         """Use regular expressions to remove URLs that begin with ``http://``,
         `https://`` or ``www.`` from dirty dirty ``text``.
+
+        With ``keep_domain=True``, this method only obfuscates the path on a
+        URL, not its domain. For example,
+        ``http://twitter.com/someone/status/234978haoin`` becomes
+        ``http://twitter.com/{{replacement}}``.
         """
         for match in regexps.URL_REGEX.finditer(text):
             beg = match.start()

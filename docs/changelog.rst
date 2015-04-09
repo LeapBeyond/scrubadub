@@ -11,8 +11,9 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
-* make sure unicode is passed to ``scrubadub``
+* added URL scrubbing, including URL path removal (`#2`_)
 
+* make sure unicode is passed to ``scrubadub`` (`#1`_)
 
 0.1.0
 -----
@@ -29,3 +30,4 @@ latest changes in development for next release
    the text above relatively clean
 
 .. _#1: https://github.com/deanmalmgren/scrubadub/issues/1
+.. _#2: https://github.com/deanmalmgren/scrubadub/issues/2

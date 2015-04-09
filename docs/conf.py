@@ -97,6 +97,9 @@ pygments_style = 'sphinx'
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False
 
+# When documenting methods, etc with autodoc, list the methods by the order they
+# appear in the source code
+autodoc_member_order = 'bysource'
 
 # -- Options for HTML output ----------------------------------------------
 

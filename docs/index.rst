@@ -18,7 +18,7 @@ text, without comprimising the privacy of the people we are trying to protect.
 
 * names
 * email addresses
-.. * URLs
+* URLs
 
 
 Quick start
@@ -63,7 +63,9 @@ incorporating it into your python scripts like this:
     >>> text
     u"{{NAME}}'s email address is cat@gmail.com'"
 
-
+As a python package, ``scrubadub`` also has several more :ref:`advanced features <advanced_usage>` to
+allow users to fine-tune the manner in which ``scrubadub`` cleans dirty dirty
+text.
 
 
 Related work
@@ -101,9 +103,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   command_line_interface
-   python_package
-   installation
+   advanced_usage
    contributing
    changelog
 
