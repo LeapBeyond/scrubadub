@@ -19,9 +19,10 @@ EMAIL_REGEXS = (
 # and the path separately, which is useful for keeping the domain name
 # but sanitizing the path altogether
 URL_REGEX = re.compile(r'''
-    (?P<domain_name>
+    (?P<domain>
         (https?:\/\/(www\.)?|www\.)          # protocol http://, https://, www.
         [\-\w@:%\.\+~\#=]{2,256}\.[a-z]{2,6} # domain name
+        /?                                   # can have a trailing slash
     )(?P<path>
         [\-\w@:%\+\.~\#?&/=]*                # rest of path, query, and hash
     )

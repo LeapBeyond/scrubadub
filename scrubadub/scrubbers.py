@@ -55,13 +55,16 @@ class Scrubber(object):
             text = regex.sub(replacement, text)
         return text
 
-    def clean_urls(self, text, replacement="{{URL}}"):
+    def clean_urls(self, text, replacement="{{URL}}", keep_domain=False):
         """Use regular expressions to remove URLs that begin with ``http://``,
         `https://`` or ``www.`` from dirty dirty ``text``.
         """
-        # need to make a copy of result here to make sure this works correctly
-        result = text
         for match in regexps.URL_REGEX.finditer(text):
-            result = result.replace(match.string[match.start():match.end()],
-                                    replacement)
-        return result
+            beg = match.start()
+            end = match.end()
+            if keep_domain:
+                domain = match.group('domain')
+                beg += len(domain)
+            if beg < end:
+                text = text.replace(match.string[beg:end], replacement)
+        return text
