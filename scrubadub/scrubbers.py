@@ -2,7 +2,8 @@ import re
 
 from textblob import TextBlob
 
-import exceptions
+from . import exceptions
+from . import regexps
 
 
 class Scrubber(object):
@@ -44,19 +45,14 @@ class Scrubber(object):
 
     def clean_email_addresses(self, text, replacement="{{EMAIL}}"):
         """Use regular expression magic to remove email addresses from dirty
-        dirty ``text``, even accounting for super hyphen duper hyphen
-        clever people that spell out the punctuation of their email
-        addresses period
+        dirty ``text``, even accounting for email addresses like
+        ``john at gmail.com``.
 
         adapted from http://stackoverflow.com/a/719543/564709
+
         """
-        regexs = (
-            r'\b[\w\.\+\-]+@[\w\-]+\.[\w\-\.]+\b',
-            r'\b[\w\.\+\-]+ at [\w\-]+\.[\w\-\.]+\b',
-            r'\b[\w\.\+\-]+ AT [\w\-]+\.[\w\-\.]+\b',
-        )
-        for regex in regexs:
-            text = re.sub(regex, replacement, text)
+        for regex in regexps.EMAIL_REGEXS:
+            text = regex.sub(replacement, text)
         return text
 
     def clean_urls(self, text, replacement="{{URL}}"):
@@ -65,9 +61,7 @@ class Scrubber(object):
         """
         # need to make a copy of result here to make sure this works correctly
         result = text
-        for match in re.finditer(r'(?P<domain_name>(https?:\/\/(www\.)?|www\.)[\-\w@:%\.\+~#=]{2,256}\.[a-z]{2,6}/)(?P<path>[\-\w@:%\+\.~#?&//=]*)', text):
-#            replacement = match.group('domain_name') + 'PATH/TO/SOMETHING'
+        for match in regexps.URL_REGEX.finditer(text):
             result = result.replace(match.string[match.start():match.end()],
                                     replacement)
         return result
-        
