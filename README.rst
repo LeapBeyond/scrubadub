@@ -15,7 +15,7 @@
 scrubadub
 =========
 
-Remove personally identifiable information from dirty dirty text.
+Clean personally identifiable information from dirty dirty text.
 
 `Full documentation <http://scrubadub.readthedocs.org>`__.
 
