@@ -22,8 +22,8 @@ class Scrubber(object):
 
         text = self.clean_proper_nouns(text)
         text = self.clean_urls(text)
-        text = self.clean_email_addresses(text)
         text = self.clean_phone_numbers(text)
+        text = self.clean_email_addresses(text)
         return text
 
     def clean_proper_nouns(self, text, replacement="{{NAME}}"):

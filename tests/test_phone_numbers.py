@@ -1,7 +1,5 @@
 import unittest
 
-import scrubadub
-
 from base import BaseTestCase
 
 
@@ -48,8 +46,7 @@ class PhoneNumberTestCase(unittest.TestCase, BaseTestCase):
     def test_multiple_phone_numbers(self):
         # running this through scrubadub.clean replaces 'reached at
         # 312.714.8142' with '{{EMAIL}}'. See issue
-        scrubber = scrubadub.scrubbers.Scrubber()
-        result = scrubber.clean_phone_numbers(
+        result = self.clean(
             u'I can be reached at 312.714.8142 (cell) or 773.415.7432 (office)'
         )
         self.assertEqual(
