@@ -1,6 +1,7 @@
 import re
 
 from textblob import TextBlob
+import phonenumbers
 
 from . import exceptions
 from . import regexps
@@ -22,6 +23,7 @@ class Scrubber(object):
         text = self.clean_proper_nouns(text)
         text = self.clean_email_addresses(text)
         text = self.clean_urls(text)
+        text = self.clean_phone_numbers(text)
         return text
 
     def clean_proper_nouns(self, text, replacement="{{NAME}}"):
@@ -49,7 +51,7 @@ class Scrubber(object):
         dirty ``text``. This method also catches email addresses like ``john at
         gmail.com``.
         """
-        for regex in regexps.EMAIL_REGEXS:
+        for regex in regexps.EMAILS:
             text = regex.sub(replacement, text)
         return text
 
@@ -62,7 +64,7 @@ class Scrubber(object):
         ``http://twitter.com/someone/status/234978haoin`` becomes
         ``http://twitter.com/{{replacement}}``.
         """
-        for match in regexps.URL_REGEX.finditer(text):
+        for match in regexps.URL.finditer(text):
             beg = match.start()
             end = match.end()
             if keep_domain:
@@ -71,3 +73,19 @@ class Scrubber(object):
             if beg < end:
                 text = text.replace(match.string[beg:end], replacement)
         return text
+
+    def clean_phone_numbers(self, text, replacement="{{PHONE}}", region="US"):
+        """Remove phone numbers from dirty dirty ``text`` using
+        `python-phonenumbers
+        <https://github.com/daviddrysdale/python-phonenumbers>`, a port of a
+        Google project to correctly format phone numbers in text.
+
+        ``region`` specifies the best guess region to start with (default:
+        ``"US"``). Specify ``None`` to only consider numbers with a leading
+        ``+`` to be considered.
+        """
+        # create a copy of text to handle multiple phone numbers correctly
+        result = text
+        for match in phonenumbers.PhoneNumberMatcher(text, region):
+            result = result.replace(text[match.start:match.end], replacement)
+        return result

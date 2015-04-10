@@ -16,9 +16,11 @@ text, without comprimising the privacy of the people we are trying to protect.
 
 ``scrubadub`` currently supports removing:
 
-* names
-* email addresses
+* Names (proper nouns) via `textblob <http://textblob.readthedocs.org/en/dev/>`_
+* Email addresses
 * URLs
+* Phone numbers via `phonenumbers
+  <https://github.com/daviddrysdale/python-phonenumbers>`_
 
 
 Quick start
