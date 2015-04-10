@@ -21,8 +21,8 @@ class Scrubber(object):
             raise exceptions.UnicodeRequired
 
         text = self.clean_proper_nouns(text)
-        text = self.clean_email_addresses(text)
         text = self.clean_urls(text)
+        text = self.clean_email_addresses(text)
         text = self.clean_phone_numbers(text)
         return text
 
@@ -51,9 +51,7 @@ class Scrubber(object):
         dirty ``text``. This method also catches email addresses like ``john at
         gmail.com``.
         """
-        for regex in regexps.EMAILS:
-            text = regex.sub(replacement, text)
-        return text
+        return regexps.EMAIL.sub(replacement, text)
 
     def clean_urls(self, text, replacement="{{URL}}", keep_domain=False):
         """Use regular expressions to remove URLs that begin with ``http://``,

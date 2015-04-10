@@ -8,11 +8,18 @@ import re
 # doesn't do that great of a job with people that spell out the
 # hyphenation of their email address, but its a pretty solid start.
 #
-# adapted from http://stackoverflow.com/a/719543/564709
-EMAILS = (
-    re.compile(r'\b[\w\.\+\-]+@[\w\-]+\.[\w\-\.]+\b'),
-    re.compile(r'\b[\w\.\+\-]+ at [\w\-]+\.[\w\-\.]+\b', re.IGNORECASE),
-)
+# adapted from https://gist.github.com/dideler/5219706
+EMAIL = re.compile((
+    "[a-z0-9!#$%&'*+\/=?^_`{|}~-]+"             # start with this character
+    "(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*"      # can have any number of these
+    "(@|\sat\s)"                                # @ or at fanciness
+    "(?:"
+    "[a-z0-9]"                                  # domain starts like this
+    "(?:[a-z0-9-]*[a-z0-9])?"                   # might have this
+    "(\.|\sdot\s)"                              # . or dot fanciness
+    ")+"                                        # repeat as necessary
+    "[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"           # end of domain
+))
 
 # this regular expression is convenient for captures the domain name
 # and the path separately, which is useful for keeping the domain name
