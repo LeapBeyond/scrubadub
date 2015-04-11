@@ -24,6 +24,7 @@ class Scrubber(object):
         text = self.clean_urls(text)
         text = self.clean_phone_numbers(text)
         text = self.clean_email_addresses(text)
+        text = self.clean_credentials(text)
         return text
 
     def clean_proper_nouns(self, text, replacement="{{NAME}}"):
@@ -87,3 +88,23 @@ class Scrubber(object):
         for match in phonenumbers.PhoneNumberMatcher(text, region):
             result = result.replace(text[match.start:match.end], replacement)
         return result
+
+    def clean_credentials(self, text,
+                          username_replacement="{{USERNAME}}",
+                          password_replacement="{{PASSWORD}}"):
+        """Remove username/password combinations from dirty drity ``text``.
+        """
+        position = 0
+        while True:
+            match = regexps.CREDENTIALS.search(text, position)
+            if match:
+                ubeg, uend = match.span('username')
+                pbeg, pend = match.span('password')
+                text = (
+                    text[:ubeg] + username_replacement + text[uend:pbeg] +
+                    password_replacement + text[pend:]
+                )
+                position = match.end()
+            else:
+                break
+        return text

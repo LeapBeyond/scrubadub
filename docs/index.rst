@@ -21,7 +21,7 @@ text, without comprimising the privacy of the people we are trying to protect.
 * URLs
 * Phone numbers via `phonenumbers
   <https://github.com/daviddrysdale/python-phonenumbers>`_
-
+* username / password combinations
 
 Quick start
 -----------
