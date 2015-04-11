@@ -37,3 +37,11 @@ class CredentialsTestCase(unittest.TestCase, BaseTestCase):
         result = self.clean(u'username: joe@example.com\npassword moi')
         self.assertNotIn("joe@example.com", result, 'email username remains "%s"' % result)
         self.assertNotIn("moi", result, 'password remains "%s"' % result)
+
+    def test_alternate_keywords(self):
+        result = self.clean(u'login snoop pw biggreenhat')
+        self.assertEqual(
+            result,
+            u'login {{USERNAME}} pw {{PASSWORD}}',
+            'colonless errors "%s"' % result,
+        )

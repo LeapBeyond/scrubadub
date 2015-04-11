@@ -35,9 +35,9 @@ URL = re.compile(r'''
 ''', re.VERBOSE)
 
 CREDENTIALS = re.compile(r'''
-    username\s*:?\s*               # username might have : and whitespace
+    (username|login)\s*:?\s*       # username might have : and whitespace
     (?P<username>[\w\-\.@+]*)      # capture the username for replacement
     \s+                            # some whitespace between
-    password\s*:?\s*               # password might have : and whitespace
+    (password|pw)\s*:?\s*          # password might have : and whitespace
     (?P<password>.*)               # password can be anything until end of line
 ''', re.MULTILINE | re.VERBOSE)
