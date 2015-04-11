@@ -14,7 +14,7 @@ class CredentialsTestCase(unittest.TestCase, BaseTestCase):
             'root/root combo not working: "%s"' % result,
         )
 
-    def text_whitespaceless(self):
+    def test_whitespaceless(self):
         """sometimes there's no whitespace"""
         result = self.clean(u'username:root\npassword:crickets')
         self.assertEqual(
@@ -23,11 +23,17 @@ class CredentialsTestCase(unittest.TestCase, BaseTestCase):
             'whitepace errors "%s"' % result,
         )
 
-    def text_colonless(self):
+    def test_colonless(self):
         """sometimes there is no colon"""
         result = self.clean(u'username root\npassword crickets')
         self.assertEqual(
             result,
             u'username {{USERNAME}}\npassword {{PASSWORD}}',
-            'whitepace errors "%s"' % result,
+            'colonless errors "%s"' % result,
         )
+
+    def test_email_username(self):
+        """sometimes there is no colon"""
+        result = self.clean(u'username: joe@example.com\npassword moi')
+        self.assertNotIn("joe@example.com", result, 'email username remains "%s"' % result)
+        self.assertNotIn("moi", result, 'password remains "%s"' % result)

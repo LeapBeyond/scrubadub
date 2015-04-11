@@ -20,11 +20,13 @@ class Scrubber(object):
         if not isinstance(text, unicode):
             raise exceptions.UnicodeRequired
 
+        # * phone numbers needs to come before email addresses (#8)
+        # * credentials need to come before email addresses (#9)
         text = self.clean_proper_nouns(text)
         text = self.clean_urls(text)
         text = self.clean_phone_numbers(text)
-        text = self.clean_email_addresses(text)
         text = self.clean_credentials(text)
+        text = self.clean_email_addresses(text)
         return text
 
     def clean_proper_nouns(self, text, replacement="{{NAME}}"):

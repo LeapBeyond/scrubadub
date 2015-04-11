@@ -23,6 +23,9 @@ latest changes in development for next release
 
    * accuracy issues with things like "I can be reached at 312.456.8453" (`#8`_)
 
+  * accuracy issues with usernames that are email addresses (`#9`_)
+
+
 0.1.0
 -----
 
@@ -42,3 +45,4 @@ latest changes in development for next release
 .. _#3: https://github.com/deanmalmgren/scrubadub/issues/3
 .. _#4: https://github.com/deanmalmgren/scrubadub/issues/4
 .. _#8: https://github.com/deanmalmgren/scrubadub/issues/8
+.. _#9: https://github.com/deanmalmgren/scrubadub/issues/9
