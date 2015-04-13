@@ -43,5 +43,13 @@ class CredentialsTestCase(unittest.TestCase, BaseTestCase):
         self.assertEqual(
             result,
             u'login {{USERNAME}} pw {{PASSWORD}}',
-            'colonless errors "%s"' % result,
+            'alternate keyword errors "%s"' % result,
+        )
+
+    def test_camelcase_keywords(self):
+        result = self.clean(u'UserName snoop PassWord biggreenhat')
+        self.assertEqual(
+            result,
+            u'UserName {{USERNAME}} PassWord {{PASSWORD}}',
+            'camel case errors "%s"' % result,
         )

@@ -40,4 +40,4 @@ CREDENTIALS = re.compile(r'''
     \s+                            # some whitespace between
     (password|pw)\s*:?\s*          # password might have : and whitespace
     (?P<password>.*)               # password can be anything until end of line
-''', re.MULTILINE | re.VERBOSE)
+''', re.MULTILINE | re.VERBOSE | re.IGNORECASE)
