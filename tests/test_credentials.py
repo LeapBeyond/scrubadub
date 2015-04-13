@@ -39,11 +39,21 @@ class CredentialsTestCase(unittest.TestCase, BaseTestCase):
         self.assertNotIn("moi", result, 'password remains "%s"' % result)
 
     def test_alternate_keywords(self):
+        """login/pw credential keywords"""
         result = self.clean(u'login snoop pw biggreenhat')
         self.assertEqual(
             result,
             u'login {{USERNAME}} pw {{PASSWORD}}',
             'alternate keyword errors "%s"' % result,
+        )
+
+    def test_singleletter_keywords(self):
+        """u/p credential keywords"""
+        result = self.clean(u'u: snoop\np: biggreenhat')
+        self.assertEqual(
+            result,
+            u'u: {{USERNAME}}\np: {{PASSWORD}}',
+            'single letter keyword errors "%s"' % result,
         )
 
     def test_camelcase_keywords(self):
