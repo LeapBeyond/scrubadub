@@ -34,6 +34,9 @@ URL = re.compile(r'''
     )
 ''', re.VERBOSE)
 
+# this regular expression searches for patterns like "username: root password:
+# root" that tend to occur very frequently in text. This does not currently
+# catch things like "username / password is root / root"
 CREDENTIALS = re.compile(r'''
     (username|login|u:)\s*:?\s*    # username might have : and whitespace
     (?P<username>[\w\-\.@+]*)      # capture the username for replacement
