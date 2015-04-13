@@ -56,6 +56,15 @@ class CredentialsTestCase(unittest.TestCase, BaseTestCase):
             'single letter keyword errors "%s"' % result,
         )
 
+    def test_singleletter_keyword_exceptions(self):
+        """u/p credential keywords exceptions"""
+        result = self.clean(u'This is your problem')
+        self.assertEqual(
+            result,
+            u'This is your problem',
+            'adjascent letters should not be scrubbed "%s"' % result,
+        )
+
     def test_camelcase_keywords(self):
         result = self.clean(u'UserName snoop PassWord biggreenhat')
         self.assertEqual(
