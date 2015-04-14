@@ -1,7 +1,8 @@
 import re
 
-from textblob import TextBlob
+import textblob
 import phonenumbers
+import nltk
 
 from . import exceptions
 from . import regexps
@@ -22,10 +23,12 @@ class Scrubber(object):
 
         # * phone numbers needs to come before email addresses (#8)
         # * credentials need to come before email addresses (#9)
+        # * skype needs to come before email addresses
         text = self.clean_proper_nouns(text)
         text = self.clean_urls(text)
         text = self.clean_phone_numbers(text)
         text = self.clean_credentials(text)
+        text = self.clean_skype(text)
         text = self.clean_email_addresses(text)
         return text
 
@@ -36,7 +39,7 @@ class Scrubber(object):
 
         # find the set of proper nouns using textblob
         proper_nouns = set()
-        blob = TextBlob(text)
+        blob = textblob.TextBlob(text)
         for word, part_of_speech in blob.tags:
             if part_of_speech == "NNP" or part_of_speech == "NNPS":
                 proper_nouns.add(word)
@@ -109,4 +112,48 @@ class Scrubber(object):
                 position = match.end()
             else:
                 break
+        return text
+
+    def clean_skype(self, text, replacement="{{SKYPE}}", word_radius=10):
+        """Skype usernames tend to be used inline in dirty dirty text quite
+        often but also appear as ``skype: {{SKYPE}}`` quite a bit. This method
+        looks at words within ``word_radius`` words of "skype" for things that
+        appear to be misspelled or have punctuation in them as a means to
+        identify skype usernames.
+
+        Default ``word_radius`` is 10, corresponding with the rough scale of
+        half of a sentence before or after the word "skype" is used. Increasing
+        the ``word_radius`` will increase the false positive rate and decreasing
+        the ``word_radius`` will increase the false negative rate.
+        """
+
+        # find 'skype' in the text using a customized tokenizer. this makes sure
+        # that all valid skype usernames are kept as tokens and not split into
+        # different words
+        tokenizer = nltk.tokenize.regexp.RegexpTokenizer(regexps.SKYPE_TOKEN)
+        blob = textblob.TextBlob(text, tokenizer=tokenizer)
+        skype_indices, tokens = [], []
+        for i, token in enumerate(blob.tokens):
+            tokens.append(token)
+            if 'skype' in token.lower():
+                skype_indices.append(i)
+
+        # go through the words before and after skype words to identify
+        # potential skype usernames.
+        skype_usernames = []
+        for i in skype_indices:
+            jmin = max(i-word_radius, 0)
+            jmax = min(i+word_radius+1, len(tokens))
+            for j in range(jmin, i) + range(i+1, jmax):
+                token = tokens[j]
+                if regexps.SKYPE_USERNAME.match(token):
+                    word = textblob.Word(token)
+                    for corrected_word, score in word.spellcheck():
+                        if score < 0.5:
+                            skype_usernames.append(token)
+
+        # replace all skype usernames
+        for skype_username in skype_usernames:
+            text = text.replace(skype_username, replacement)
+
         return text

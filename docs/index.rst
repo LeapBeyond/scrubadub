@@ -22,6 +22,7 @@ text, without comprimising the privacy of the people we are trying to protect.
 * Phone numbers via `phonenumbers
   <https://github.com/daviddrysdale/python-phonenumbers>`_
 * username / password combinations
+* Skype usernames
 
 Quick start
 -----------

@@ -11,6 +11,8 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+* added skype username scrubbing (`#10`_)
+
 * added username/password scrubbing (`#4`_)
 
 * added phone number scrubbing (`#3`_)
@@ -21,7 +23,7 @@ latest changes in development for next release
 
 * several bug fixes, including:
 
-   * accuracy issues with things like "I can be reached at 312.456.8453" (`#8`_)
+  * accuracy issues with things like "I can be reached at 312.456.8453" (`#8`_)
 
   * accuracy issues with usernames that are email addresses (`#9`_)
 
@@ -46,3 +48,4 @@ latest changes in development for next release
 .. _#4: https://github.com/deanmalmgren/scrubadub/issues/4
 .. _#8: https://github.com/deanmalmgren/scrubadub/issues/8
 .. _#9: https://github.com/deanmalmgren/scrubadub/issues/9
+.. _#10: https://github.com/deanmalmgren/scrubadub/issues/10
