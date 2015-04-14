@@ -32,3 +32,10 @@ class SkypeTestCase(unittest.TestCase, BaseTestCase):
         AFTER:  skype: {{SKYPE}}\nnerd
         """
         self.compare_before_after()
+
+    def test_skype_addition(self):
+        """
+        BEFORE: I have added you on Skype. My ID is dean.malmgren
+        AFTER:  I have added you on Skype. My ID is {{SKYPE}}
+        """
+        self.compare_before_after()
