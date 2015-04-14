@@ -39,3 +39,18 @@ class SkypeTestCase(unittest.TestCase, BaseTestCase):
         AFTER:  I have added you on Skype. My ID is {{SKYPE}}
         """
         self.compare_before_after()
+
+    def test_skype_usernames(self):
+        """test different skype username formats"""
+        usernames = (
+            "joecool",
+            "joe,cool",
+            "joe.cool",
+            "joe-cool",
+        )
+        docstring_template ="""
+        BEFORE: My Skype is %s
+        AFTER:  My Skype is {{SKYPE}}
+        """
+        for username in usernames:
+            self.compare_before_after(docstring_template % username)
