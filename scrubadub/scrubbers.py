@@ -126,13 +126,13 @@ class Scrubber(object):
 
         Default ``word_radius`` is 10, corresponding with the rough scale of
         half of a sentence before or after the word "skype" is used. Increasing
-        the ``word_radius`` will increase the false positive rate and decreasing
-        the ``word_radius`` will increase the false negative rate.
+        the ``word_radius`` will increase the false positive rate and
+        decreasing the ``word_radius`` will increase the false negative rate.
         """
 
-        # find 'skype' in the text using a customized tokenizer. this makes sure
-        # that all valid skype usernames are kept as tokens and not split into
-        # different words
+        # find 'skype' in the text using a customized tokenizer. this makes
+        # sure that all valid skype usernames are kept as tokens and not split
+        # into different words
         tokenizer = nltk.tokenize.regexp.RegexpTokenizer(regexps.SKYPE_TOKEN)
         blob = textblob.TextBlob(text, tokenizer=tokenizer)
         skype_indices, tokens = [], []
