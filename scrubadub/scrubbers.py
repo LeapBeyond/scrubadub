@@ -37,11 +37,14 @@ class Scrubber(object):
         dirty ``text``.
         """
 
-        # find the set of proper nouns using textblob
+        # find the set of proper nouns using textblob. disallowed_nouns is a
+        # workaround to make sure that downstream processing works correctly
+        disallowed_nouns = set(["skype"])
         proper_nouns = set()
         blob = textblob.TextBlob(text)
         for word, part_of_speech in blob.tags:
-            if part_of_speech == "NNP" or part_of_speech == "NNPS":
+            is_proper_noun = part_of_speech in ("NNP", "NNPS")
+            if is_proper_noun and word.lower() not in disallowed_nouns:
                 proper_nouns.add(word)
 
         # use a regex to replace the proper nouns by first escaping any
