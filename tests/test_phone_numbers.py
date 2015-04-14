@@ -5,17 +5,21 @@ from base import BaseTestCase
 
 class PhoneNumberTestCase(unittest.TestCase, BaseTestCase):
 
-    def _test_phone_numbers(self, *phone_numbers):
+    def create_docstring(self, phone_number):
+        return """
+        BEFORE: My phone number is %s
+        AFTER:  My phone number is {{PHONE}}
+        """ % phone_number
+
+    def check_phone_numbers(self, *phone_numbers):
         for phone_number in phone_numbers:
-            self.assertEqual(
-                self.clean(u'My phone number is %s' % phone_number),
-                u'My phone number is {{PHONE}}',
-                'missing phone number "%s"' % phone_number,
+            self.compare_before_after(
+                docstring=self.create_docstring(phone_number),
             )
 
     def test_american_phone_number(self):
         """test american-style phone numbers"""
-        self._test_phone_numbers(
+        self.check_phone_numbers(
             '1-312-515-2239',
             '+1-312-515-2239',
             '1 (312) 515-2239',
@@ -26,7 +30,7 @@ class PhoneNumberTestCase(unittest.TestCase, BaseTestCase):
 
     def test_extension_phone_numbers(self):
         """test phone numbers with extensions"""
-        self._test_phone_numbers(
+        self.check_phone_numbers(
             '312-515-2239 x12',
             '312-515-2239 ext. 12',
             '312-515-2239 ext.12',
@@ -34,7 +38,7 @@ class PhoneNumberTestCase(unittest.TestCase, BaseTestCase):
 
     def test_international_phone_numbers(self):
         """test international phone numbers"""
-        self._test_phone_numbers(
+        self.check_phone_numbers(
             '+47 21 30 85 99',
             '+45 69 19 88 56',
             '+46 852 503 499',

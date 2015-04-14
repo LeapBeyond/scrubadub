@@ -6,31 +6,25 @@ from base import BaseTestCase
 class CredentialsTestCase(unittest.TestCase, BaseTestCase):
 
     def test_root_root_combo(self):
-        """username/password often split across adjacent lines"""
-        result = self.clean(u'username: root\npassword: root\n\n')
-        self.assertEqual(
-            result,
-            u'username: {{USERNAME}}\npassword: {{PASSWORD}}\n\n',
-            'root/root combo not working: "%s"' % result,
-        )
+        """
+        BEFORE: username: root\npassword: root\n\n
+        AFTER:  username: {{USERNAME}}\npassword: {{PASSWORD}}\n\n
+        """
+        self.compare_before_after()
 
     def test_whitespaceless(self):
-        """sometimes there's no whitespace"""
-        result = self.clean(u'username:root\npassword:crickets')
-        self.assertEqual(
-            result,
-            u'username:{{USERNAME}}\npassword:{{PASSWORD}}',
-            'whitepace errors "%s"' % result,
-        )
+        """
+        BEFORE: username:root\npassword:crickets
+        AFTER:  username:{{USERNAME}}\npassword:{{PASSWORD}}
+        """
+        self.compare_before_after()
 
     def test_colonless(self):
-        """sometimes there is no colon"""
-        result = self.clean(u'username root\npassword crickets')
-        self.assertEqual(
-            result,
-            u'username {{USERNAME}}\npassword {{PASSWORD}}',
-            'colonless errors "%s"' % result,
-        )
+        """
+        BEFORE: username root\npassword crickets
+        AFTER:  username {{USERNAME}}\npassword {{PASSWORD}}
+        """
+        self.compare_before_after()
 
     def test_email_username(self):
         """sometimes there is no colon"""
@@ -39,36 +33,30 @@ class CredentialsTestCase(unittest.TestCase, BaseTestCase):
         self.assertNotIn("moi", result, 'password remains "%s"' % result)
 
     def test_alternate_keywords(self):
-        """login/pw credential keywords"""
-        result = self.clean(u'login snoop pw biggreenhat')
-        self.assertEqual(
-            result,
-            u'login {{USERNAME}} pw {{PASSWORD}}',
-            'alternate keyword errors "%s"' % result,
-        )
+        """
+        BEFORE: login snoop pw biggreenhat
+        AFTER:  login {{USERNAME}} pw {{PASSWORD}}
+        """
+        self.compare_before_after()
 
     def test_singleletter_keywords(self):
-        """u/p credential keywords"""
-        result = self.clean(u'u: snoop\np: biggreenhat')
-        self.assertEqual(
-            result,
-            u'u: {{USERNAME}}\np: {{PASSWORD}}',
-            'single letter keyword errors "%s"' % result,
-        )
+        """
+        BEFORE: u: snoop\np: biggreenhat
+        AFTER:  u: {{USERNAME}}\np: {{PASSWORD}}
+        """
+        self.compare_before_after()
 
     def test_singleletter_keyword_exceptions(self):
-        """u/p credential keywords exceptions"""
-        result = self.clean(u'This is your problem')
-        self.assertEqual(
-            result,
-            u'This is your problem',
-            'adjascent letters should not be scrubbed "%s"' % result,
-        )
+        """Make sure that the single letter keywords do not make mistakes
+
+        BEFORE: This is your problem
+        AFTER:  This is your problem
+        """
+        self.compare_before_after()
 
     def test_camelcase_keywords(self):
-        result = self.clean(u'UserName snoop PassWord biggreenhat')
-        self.assertEqual(
-            result,
-            u'UserName {{USERNAME}} PassWord {{PASSWORD}}',
-            'camel case errors "%s"' % result,
-        )
+        """
+        BEFORE: UserName snoop PassWord biggreenhat
+        AFTER:  UserName {{USERNAME}} PassWord {{PASSWORD}}
+        """
+        self.compare_before_after()

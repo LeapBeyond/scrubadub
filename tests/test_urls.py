@@ -8,44 +8,40 @@ from base import BaseTestCase
 class UrlTestCase(unittest.TestCase, BaseTestCase):
 
     def test_http(self):
-        """http:// should be replaced"""
-        self.assertEqual(
-            self.clean(u'http://bit.ly/aser is neat'),
-            u'{{URL}} is neat',
-            'http url is not replaced with {{URL}}',
-        )
+        """
+        BEFORE: http://bit.ly/aser is neat
+        AFTER:  {{URL}} is neat
+        """
+        self.compare_before_after()
 
     def test_https(self):
-        """https:// should be replaced"""
-        self.assertEqual(
-            self.clean(u'https://bit.ly/aser is neat'),
-            u'{{URL}} is neat',
-            'http url is not replaced with {{URL}}',
-        )
+        """
+        BEFORE: https://bit.ly/aser is neat
+        AFTER:  {{URL}} is neat
+        """
+        self.compare_before_after()
 
     def test_www(self):
-        """www. should be replaced"""
-        self.assertEqual(
-            self.clean(u'www.bit.ly/aser is neat'),
-            u'{{URL}} is neat',
-            'http url is not replaced with {{URL}}',
-        )
+        """
+        BEFORE: www.bit.ly/aser is neat
+        AFTER:  {{URL}} is neat
+        """
+        self.compare_before_after()
+
 
     def test_long_url(self):
-        """long url with query string and hash"""
-        self.assertEqual(
-           self.clean(u'https://this.is/a/long?url=very#url is good'),
-           u'{{URL}} is good',
-           "long urls aren't working properly"
-        )
+        """
+        BEFORE: https://this.is/a/long?url=very#url is good
+        AFTER:  {{URL}} is good
+        """
+        self.compare_before_after()
 
     def test_two_urls(self):
-        """does this work with two URLs"""
-        self.assertEqual(
-           self.clean(u'http://bit.ly/number-one http://www.google.com/two'),
-           u'{{URL}} {{URL}}',
-           "multiple URLs aren't working properly",
-        )
+        """
+        BEFORE: http://bit.ly/number-one http://www.google.com/two
+        AFTER:  {{URL}} {{URL}}
+        """
+        self.compare_before_after()
 
     def test_keep_domain(self):
         """keep_domain test with non-empty path"""
