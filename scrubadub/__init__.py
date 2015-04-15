@@ -3,7 +3,7 @@
 from .scrubbers import Scrubber
 
 
-__version__ = VERSION = "0.0.1"
+__version__ = VERSION = "0.1.0"
 
 
 def clean_with_placeholders(text, cls=None):

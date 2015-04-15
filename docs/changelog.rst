@@ -11,6 +11,11 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+
+
+0.1.0
+-----
+
 * added skype username scrubbing (`#10`_)
 
 * added username/password scrubbing (`#4`_)
@@ -28,7 +33,7 @@ latest changes in development for next release
   * accuracy issues with usernames that are email addresses (`#9`_)
 
 
-0.1.0
+0.0.1
 -----
 
 * initial release, ported from past projects
