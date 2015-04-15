@@ -54,3 +54,10 @@ class SkypeTestCase(unittest.TestCase, BaseTestCase):
         """
         for username in usernames:
             self.compare_before_after(docstring_template % username)
+
+    def test_all_caps_words_nearby(self):
+        """
+        BEFORE: SCREAM to get my attention on Skype (dean.malmgren)
+        AFTER:  SCREAM to get my attention on Skype ({{SKYPE}})
+        """
+        self.compare_before_after()

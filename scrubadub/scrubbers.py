@@ -64,7 +64,7 @@ class Scrubber(object):
 
     def clean_urls(self, text, replacement="{{URL}}", keep_domain=False):
         """Use regular expressions to remove URLs that begin with ``http://``,
-        `https://`` or ``www.`` from dirty dirty ``text``.
+        ``https://`` or ``www.`` from dirty dirty ``text``.
 
         With ``keep_domain=True``, this method only obfuscates the path on a
         URL, not its domain. For example,
@@ -84,7 +84,7 @@ class Scrubber(object):
     def clean_phone_numbers(self, text, replacement="{{PHONE}}", region="US"):
         """Remove phone numbers from dirty dirty ``text`` using
         `python-phonenumbers
-        <https://github.com/daviddrysdale/python-phonenumbers>`, a port of a
+        <https://github.com/daviddrysdale/python-phonenumbers>`_, a port of a
         Google project to correctly format phone numbers in text.
 
         ``region`` specifies the best guess region to start with (default:
@@ -150,10 +150,19 @@ class Scrubber(object):
             for j in range(jmin, i) + range(i+1, jmax):
                 token = tokens[j]
                 if regexps.SKYPE_USERNAME.match(token):
+
+                    # this token is a valid skype username. Most skype
+                    # usernames appear to be misspelled words. Word.spellcheck
+                    # does not handle the situation of an all caps word very
+                    # well, so we cast these to all lower case before checking
+                    # whether the word is misspelled
+                    if token.isupper():
+                        token = token.lower()
                     word = textblob.Word(token)
-                    for corrected_word, score in word.spellcheck():
-                        if score < 0.5:
-                            skype_usernames.append(token)
+                    suggestions = word.spellcheck()
+                    corrected_word, score = suggestions[0]
+                    if score < 0.5:
+                        skype_usernames.append(token)
 
         # replace all skype usernames
         for skype_username in skype_usernames:
