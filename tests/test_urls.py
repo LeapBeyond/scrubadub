@@ -7,6 +7,17 @@ from base import BaseTestCase
 
 class UrlTestCase(unittest.TestCase, BaseTestCase):
 
+    def check_keep_domain(self):
+        """convenience method for runnint tests with the keep_domain kwarg"""
+        before, after = self.get_before_after()
+        scrubber = scrubadub.scrubbers.Scrubber()
+        result = scrubber.clean_urls(
+            before,
+            replacement="path/to/something",
+            keep_domain=True,
+        )
+        self.check_equal(after, result)
+
     def test_http(self):
         """
         BEFORE: http://bit.ly/aser is neat
@@ -43,22 +54,23 @@ class UrlTestCase(unittest.TestCase, BaseTestCase):
         """
         self.compare_before_after()
 
+    def test_path_word_in_sentence(self):
+        """
+        BEFORE: Find jobs at http://facebook.com/jobs
+        AFTER:  Find jobs at http://facebook.com/path/to/something
+        """
+        self.check_keep_domain()
+
     def test_keep_domain(self):
-        """keep_domain test with non-empty path"""
-        scrubber = scrubadub.scrubbers.Scrubber()
-        url = u'http://public.com/path/to/something/private'
-        self.assertEqual(
-            scrubber.clean_urls(url, replacement="{{PATH}}", keep_domain=True),
-            u'http://public.com/{{PATH}}',
-            'scrubber not replacing url path properly',
-        )
+        """
+        BEFORE: http://public.com/this/is/very/private
+        AFTER:  http://public.com/path/to/something
+        """
+        self.check_keep_domain()
 
     def test_keep_domain_empty_path(self):
-        """keep_domain test with empty path"""
-        scrubber = scrubadub.scrubbers.Scrubber()
-        url = u'http://public.com/'
-        self.assertEqual(
-            scrubber.clean_urls(url, replacement="{{PATH}}", keep_domain=True),
-            url,
-            'scrubber with keep_domain is not handling an empty path well'
-        )
+        """
+        BEFORE: http://public.com/
+        AFTER:  http://public.com/path/to/something
+        """
+        self.check_keep_domain()

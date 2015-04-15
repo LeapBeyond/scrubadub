@@ -10,27 +10,36 @@ class BaseTestCase(object):
     def clean(self, text):
         return scrubadub.clean_with_placeholders(text)
 
-    def compare_before_after(self, docstring=None):
-        """This is a convenience method to make it easy to write tests without
-        copy-pasting a lot of code. This method checks to make sure the BEFORE:
-        text in the calling method's docstring matches the AFTER: text in the
-        calling method's docstring.
+    def get_before_after(self, docstring=None):
+        """Recursively parse the docstrings of methods that are called in the
+        stack to find the docstring that has been used to define the test.
         """
         # get the before and after outcomes from the docstring of the method
         # that calls compare_before_after
         if docstring is None:
             stack = inspect.stack()
-            calling_function_name = stack[1][3]
-            docstring = getattr(self, calling_function_name).__doc__
+            for frame in inspect.stack():
+                calling_function_name = frame[3]
+                _docstring = getattr(self, calling_function_name).__doc__
+                if "BEFORE:" in _docstring and "AFTER:" in _docstring:
+                    docstring = _docstring
+                    break
         before, after = docstring.split("BEFORE:")[1].split("AFTER:")
-        before = unicode(before.strip())
-        after = unicode(after.strip())
+        return unicode(before.strip()), unicode(after.strip())
 
-       # run a test to make sure the before string is the same as the after
-       # string
-        result = self.clean(before)
+    def check_equal(self, expected, actual):
+        """This method makes it easy to give useful error messages when running
+        nosetests
+        """
         self.assertEqual(
-            result,
-            after,
-            '\nEXPECTED:\n"%s"\n\nBUT GOT THIS:\n"%s"'%(after, result),
+            actual,
+            expected,
+            '\nEXPECTED:\n"%s"\n\nBUT GOT THIS:\n"%s"'%(expected, actual),
         )
+
+    def compare_before_after(self, docstring=None):
+        """Convenience method for quickly writing tests using the BEFORE and
+        AFTER keywords to parse the docstring.
+        """
+        before, after = self.get_before_after(docstring=docstring)
+        self.check_equal(after, self.clean(before))

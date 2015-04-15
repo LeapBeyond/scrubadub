@@ -75,10 +75,10 @@ class Scrubber(object):
             beg = match.start()
             end = match.end()
             if keep_domain:
-                domain = match.group('domain')
-                beg += len(domain)
-            if beg < end:
-                text = text.replace(match.string[beg:end], replacement)
+                rep = match.group('domain') + replacement
+            else:
+                rep = replacement
+            text = text.replace(match.string[beg:end], rep)
         return text
 
     def clean_phone_numbers(self, text, replacement="{{PHONE}}", region="US"):
