@@ -13,6 +13,39 @@ class Scrubber(object):
     dirty dirty text.
     """
 
+    def __init__(self, **kwargs):
+        super(Scrubber, self).__init__()
+        self.configure(**kwargs)
+
+    def configure(self, **kwargs):
+        """The configure method sets up all of the scrubber options.
+
+        TKTK SHOULD PROBABLY ADD A USEFUL DESCRIPTION IN THE DOCUMENTATION
+        SOMEWHERE ABOUT THE DIFFERENT CONFIGURATION OPTIONS. THESE
+        DOCUMENTATION CHANGES SHOULD PROPAGATE TO ALL METHODS, TOO
+        """
+
+        # get all of the replacement names
+        self.proper_noun_replacement = \
+            kwargs.get('proper_noun_replacement', "{{NAME}}")
+        self.email_replacement = \
+            kwargs.get('email_replacement', "{{EMAIL}}")
+        self.url_replacement = \
+            kwargs.get('url_replacement', "{{URL}}")
+        self.phone_replacement = \
+            kwargs.get('phone_replacement', "{{PHONE}}")
+        self.username_replacement = \
+            kwargs.get('username_replacement', "{{USERNAME}}")
+        self.password_replacement = \
+            kwargs.get('password_replacement', "{{PASSWORD}}")
+        self.skype_replacement = \
+            kwargs.get('skype_replacement', "{{SKYPE}}")
+
+        # other options for different scrubber methods
+        self.url_keep_domain = kwargs.get('url_keep_domain', False)
+        self.phone_region = kwargs.get('phone_region', "US")
+        self.skype_word_radius = kwargs.get('skype_word_radius', 10)
+
     def clean_with_placeholders(self, text):
         """This is the master method that cleans all of the filth out of the
         dirty dirty ``text`` using the default options for all of the other
@@ -32,7 +65,7 @@ class Scrubber(object):
         text = self.clean_email_addresses(text)
         return text
 
-    def clean_proper_nouns(self, text, replacement="{{NAME}}"):
+    def clean_proper_nouns(self, text):
         """Use part of speech tagging to clean proper nouns out of the dirty
         dirty ``text``.
         """
@@ -52,17 +85,17 @@ class Scrubber(object):
         # http://stackoverflow.com/a/4202559/564709
         for proper_noun in proper_nouns:
             proper_noun_re = r'\b' + re.escape(proper_noun) + r'\b'
-            text = re.sub(proper_noun_re, replacement, text)
+            text = re.sub(proper_noun_re, self.proper_noun_replacement, text)
         return text
 
-    def clean_email_addresses(self, text, replacement="{{EMAIL}}"):
+    def clean_email_addresses(self, text):
         """Use regular expression magic to remove email addresses from dirty
         dirty ``text``. This method also catches email addresses like ``john at
         gmail.com``.
         """
-        return regexps.EMAIL.sub(replacement, text)
+        return regexps.EMAIL.sub(self.email_replacement, text)
 
-    def clean_urls(self, text, replacement="{{URL}}", keep_domain=False):
+    def clean_urls(self, text):
         """Use regular expressions to remove URLs that begin with ``http://``,
         ``https://`` or ``www.`` from dirty dirty ``text``.
 
@@ -74,14 +107,14 @@ class Scrubber(object):
         for match in regexps.URL.finditer(text):
             beg = match.start()
             end = match.end()
-            if keep_domain:
-                rep = match.group('domain') + replacement
+            if self.url_keep_domain:
+                replacement = match.group('domain') + self.url_replacement
             else:
-                rep = replacement
-            text = text.replace(match.string[beg:end], rep)
+                replacement = self.url_replacement
+            text = text.replace(match.string[beg:end], replacement)
         return text
 
-    def clean_phone_numbers(self, text, replacement="{{PHONE}}", region="US"):
+    def clean_phone_numbers(self, text):
         """Remove phone numbers from dirty dirty ``text`` using
         `python-phonenumbers
         <https://github.com/daviddrysdale/python-phonenumbers>`_, a port of a
@@ -93,13 +126,14 @@ class Scrubber(object):
         """
         # create a copy of text to handle multiple phone numbers correctly
         result = text
-        for match in phonenumbers.PhoneNumberMatcher(text, region):
-            result = result.replace(text[match.start:match.end], replacement)
+        for match in phonenumbers.PhoneNumberMatcher(text, self.phone_region):
+            result = result.replace(
+                text[match.start:match.end],
+                self.phone_replacement,
+            )
         return result
 
-    def clean_credentials(self, text,
-                          username_replacement="{{USERNAME}}",
-                          password_replacement="{{PASSWORD}}"):
+    def clean_credentials(self, text):
         """Remove username/password combinations from dirty drity ``text``.
         """
         position = 0
@@ -109,15 +143,15 @@ class Scrubber(object):
                 ubeg, uend = match.span('username')
                 pbeg, pend = match.span('password')
                 text = (
-                    text[:ubeg] + username_replacement + text[uend:pbeg] +
-                    password_replacement + text[pend:]
+                    text[:ubeg] + self.username_replacement + text[uend:pbeg] +
+                    self.password_replacement + text[pend:]
                 )
                 position = match.end()
             else:
                 break
         return text
 
-    def clean_skype(self, text, replacement="{{SKYPE}}", word_radius=10):
+    def clean_skype(self, text):
         """Skype usernames tend to be used inline in dirty dirty text quite
         often but also appear as ``skype: {{SKYPE}}`` quite a bit. This method
         looks at words within ``word_radius`` words of "skype" for things that
@@ -145,8 +179,8 @@ class Scrubber(object):
         # potential skype usernames.
         skype_usernames = []
         for i in skype_indices:
-            jmin = max(i-word_radius, 0)
-            jmax = min(i+word_radius+1, len(tokens))
+            jmin = max(i-self.skype_word_radius, 0)
+            jmax = min(i+self.skype_word_radius+1, len(tokens))
             for j in range(jmin, i) + range(i+1, jmax):
                 token = tokens[j]
                 if regexps.SKYPE_USERNAME.match(token):
@@ -166,6 +200,6 @@ class Scrubber(object):
 
         # replace all skype usernames
         for skype_username in skype_usernames:
-            text = text.replace(skype_username, replacement)
+            text = text.replace(skype_username, self.skype_replacement)
 
         return text

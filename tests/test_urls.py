@@ -10,12 +10,11 @@ class UrlTestCase(unittest.TestCase, BaseTestCase):
     def check_keep_domain(self):
         """convenience method for runnint tests with the keep_domain kwarg"""
         before, after = self.get_before_after()
-        scrubber = scrubadub.scrubbers.Scrubber()
-        result = scrubber.clean_urls(
-            before,
-            replacement="path/to/something",
-            keep_domain=True,
+        scrubber = scrubadub.scrubbers.Scrubber(
+            url_replacement="path/to/something",
+            url_keep_domain=True,
         )
+        result = scrubber.clean_with_placeholders(before)
         self.check_equal(after, result)
 
     def test_http(self):
