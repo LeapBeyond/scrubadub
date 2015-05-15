@@ -5,7 +5,7 @@ import phonenumbers
 import nltk
 
 from . import exceptions
-from . import regexps
+from . import filth
 
 
 class Scrubber(object):
@@ -13,38 +13,14 @@ class Scrubber(object):
     dirty dirty text.
     """
 
-    def __init__(self, **kwargs):
-        super(Scrubber, self).__init__()
-        self.configure(**kwargs)
-
-    def configure(self, **kwargs):
-        """The configure method sets up all of the scrubber options.
-
-        TKTK SHOULD PROBABLY ADD A USEFUL DESCRIPTION IN THE DOCUMENTATION
-        SOMEWHERE ABOUT THE DIFFERENT CONFIGURATION OPTIONS. THESE
-        DOCUMENTATION CHANGES SHOULD PROPAGATE TO ALL METHODS, TOO
-        """
-
-        # get all of the replacement names
-        self.proper_noun_replacement = \
-            kwargs.get('proper_noun_replacement', "{{NAME}}")
-        self.email_replacement = \
-            kwargs.get('email_replacement', "{{EMAIL}}")
-        self.url_replacement = \
-            kwargs.get('url_replacement', "{{URL}}")
-        self.phone_replacement = \
-            kwargs.get('phone_replacement', "{{PHONE}}")
-        self.username_replacement = \
-            kwargs.get('username_replacement', "{{USERNAME}}")
-        self.password_replacement = \
-            kwargs.get('password_replacement', "{{PASSWORD}}")
-        self.skype_replacement = \
-            kwargs.get('skype_replacement', "{{SKYPE}}")
-
-        # other options for different scrubber methods
-        self.url_keep_domain = kwargs.get('url_keep_domain', False)
-        self.phone_region = kwargs.get('phone_region', "US")
-        self.skype_word_radius = kwargs.get('skype_word_radius', 10)
+    # these things can be overridden to have different behavior for how each
+    # Filth class detects grossness and handles the replacement
+    name_filth_cls = filth.NameFilth
+    email_filth_cls = filth.EmailFilth
+    url_filth_cls = filth.UrlFilth
+    phone_filth_cls = filth.PhoneFilth
+    credential_filth_cls = filth.CredentialFilth
+    skype_filth_cls = filth.SkypeFilth
 
     def clean_with_placeholders(self, text):
         """This is the master method that cleans all of the filth out of the
@@ -54,16 +30,35 @@ class Scrubber(object):
         if not isinstance(text, unicode):
             raise exceptions.UnicodeRequired
 
-        # * phone numbers needs to come before email addresses (#8)
-        # * credentials need to come before email addresses (#9)
-        # * skype needs to come before email addresses
-        text = self.clean_proper_nouns(text)
-        text = self.clean_urls(text)
-        text = self.clean_phone_numbers(text)
-        text = self.clean_credentials(text)
-        text = self.clean_skype(text)
-        text = self.clean_email_addresses(text)
-        return text
+        clean_chunks = []
+        last_filth = filth.Filth()
+        for filth in self.iter_filth(text):
+            clean_chunks.append(text[last_filth.end:filth.beg])
+            clean_chunks.append(filth.get_placeholder())
+            last_filth = filth
+        clean_chunks.append(text[filth.end:])
+        return 'u'.join(clean_chunks)
+
+    def iter_filth(self, text):
+        """iterate over the different types of filth that can exist
+        """
+        # still not exactly clear on how this would work
+
+        # PROBLEM: Filth objects were intended to contain the sensitive
+        # information, but its clear that we need something that is responsible
+        # for detecting each type of filth independently. maybe we need a
+        # scrubber for each type of filth (e.g. UrlScrubber)? A UrlScrubber
+        # would yield UrlFilth. UrlScrubber knows how to find UrlFilth and a
+        # UrlFilth object knows how to generate replacements.
+        #
+        # How do we customize the behavior then?
+        self.name_filth = self.name_filth_cls(text)
+        self.email_filth = self.email_filth_cls(text)
+        self.url_filth = self.url_filth_cls(text)
+        self.phone_filth = self.phone_filth_cls(text)
+        self.credential_filth = self.credential_filth_cls(text)
+        self.skype_filth = self.skype_filth_cls(text)
+
 
     def clean_proper_nouns(self, text):
         """Use part of speech tagging to clean proper nouns out of the dirty
