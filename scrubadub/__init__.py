@@ -1,7 +1,8 @@
 
 # convenient imports
 from .scrubbers import Scrubber
-
+from . import filth
+from . import detectors
 
 __version__ = VERSION = "0.1.0"
 
