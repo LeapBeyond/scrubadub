@@ -1,12 +1,13 @@
 import re
+import operator
 
 import textblob
 import phonenumbers
 import nltk
 
 from . import exceptions
-from . import filth
 from . import detectors
+from .filth import Filth
 
 
 class Scrubber(object):
@@ -33,13 +34,13 @@ class Scrubber(object):
             raise exceptions.UnicodeRequired
 
         clean_chunks = []
-        last_filth = filth.Filth()
+        last_filth = Filth()
         for filth in self.iter_filth(text):
             clean_chunks.append(text[last_filth.end:filth.beg])
             clean_chunks.append(filth.replace_with(**kwargs))
             last_filth = filth
         clean_chunks.append(text[filth.end:])
-        return 'u'.join(clean_chunks)
+        return u''.join(clean_chunks)
 
     def iter_filth(self, text):
         """Iterate over the different types of filth that can exist.
@@ -55,8 +56,11 @@ class Scrubber(object):
         all_filths = []
         for detector in self.detectors.itervalues():
             for filth in detector.iter_filth(text):
+                # TEST: make sure that this always returns a FILTH object
                 all_filths.append(filth)
-        all_filths.sort(key='beg') # TODO: DOES THIS WORK OUT OF THE BOX?!?!
+        # sorting this inline instead of with a Filth.__cmp__ method, which is
+        # apparently much slower http://stackoverflow.com/a/988728/564709
+        all_filths.sort(key=operator.attrgetter("beg"))
 
         # need to merge any overlapping filth.
         #
@@ -70,29 +74,6 @@ class Scrubber(object):
             else:
                 filth = filth.merge(next_filth)
         yield filth
-
-    def clean_proper_nouns(self, text):
-        """Use part of speech tagging to clean proper nouns out of the dirty
-        dirty ``text``.
-        """
-
-        # find the set of proper nouns using textblob. disallowed_nouns is a
-        # workaround to make sure that downstream processing works correctly
-        disallowed_nouns = set(["skype"])
-        proper_nouns = set()
-        blob = textblob.TextBlob(text)
-        for word, part_of_speech in blob.tags:
-            is_proper_noun = part_of_speech in ("NNP", "NNPS")
-            if is_proper_noun and word.lower() not in disallowed_nouns:
-                proper_nouns.add(word)
-
-        # use a regex to replace the proper nouns by first escaping any
-        # lingering punctuation in the regex
-        # http://stackoverflow.com/a/4202559/564709
-        for proper_noun in proper_nouns:
-            proper_noun_re = r'\b' + re.escape(proper_noun) + r'\b'
-            text = re.sub(proper_noun_re, self.proper_noun_replacement, text)
-        return text
 
     def clean_email_addresses(self, text):
         """Use regular expression magic to remove email addresses from dirty
