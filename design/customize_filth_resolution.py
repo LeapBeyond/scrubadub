@@ -19,6 +19,7 @@ class MyScrubber(scrubadub.Scrubber):
 
 # these methods on a Scrubber object should have identical behavior to the
 # scrubadub.clean convenience function
+scrubber = MyScrubber()
 scrubber.clean(text)
 scrubber.clean(text, replace_with="placeholder")
 scrubber.clean(text, replace_with="identifier")

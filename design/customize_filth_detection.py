@@ -11,7 +11,7 @@ import scrubadub
 
 # fine-tune how scrubadub detects names and omit product names
 # https://github.com/deanmalmgren/scrubadub/issues/6
-class MyNameDetector(scrubadub.dectectors.NameDetector):
+class MyNameDetector(scrubadub.detectors.NameDetector):
     def iter_filth(self, text):
         for filth in super(MyNameDetector, self).iter_filth(text):
             if filth != "iPhone":
