@@ -1,7 +1,3 @@
-import re
-
-import textblob
-
 from .base import RegexDetector
 from ..filth import UrlFilth
 
