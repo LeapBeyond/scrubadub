@@ -2,7 +2,6 @@ import re
 import operator
 
 import textblob
-import phonenumbers
 import nltk
 
 from . import exceptions
@@ -74,25 +73,6 @@ class Scrubber(object):
             else:
                 filth = filth.merge(next_filth)
         yield filth
-
-    def clean_phone_numbers(self, text):
-        """Remove phone numbers from dirty dirty ``text`` using
-        `python-phonenumbers
-        <https://github.com/daviddrysdale/python-phonenumbers>`_, a port of a
-        Google project to correctly format phone numbers in text.
-
-        ``region`` specifies the best guess region to start with (default:
-        ``"US"``). Specify ``None`` to only consider numbers with a leading
-        ``+`` to be considered.
-        """
-        # create a copy of text to handle multiple phone numbers correctly
-        result = text
-        for match in phonenumbers.PhoneNumberMatcher(text, self.phone_region):
-            result = result.replace(
-                text[match.start:match.end],
-                self.phone_replacement,
-            )
-        return result
 
     def clean_credentials(self, text):
         """Remove username/password combinations from dirty drity ``text``.
