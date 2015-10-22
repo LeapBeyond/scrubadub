@@ -74,24 +74,6 @@ class Scrubber(object):
                 filth = filth.merge(next_filth)
         yield filth
 
-    def clean_credentials(self, text):
-        """Remove username/password combinations from dirty drity ``text``.
-        """
-        position = 0
-        while True:
-            match = regexps.CREDENTIALS.search(text, position)
-            if match:
-                ubeg, uend = match.span('username')
-                pbeg, pend = match.span('password')
-                text = (
-                    text[:ubeg] + self.username_replacement + text[uend:pbeg] +
-                    self.password_replacement + text[pend:]
-                )
-                position = match.end()
-            else:
-                break
-        return text
-
     def clean_skype(self, text):
         """Skype usernames tend to be used inline in dirty dirty text quite
         often but also appear as ``skype: {{SKYPE}}`` quite a bit. This method
