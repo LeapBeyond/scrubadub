@@ -1,6 +1,6 @@
 from .name import NameDetector
 from .email import EmailDetector
-# from .url import UrlDetector
+from .url import UrlDetector
 # from .phone import PhoneDetector
 # from .credential import CredentialDetector
 # from .skype import SkypeDetector
@@ -10,7 +10,7 @@ from .email import EmailDetector
 types = {
     "name": NameDetector,
     "email": EmailDetector,
-    # "url": UrlDetector,
+    "url": UrlDetector,
     # "phone": PhoneDetector,
     # "credential": CredentialDetector,
     # "skype": SkypeDetector,

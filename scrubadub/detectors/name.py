@@ -11,9 +11,9 @@ class NameDetector(RegexDetector):
     ``text``. Disallow particular nouns by adding them to the
     ``NameDetector.disallowed_nouns`` set.
     """
+    filth_cls = NameFilth
 
     disallowed_nouns = set(["skype"])
-    filth_cls = NameFilth
 
     def iter_filth(self, text):
 
@@ -34,5 +34,5 @@ class NameDetector(RegexDetector):
         proper_noun_re_list = []
         for proper_noun in proper_nouns:
             proper_noun_re_list.append(r'\b' + re.escape(proper_noun) + r'\b')
-        self.regex = re.compile('|'.join(proper_noun_re_list))
+        self.filth_cls.regex = re.compile('|'.join(proper_noun_re_list))
         return super(NameDetector, self).iter_filth(text)

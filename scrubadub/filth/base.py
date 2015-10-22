@@ -13,7 +13,10 @@ class Filth(object):
         self.beg = beg
         self.end = end
         self.text = text
-        self.placeholder = u''
+
+    @property
+    def placeholder(self):
+        return u''
 
     def replace_with(self, replace_with='placeholder', **kwargs):
         # TEST: replace_with keyword argument fails gracefully for anything
@@ -51,7 +54,12 @@ class RegexFilth(Filth):
     expression match
     """
 
+    # The regex is stored on the RegexFilth so you can use groups in the
+    # regular expression to properly configure the placeholder
+    regex = None
+
     def __init__(self, match):
+        self.match = match
         super(RegexFilth, self).__init__(
             beg=match.start(),
             end=match.end(),

@@ -75,25 +75,6 @@ class Scrubber(object):
                 filth = filth.merge(next_filth)
         yield filth
 
-    def clean_urls(self, text):
-        """Use regular expressions to remove URLs that begin with ``http://``,
-        ``https://`` or ``www.`` from dirty dirty ``text``.
-
-        With ``keep_domain=True``, this method only obfuscates the path on a
-        URL, not its domain. For example,
-        ``http://twitter.com/someone/status/234978haoin`` becomes
-        ``http://twitter.com/{{replacement}}``.
-        """
-        for match in regexps.URL.finditer(text):
-            beg = match.start()
-            end = match.end()
-            if self.url_keep_domain:
-                replacement = match.group('domain') + self.url_replacement
-            else:
-                replacement = self.url_replacement
-            text = text.replace(match.string[beg:end], replacement)
-        return text
-
     def clean_phone_numbers(self, text):
         """Remove phone numbers from dirty dirty ``text`` using
         `python-phonenumbers

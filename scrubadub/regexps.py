@@ -5,19 +5,6 @@ scary regular expression that is difficult to understand.
 import re
 
 
-# this regular expression is convenient for captures the domain name
-# and the path separately, which is useful for keeping the domain name
-# but sanitizing the path altogether
-URL = re.compile(r'''
-    (?P<domain>
-        (https?:\/\/(www\.)?|www\.)          # protocol http://, https://, www.
-        [\-\w@:%\.\+~\#=]{2,256}\.[a-z]{2,6} # domain name
-        /?                                   # can have a trailing slash
-    )(?P<path>
-        [\-\w@:%\+\.~\#?&/=]*                # rest of path, query, and hash
-    )
-''', re.VERBOSE)
-
 # this regular expression searches for patterns like "username: root password:
 # root" that tend to occur very frequently in text. This does not currently
 # catch things like "username / password is root / root"
