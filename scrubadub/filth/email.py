@@ -12,7 +12,7 @@ class EmailFilth(RegexFilth):
     # adapted from https://gist.github.com/dideler/5219706
     regex = re.compile((
         "[a-z0-9!#$%&'*+\/=?^_`{|}~-]+"             # start with this character
-        "(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*"      # can have any number of these
+        "(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*"      # valid next characters
         "(@|\sat\s)"                                # @ or at fanciness
         "(?:"
         "[a-z0-9]"                                  # domain starts like this
@@ -21,7 +21,6 @@ class EmailFilth(RegexFilth):
         ")+"                                        # repeat as necessary
         "[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"           # end of domain
     ), re.VERBOSE)
-
 
     @property
     def placeholder(self):

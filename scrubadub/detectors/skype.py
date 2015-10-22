@@ -23,7 +23,6 @@ class SkypeDetector(RegexDetector):
 
     word_radius = 10
 
-
     def iter_filth(self, text):
 
         # find 'skype' in the text using a customized tokenizer. this makes

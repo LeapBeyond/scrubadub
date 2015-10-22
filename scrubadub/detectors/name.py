@@ -32,10 +32,10 @@ class NameDetector(RegexDetector):
         # lingering punctuation in the regex
         # http://stackoverflow.com/a/4202559/564709
         if proper_nouns:
-            proper_noun_re_list = []
+            re_list = []
             for proper_noun in proper_nouns:
-                proper_noun_re_list.append(r'\b' + re.escape(proper_noun) + r'\b')
-            self.filth_cls.regex = re.compile('|'.join(proper_noun_re_list))
+                re_list.append(r'\b' + re.escape(proper_noun) + r'\b')
+            self.filth_cls.regex = re.compile('|'.join(re_list))
         else:
             self.filth_cls.regex = None
         return super(NameDetector, self).iter_filth(text)
