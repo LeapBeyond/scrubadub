@@ -4,4 +4,4 @@ from .email import EmailFilth
 from .url import UrlFilth
 from .phone import PhoneFilth
 from .credential import CredentialFilth
-# from .skype import SkypeFilth
+from .skype import SkypeFilth

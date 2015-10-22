@@ -29,7 +29,7 @@ class Filth(object):
     def merge(self, other_filth):
         """Merge two filths that are overlapping"""
         # TEST: can't merge Filths that aren't overlapping
-        self.placeholder += '+' + other_filth.placeholder
+        # self.placeholder += '+' + other_filth.placeholder
 
         # TEST: to make sure that text is properly resolved during merges
         if self.beg < other_filth.beg:
