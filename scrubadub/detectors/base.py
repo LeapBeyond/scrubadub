@@ -18,5 +18,7 @@ class RegexDetector(Detector):
             raise exceptions.UnexpectedFilth(
                 'RegexFilth required for RegexDetector'
             )
+        if self.filth_cls.regex is None:
+            raise StopIteration
         for match in self.filth_cls.regex.finditer(text):
             yield self.filth_cls(match)

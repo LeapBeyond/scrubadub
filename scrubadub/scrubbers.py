@@ -65,6 +65,7 @@ class Scrubber(object):
         #
         # TEST: make sure merging works properly
         # TEST: make sure filth is always returned in order from iter_filth
+        # TEST: text that has no filth will fail here
         filth = all_filths[0]
         for next_filth in all_filths[1:]:
             if filth.end < next_filth.beg:

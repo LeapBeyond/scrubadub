@@ -26,3 +26,8 @@ class UnicodeRequired(ScrubadubException):
 class UnexpectedFilth(ScrubadubException):
     def __str__(self):
         return self.render(self.message)
+
+
+class FilthMergeError(ScrubadubException):
+    def __str__(self):
+        return self.render(self.message)

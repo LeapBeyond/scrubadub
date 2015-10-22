@@ -44,6 +44,7 @@ class Filth(object):
 
         self.beg = min(self.beg, other_filth.beg)
         self.end = max(self.end, other_filth.end)
+        # TEST: make sure the fucking text length is consistent
         if self.end - self.beg != len(self.text):
             raise exceptions.FilthMergeError("text length isn't consistent")
         return self

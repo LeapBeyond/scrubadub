@@ -63,5 +63,8 @@ class SkypeDetector(RegexDetector):
                         skype_usernames.append(token)
 
         # replace all skype usernames
-        self.filth_cls.regex = re.compile('|'.join(skype_usernames))
+        if skype_usernames:
+            self.filth_cls.regex = re.compile('|'.join(skype_usernames))
+        else:
+            self.filth_cls.regex = None
         return super(SkypeDetector, self).iter_filth(text)
