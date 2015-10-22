@@ -33,11 +33,11 @@ class Scrubber(object):
             raise exceptions.UnicodeRequired
 
         clean_chunks = []
-        last_filth = Filth()
-        for filth in self.iter_filth(text):
-            clean_chunks.append(text[last_filth.end:filth.beg])
-            clean_chunks.append(filth.replace_with(**kwargs))
-            last_filth = filth
+        filth = Filth()
+        for next_filth in self.iter_filth(text):
+            clean_chunks.append(text[filth.end:next_filth.beg])
+            clean_chunks.append(next_filth.replace_with(**kwargs))
+            filth = next_filth
         clean_chunks.append(text[filth.end:])
         return u''.join(clean_chunks)
 
@@ -66,6 +66,8 @@ class Scrubber(object):
         # TEST: make sure merging works properly
         # TEST: make sure filth is always returned in order from iter_filth
         # TEST: text that has no filth will fail here
+        if not all_filths:
+            raise StopIteration
         filth = all_filths[0]
         for next_filth in all_filths[1:]:
             if filth.end < next_filth.beg:
