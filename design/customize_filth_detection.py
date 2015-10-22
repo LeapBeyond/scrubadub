@@ -17,12 +17,12 @@ class MyNameDetector(scrubadub.detectors.NameDetector):
             if filth != "iPhone":
                 yield filth
 
-# instantiate a scrubber and change the name_detector to use our custom class
+# instantiate a scrubber and change the name detector to use our custom class
 scrubber = scrubadub.Scrubber()
-scrubber.name_detector = MyNameDetector()
+scrubber.detectors['name'] = MyNameDetector()
 
-# these methods have identical on a Scrubber object should have identical behavior to the
-# scrubadub.clean convenience function
+# these methods have identical on a Scrubber object should have identical
+# behavior to the scrubadub.clean convenience function
 clean_text = scrubber.clean(text)
 clean_text = scrubber.clean(text, replace_with="placeholder")
 clean_text = scrubber.clean(text, replace_with="surrogate")

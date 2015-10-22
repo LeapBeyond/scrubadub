@@ -6,26 +6,28 @@ import nltk
 
 from . import exceptions
 from . import filth
+from . import detectors
 
 
 class Scrubber(object):
-    """The Scrubber class is used to clean personal information out of
-    dirty dirty text.
+    """The Scrubber class is used to clean personal information out of dirty
+    dirty text. It manages a set of ``Detector``'s that are each responsible
+    for identifying their particular kind of ``Filth``.
     """
 
-    # these things can be overridden to have different behavior for how each
-    # Filth class detects grossness and handles the replacement
-    name_filth_cls = filth.NameFilth
-    email_filth_cls = filth.EmailFilth
-    url_filth_cls = filth.UrlFilth
-    phone_filth_cls = filth.PhoneFilth
-    credential_filth_cls = filth.CredentialFilth
-    skype_filth_cls = filth.SkypeFilth
+    def __init__(self, *args, **kwargs):
+        super(Scrubber, self).__init__(*args, **kwargs)
 
-    def clean(self, text, replace_with='placeholder'):
+        # instantiate all of the detectors
+        self.detectors = {}
+        for type, detector_cls in detectors.types.iteritems():
+            self.detectors[type] = detector_cls()
+
+    def clean(self, text, **kwargs):
         """This is the master method that cleans all of the filth out of the
-        dirty dirty ``text`` using the default options for all of the other
-        ``clean_*`` methods below.
+        dirty dirty ``text``. All keyword arguments to this function are passed
+        through to the  ``Filth.replace_with`` method to fine-tune how the
+        ``Filth`` is cleaned.
         """
         if not isinstance(text, unicode):
             raise exceptions.UnicodeRequired
@@ -34,31 +36,40 @@ class Scrubber(object):
         last_filth = filth.Filth()
         for filth in self.iter_filth(text):
             clean_chunks.append(text[last_filth.end:filth.beg])
-            clean_chunks.append(filth.replace_with(replace_with))
+            clean_chunks.append(filth.replace_with(**kwargs))
             last_filth = filth
         clean_chunks.append(text[filth.end:])
         return 'u'.join(clean_chunks)
 
     def iter_filth(self, text):
-        """iterate over the different types of filth that can exist
+        """Iterate over the different types of filth that can exist.
         """
-        # still not exactly clear on how this would work
+        # TEST: customizing detector behavior. see customize_filth_detection
 
-        # PROBLEM: Filth objects were intended to contain the sensitive
-        # information, but its clear that we need something that is responsible
-        # for detecting each type of filth independently. maybe we need a
-        # scrubber for each type of filth (e.g. UrlScrubber)? A UrlScrubber
-        # would yield UrlFilth. UrlScrubber knows how to find UrlFilth and a
-        # UrlFilth object knows how to generate replacements.
+        # NOTE: we could probably do this in a more efficient way by iterating
+        # over all detectors simultaneously. just trying to get something
+        # working right now and we can worry about efficiency later
         #
-        # How do we customize the behavior then?
-        self.name_filth = self.name_filth_cls(text)
-        self.email_filth = self.email_filth_cls(text)
-        self.url_filth = self.url_filth_cls(text)
-        self.phone_filth = self.phone_filth_cls(text)
-        self.credential_filth = self.credential_filth_cls(text)
-        self.skype_filth = self.skype_filth_cls(text)
+        # TEST: make sure filths are always returned in order from each
+        # detector
+        all_filths = []
+        for detector in self.detectors.itervalues():
+            for filth in detector.iter_filth(text):
+                all_filths.append(filth)
+        all_filths.sort(key='beg') # TODO: DOES THIS WORK OUT OF THE BOX?!?!
 
+        # need to merge any overlapping filth.
+        #
+        # TEST: make sure merging works properly
+        # TEST: make sure filth is always returned in order from iter_filth
+        filth = all_filths[0]
+        for next_filth in all_filths[1:]:
+            if filth.end < next_filth.beg:
+                yield filth
+                filth = next_filth
+            else:
+                filth = filth.merge(next_filth)
+        yield filth
 
     def clean_proper_nouns(self, text):
         """Use part of speech tagging to clean proper nouns out of the dirty
