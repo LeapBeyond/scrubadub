@@ -39,17 +39,17 @@ incorporating it into your python scripts like this:
 
     # Replace names with {{NAME}} placeholder. This is the scrubadub default
     # because it maximally omits any information about people.
-    >>> placeholder_text = scrubadub.clean_with_placeholders(text)
+    >>> placeholder_text = scrubadub.clean(text)
     >>> placeholder_text
     u"{{NAME}} is a cat"
 
 ..    # Replace names with {{NAME-ID}} anonymous, but consistent IDs.
-    >>> identifier_text = scrubadub.clean_with_identifiers(text)
+    >>> identifier_text = scrubadub.clean(text, replace_with='identifier')
     >>> identifier_text
     u"{{NAME-1287}} is a cat"
 
 ..    # Replace names with random, gender-consistent names
-    >>> surrogate_text = scrubadub.clean_with_surrogates(text)
+    >>> surrogate_text = scrubadub.clean(text, replace_with='surrogate')
     >>> surrogate_text
     u"Billy is a cat"
 
@@ -62,7 +62,7 @@ incorporating it into your python scripts like this:
     ...         return text
     ...
     >>> text = u"John's email address is cat@gmail.com"
-    >>> text = scrubadub.clean_with_placeholders(text, cls=NoEmailScrubber)
+    >>> text = scrubadub.clean(text, cls=NoEmailScrubber)
     >>> text
     u"{{NAME}}'s email address is cat@gmail.com'"
 

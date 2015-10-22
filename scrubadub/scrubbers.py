@@ -22,7 +22,7 @@ class Scrubber(object):
     credential_filth_cls = filth.CredentialFilth
     skype_filth_cls = filth.SkypeFilth
 
-    def clean_with_placeholders(self, text):
+    def clean(self, text, replace_with='placeholder'):
         """This is the master method that cleans all of the filth out of the
         dirty dirty ``text`` using the default options for all of the other
         ``clean_*`` methods below.
@@ -34,7 +34,7 @@ class Scrubber(object):
         last_filth = filth.Filth()
         for filth in self.iter_filth(text):
             clean_chunks.append(text[last_filth.end:filth.beg])
-            clean_chunks.append(filth.get_placeholder())
+            clean_chunks.append(filth.replace_with(replace_with))
             last_filth = filth
         clean_chunks.append(text[filth.end:])
         return 'u'.join(clean_chunks)
