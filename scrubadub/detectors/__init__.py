@@ -1,5 +1,5 @@
 from .name import NameDetector
-# from .email import EmailDetector
+from .email import EmailDetector
 # from .url import UrlDetector
 # from .phone import PhoneDetector
 # from .credential import CredentialDetector
@@ -9,7 +9,7 @@ from .name import NameDetector
 # convenience object for instantiating all of the detectors at once
 types = {
     "name": NameDetector,
-    # "email": EmailDetector,
+    "email": EmailDetector,
     # "url": UrlDetector,
     # "phone": PhoneDetector,
     # "credential": CredentialDetector,

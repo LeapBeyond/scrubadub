@@ -21,3 +21,8 @@ class UnicodeRequired(ScrubadubException):
             'But unicode sandwiches are awesome.\n'
             'http://bit.ly/unipain @nedbat\n'
         ))
+
+
+class UnexpectedFilth(ScrubadubException):
+    def __str__(self):
+        return self.render(self.message)

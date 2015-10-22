@@ -75,13 +75,6 @@ class Scrubber(object):
                 filth = filth.merge(next_filth)
         yield filth
 
-    def clean_email_addresses(self, text):
-        """Use regular expression magic to remove email addresses from dirty
-        dirty ``text``. This method also catches email addresses like ``john at
-        gmail.com``.
-        """
-        return regexps.EMAIL.sub(self.email_replacement, text)
-
     def clean_urls(self, text):
         """Use regular expressions to remove URLs that begin with ``http://``,
         ``https://`` or ``www.`` from dirty dirty ``text``.

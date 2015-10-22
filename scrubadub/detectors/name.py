@@ -2,17 +2,18 @@ import re
 
 import textblob
 
-from .base import Detector
+from .base import RegexDetector
 from ..filth import NameFilth
 
 
-class NameDetector(Detector):
+class NameDetector(RegexDetector):
     """Use part of speech tagging to clean proper nouns out of the dirty dirty
     ``text``. Disallow particular nouns by adding them to the
     ``NameDetector.disallowed_nouns`` set.
     """
 
     disallowed_nouns = set(["skype"])
+    filth_cls = NameFilth
 
     def iter_filth(self, text):
 
@@ -33,6 +34,5 @@ class NameDetector(Detector):
         proper_noun_re_list = []
         for proper_noun in proper_nouns:
             proper_noun_re_list.append(r'\b' + re.escape(proper_noun) + r'\b')
-        proper_noun_re = '|'.join(proper_noun_re_list)
-        for match in re.finditer(proper_noun_re, text):
-            yield NameFilth(match)
+        self.regex = re.compile('|'.join(proper_noun_re_list))
+        return super(NameDetector, self).iter_filth(text)
