@@ -19,19 +19,26 @@ class Filth(object):
         return u''
 
     def replace_with(self, replace_with='placeholder', **kwargs):
-        # TEST: replace_with keyword argument fails gracefully for anything
-        # that isn't "placeholder"
         if replace_with == 'placeholder':
             return self.prefix + self.placeholder + self.suffix
+        # elif replace_with == 'surrogate':
+        #     raise NotImplementedError
+        # elif replace_with == 'identifier':
+        #     raise NotImplementedError
         else:
             raise exceptions.InvalidReplaceWith(replace_with)
 
     def merge(self, other_filth):
         """Merge two filths that are overlapping"""
-        # TEST: can't merge Filths that aren't overlapping
+        if self.end < other_filth.beg or other_filth.end < self.beg:
+            raise exceptions.FilthMergeError(
+                "a_filth goes from [%s, %s) and b_filth goes from [%s, %s)" % (
+                self.beg, self.end, other_filth.beg, other_filth.end
+            ))
+
+        # TODO: fix placeholder b.s.
         # self.placeholder += '+' + other_filth.placeholder
 
-        # TEST: to make sure that text is properly resolved during merges
         if self.beg < other_filth.beg:
             first = self
             second = other_filth
@@ -44,7 +51,6 @@ class Filth(object):
 
         self.beg = min(self.beg, other_filth.beg)
         self.end = max(self.end, other_filth.end)
-        # TEST: make sure the fucking text length is consistent
         if self.end - self.beg != len(self.text):
             raise exceptions.FilthMergeError("text length isn't consistent")
         return self
