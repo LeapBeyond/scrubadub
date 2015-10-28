@@ -4,7 +4,7 @@ import textblob
 
 from .base import RegexDetector
 from ..filth import NameFilth
-from ..utils import LowerCaseSet
+from ..utils import CanonicalStringSet
 
 class NameDetector(RegexDetector):
     """Use part of speech tagging to clean proper nouns out of the dirty dirty
@@ -13,13 +13,13 @@ class NameDetector(RegexDetector):
     """
     filth_cls = NameFilth
 
-    disallowed_nouns = LowerCaseSet(["skype"])
+    disallowed_nouns = CanonicalStringSet(["skype"])
 
     def iter_filth(self, text):
 
-        if not isinstance(self.disallowed_nouns, LowerCaseSet):
+        if not isinstance(self.disallowed_nouns, CanonicalStringSet):
             raise TypeError(
-                'NameDetector.disallowed_nouns must be LowerCaseSet'
+                'NameDetector.disallowed_nouns must be CanonicalStringSet'
             )
 
         # find the set of proper nouns using textblob.
