@@ -4,7 +4,7 @@ import textblob
 
 from .base import RegexDetector
 from ..filth import NameFilth
-
+from ..utils import LowerCaseSet
 
 class NameDetector(RegexDetector):
     """Use part of speech tagging to clean proper nouns out of the dirty dirty
@@ -13,18 +13,20 @@ class NameDetector(RegexDetector):
     """
     filth_cls = NameFilth
 
-    disallowed_nouns = set(["skype"])
+    disallowed_nouns = LowerCaseSet(["skype"])
 
     def iter_filth(self, text):
 
+        if not isinstance(self.disallowed_nouns, LowerCaseSet):
+            raise TypeError(
+                'NameDetector.disallowed_nouns must be LowerCaseSet'
+            )
+
         # find the set of proper nouns using textblob.
-        disallowed_nouns = set(["skype"])
         proper_nouns = set()
         blob = textblob.TextBlob(text)
         for word, part_of_speech in blob.tags:
             is_proper_noun = part_of_speech in ("NNP", "NNPS")
-            # TEST to make sure words added to disallowed_nouns are always
-            # lowercase
             if is_proper_noun and word.lower() not in self.disallowed_nouns:
                 proper_nouns.add(word)
 
