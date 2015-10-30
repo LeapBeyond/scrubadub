@@ -8,7 +8,7 @@ import scrubadub
 with open("README.rst") as stream:
     long_description = stream.read()
 
-github_url='https://github.com/deanmalmgren/scrubadub'
+github_url='https://github.com/datascopeanalytics/scrubadub'
 
 # read in the dependencies from the virtualenv requirements file
 dependencies = []

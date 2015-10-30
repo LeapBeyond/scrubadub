@@ -41,16 +41,16 @@ latest changes in development for next release
 .. list of contributors that are linked to above. putting links here
    to make the text above relatively clean
 
-.. _@deanmalmgren: https://github.com/deanmalmgren
+.. _@datascopeanalytics: https://github.com/datascopeanalytics
 
 
 .. list of issues that have been resolved. putting links here to make
    the text above relatively clean
 
-.. _#1: https://github.com/deanmalmgren/scrubadub/issues/1
-.. _#2: https://github.com/deanmalmgren/scrubadub/issues/2
-.. _#3: https://github.com/deanmalmgren/scrubadub/issues/3
-.. _#4: https://github.com/deanmalmgren/scrubadub/issues/4
-.. _#8: https://github.com/deanmalmgren/scrubadub/issues/8
-.. _#9: https://github.com/deanmalmgren/scrubadub/issues/9
-.. _#10: https://github.com/deanmalmgren/scrubadub/issues/10
+.. _#1: https://github.com/datascopeanalytics/scrubadub/issues/1
+.. _#2: https://github.com/datascopeanalytics/scrubadub/issues/2
+.. _#3: https://github.com/datascopeanalytics/scrubadub/issues/3
+.. _#4: https://github.com/datascopeanalytics/scrubadub/issues/4
+.. _#8: https://github.com/datascopeanalytics/scrubadub/issues/8
+.. _#9: https://github.com/datascopeanalytics/scrubadub/issues/9
+.. _#10: https://github.com/datascopeanalytics/scrubadub/issues/10

@@ -5,9 +5,9 @@ for the fork-branch-pull request model for github. Briefly, this means:
 
 1. Make sure your fork's `master` branch is up to date:
 
-    	git remote add deanmalmgren https://github.com/deanmalmgren/scrubadub.git
+    	git remote add datascopeanalytics https://github.com/datascopeanalytics/scrubadub.git
         git checkout master
-        git pull deanmalmgren/master
+        git pull datascopeanalytics/master
 
 2. Start a feature branch with a descriptive name about what you're trying
    to accomplish:
@@ -33,7 +33,7 @@ for the fork-branch-pull request model for github. Briefly, this means:
    usual way:
 
         git push origin italian-name-fix
-		chrome http://github.com/deanmalmgren/scrubadub/compare
+		chrome http://github.com/datascopeanalytics/scrubadub/compare
 
 
 Style guidelines
