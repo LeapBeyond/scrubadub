@@ -44,24 +44,23 @@ class Scrubber(object):
     def iter_filth(self, text):
         """Iterate over the different types of filth that can exist.
         """
-        # TEST: customizing detector behavior. see customize_filth_detection
-
+        # currently doing this by aggregating all_filths and then sorting
+        # inline instead of with a Filth.__cmp__ method, which is apparently
+        # much slower http://stackoverflow.com/a/988728/564709
+        #
         # NOTE: we could probably do this in a more efficient way by iterating
         # over all detectors simultaneously. just trying to get something
         # working right now and we can worry about efficiency later
-        #
-        # TEST: make sure filths are always returned in order from each
-        # detector
         all_filths = []
         for detector in self.detectors.itervalues():
             for filth in detector.iter_filth(text):
-                # TEST: make sure that this always returns a FILTH object
+                if not isinstance(filth, Filth):
+                    raise TypeError('iter_filth must always yield Filth')
                 all_filths.append(filth)
-        # sorting this inline instead of with a Filth.__cmp__ method, which is
-        # apparently much slower http://stackoverflow.com/a/988728/564709
         all_filths.sort(key=operator.attrgetter("beg"))
 
-        # need to merge any overlapping filth.
+        # this is where the Scrubber does its hard work and merges any
+        # overlapping filths.
         if not all_filths:
             raise StopIteration
         filth = all_filths[0]
