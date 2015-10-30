@@ -4,11 +4,14 @@ from .base import RegexFilth
 
 
 class UrlFilth(RegexFilth):
+    type = 'url'
 
     # This allows you to keep the domain
     keep_domain = False
 
-    url_placeholder = r'URL'
+    # this can be used to customize the output, particularly when
+    # keep_domain=True
+    url_placeholder = type.upper()
 
     # this regular expression is convenient for captures the domain name
     # and the path separately, which is useful for keeping the domain name

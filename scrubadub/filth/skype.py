@@ -4,6 +4,7 @@ from .base import RegexFilth
 
 
 class SkypeFilth(RegexFilth):
+    type = 'skype'
 
     # these two regular expressions are used to validate a skype usernames.
     # _TOKEN is the core regular expression that is used to chunk text into
@@ -15,7 +16,3 @@ class SkypeFilth(RegexFilth):
     _SKYPE = r'[a-zA-Z][a-zA-Z0-9_\-\,\.]'
     SKYPE_TOKEN = re.compile(_SKYPE+'+')
     SKYPE_USERNAME = re.compile(_SKYPE+'{5,31}')
-
-    @property
-    def placeholder(self):
-        return 'SKYPE'

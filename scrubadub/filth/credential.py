@@ -4,6 +4,7 @@ from .base import RegexFilth
 
 
 class CredentialFilth(RegexFilth):
+    type='credential'
 
     # specify how the username/password are replaced
     username_placeholder = 'USERNAME'

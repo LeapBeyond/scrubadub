@@ -4,6 +4,7 @@ from .base import RegexFilth
 
 
 class EmailFilth(RegexFilth):
+    type = 'email'
 
     # there may be better solutions than this out there and this certainly
     # doesn't do that great of a job with people that spell out the
@@ -21,7 +22,3 @@ class EmailFilth(RegexFilth):
         ")+"                                        # repeat as necessary
         "[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"           # end of domain
     ), re.VERBOSE)
-
-    @property
-    def placeholder(self):
-        return u'EMAIL'

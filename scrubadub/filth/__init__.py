@@ -1,4 +1,4 @@
-from .base import Filth, RegexFilth
+from .base import Filth, MergedFilth, RegexFilth
 from .name import NameFilth
 from .email import EmailFilth
 from .url import UrlFilth

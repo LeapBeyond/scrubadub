@@ -6,7 +6,7 @@ import nltk
 
 from . import exceptions
 from . import detectors
-from .filth import Filth
+from .filth import Filth, MergedFilth
 
 
 class Scrubber(object):
@@ -62,10 +62,6 @@ class Scrubber(object):
         all_filths.sort(key=operator.attrgetter("beg"))
 
         # need to merge any overlapping filth.
-        #
-        # TEST: make sure merging works properly
-        # TEST: make sure filth is always returned in order from iter_filth
-        # TEST: text that has no filth will fail here
         if not all_filths:
             raise StopIteration
         filth = all_filths[0]

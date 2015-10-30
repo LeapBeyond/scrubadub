@@ -1,6 +1,6 @@
 import unittest
 
-from scrubadub.filth.base import Filth
+from scrubadub.filth import Filth
 from scrubadub.exceptions import InvalidReplaceWith, FilthMergeError
 
 class FilthTestCase(unittest.TestCase):
@@ -26,8 +26,11 @@ class FilthTestCase(unittest.TestCase):
 
     def test_text_merge(self):
         """make sure text length is correct"""
+        class SomeFilth(Filth):
+            type = 'something'
+
         text = "the end"
-        a_filth = Filth(beg=0, end=3, text=text[:3])
-        b_filth = Filth(beg=1, end=7, text=text[1:])
-        a_filth.merge(b_filth)
-        self.assertEqual(a_filth.text, text)
+        a_filth = SomeFilth(beg=0, end=3, text=text[:3])
+        b_filth = SomeFilth(beg=1, end=7, text=text[1:])
+        c_filth = a_filth.merge(b_filth)
+        self.assertEqual(c_filth.text, text)
