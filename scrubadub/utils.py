@@ -20,14 +20,20 @@ class CanonicalStringSet(set):
         )
 
     def add(self, element):
-        return super(CanonicalStringSet, self).add(self._cast_as_lower(element))
+        return super(CanonicalStringSet, self).add(
+            self._cast_as_lower(element)
+        )
 
     def update(self, elements):
         for element in elements:
             self.add(element)
 
     def remove(self, element):
-        return super(CanonicalStringSet, self).remove(self._cast_as_lower(element))
+        return super(CanonicalStringSet, self).remove(
+            self._cast_as_lower(element)
+        )
 
     def discard(self, element):
-        return super(CanonicalStringSet, self).discard(self._cast_as_lower(element))
+        return super(CanonicalStringSet, self).discard(
+            self._cast_as_lower(element)
+        )

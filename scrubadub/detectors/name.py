@@ -6,6 +6,7 @@ from .base import RegexDetector
 from ..filth import NameFilth
 from ..utils import CanonicalStringSet
 
+
 class NameDetector(RegexDetector):
     """Use part of speech tagging to clean proper nouns out of the dirty dirty
     ``text``. Disallow particular nouns by adding them to the

@@ -56,8 +56,8 @@ class MergedFilth(Filth):
         if self.end < other_filth.beg or other_filth.end < self.beg:
             raise exceptions.FilthMergeError(
                 "a_filth goes from [%s, %s) and b_filth goes from [%s, %s)" % (
-                self.beg, self.end, other_filth.beg, other_filth.end
-            ))
+                    self.beg, self.end, other_filth.beg, other_filth.end
+                ))
 
         # get the text over lap correct
         if self.beg < other_filth.beg:
