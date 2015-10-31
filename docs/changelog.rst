@@ -11,7 +11,10 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+1.0.0
+-----
 
+* **major update to process Filth in parallel** (`#11`_)
 
 0.1.0
 -----
@@ -41,7 +44,7 @@ latest changes in development for next release
 .. list of contributors that are linked to above. putting links here
    to make the text above relatively clean
 
-.. _@datascopeanalytics: https://github.com/datascopeanalytics
+.. _@deanmalmgren: https://github.com/deanmalmgren
 
 
 .. list of issues that have been resolved. putting links here to make
@@ -54,3 +57,4 @@ latest changes in development for next release
 .. _#8: https://github.com/datascopeanalytics/scrubadub/issues/8
 .. _#9: https://github.com/datascopeanalytics/scrubadub/issues/9
 .. _#10: https://github.com/datascopeanalytics/scrubadub/issues/10
+.. _#11: https://github.com/datascopeanalytics/scrubadub/issues/11
