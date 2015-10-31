@@ -7,17 +7,6 @@ from base import BaseTestCase
 
 class UrlTestCase(unittest.TestCase, BaseTestCase):
 
-    def check_keep_domain(self):
-        """convenience method for runnint tests with the keep_domain kwarg"""
-        before, after = self.get_before_after()
-        scrubber = scrubadub.scrubbers.Scrubber()
-        result = scrubber.clean_urls(
-            before,
-            replacement="path/to/something",
-            keep_domain=True,
-        )
-        self.check_equal(after, result)
-
     def test_http(self):
         """
         BEFORE: http://bit.ly/aser is neat
@@ -54,23 +43,39 @@ class UrlTestCase(unittest.TestCase, BaseTestCase):
         """
         self.compare_before_after()
 
+
+class UrlKeepDomainTestCase(unittest.TestCase, BaseTestCase):
+
+    def setUp(self):
+        scrubadub.filth.UrlFilth.keep_domain = True
+        scrubadub.filth.UrlFilth.url_placeholder = 'path/to/something'
+        scrubadub.filth.UrlFilth.prefix = ''
+        scrubadub.filth.UrlFilth.suffix = ''
+        super(UrlKeepDomainTestCase, self).setUp()
+
+    def tearDown(self):
+        scrubadub.filth.UrlFilth.keep_domain = False
+        scrubadub.filth.UrlFilth.url_placeholder = 'URL'
+        scrubadub.filth.UrlFilth.prefix = '{{'
+        scrubadub.filth.UrlFilth.suffix = '}}'
+
     def test_path_word_in_sentence(self):
         """
         BEFORE: Find jobs at http://facebook.com/jobs
         AFTER:  Find jobs at http://facebook.com/path/to/something
         """
-        self.check_keep_domain()
+        self.compare_before_after()
 
     def test_keep_domain(self):
         """
         BEFORE: http://public.com/this/is/very/private
         AFTER:  http://public.com/path/to/something
         """
-        self.check_keep_domain()
+        self.compare_before_after()
 
     def test_keep_domain_empty_path(self):
         """
         BEFORE: http://public.com/
         AFTER:  http://public.com/path/to/something
         """
-        self.check_keep_domain()
+        self.compare_before_after()

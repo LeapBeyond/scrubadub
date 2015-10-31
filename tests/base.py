@@ -8,7 +8,7 @@ import scrubadub
 class BaseTestCase(object):
 
     def clean(self, text):
-        return scrubadub.clean_with_placeholders(text)
+        return scrubadub.clean(text)
 
     def get_before_after(self, docstring=None):
         """Recursively parse the docstrings of methods that are called in the
