@@ -22,7 +22,7 @@ version = None
 with open(os.path.join('scrubadub', '__init__.py')) as stream:
     for line in stream:
         if 'version' in line.lower():
-            version = line.split()[-1]
+            version = line.split()[-1].replace('"', '').replace("'", '')
 
 setup(
     name='scrubadub',

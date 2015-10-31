@@ -4,7 +4,7 @@ from .scrubbers import Scrubber
 from . import filth
 from . import detectors
 
-__version__ = VERSION = "1.0.1"
+__version__ = VERSION = "1.0.2"
 
 
 def clean(text, cls=None, **kwargs):
