@@ -11,6 +11,13 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+1.0.1
+-----
+
+* several bug fixes, including:
+
+  * installation bug (`#12`_)
+
 1.0.0
 -----
 
@@ -58,3 +65,4 @@ latest changes in development for next release
 .. _#9: https://github.com/datascopeanalytics/scrubadub/issues/9
 .. _#10: https://github.com/datascopeanalytics/scrubadub/issues/10
 .. _#11: https://github.com/datascopeanalytics/scrubadub/issues/11
+.. _#12: https://github.com/datascopeanalytics/scrubadub/issues/12

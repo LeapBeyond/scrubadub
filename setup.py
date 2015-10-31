@@ -2,8 +2,6 @@ import glob
 import os
 from setuptools import setup
 
-import scrubadub
-
 # read in the description from README
 with open("README.rst") as stream:
     long_description = stream.read()
@@ -19,9 +17,16 @@ with open(filename, 'r') as stream:
         if package:
             dependencies.append(package)
 
+# get the version
+version = None
+with open(os.path.join('scrubadub', '__init__.py')) as stream:
+    for line in stream:
+        if 'version' in line.lower():
+            version = line.split()[-1]
+
 setup(
-    name=scrubadub.__name__,
-    version=scrubadub.VERSION,
+    name='scrubadub',
+    version=version,
     description="",
     long_description=long_description,
     url=github_url,
