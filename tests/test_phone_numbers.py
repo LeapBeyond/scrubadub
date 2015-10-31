@@ -51,10 +51,10 @@ class PhoneNumberTestCase(unittest.TestCase, BaseTestCase):
         # running this through scrubadub.clean replaces 'reached at
         # 312.714.8142' with '{{EMAIL}}'. See issue
         result = self.clean(
-            u'I can be reached at 312.714.8142 (cell) or 773.415.7432 (office)'
+            u'Call me on my cell 312.714.8142 or in my office 773.415.7432'
         )
         self.assertEqual(
             result,
-            u'I can be reached at {{PHONE}} (cell) or {{PHONE}} (office)',
+            u'Call me on my cell {{PHONE}} or in my office {{PHONE}}',
             'problem with multiple phone numbers: \n %s' % result,
         )

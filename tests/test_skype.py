@@ -7,8 +7,8 @@ class SkypeTestCase(unittest.TestCase, BaseTestCase):
 
     def test_inline_skype_name(self):
         """
-        BEFORE: contact me on skype at dean.malmgren to chat
-        AFTER:  contact me on skype at {{SKYPE}} to chat
+        BEFORE: contact me on skype (dean.malmgren) to chat
+        AFTER:  contact me on skype ({{SKYPE}}) to chat
         """
         self.compare_before_after()
 
