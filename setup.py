@@ -36,6 +36,8 @@ setup(
     license='MIT',
     packages=[
         'scrubadub',
+        'scrubadub.filth',
+        'scrubadub.detectors',
     ],
     install_requires=dependencies,
     zip_safe=False,

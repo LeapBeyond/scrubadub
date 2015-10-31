@@ -11,7 +11,7 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
-1.0.2
+1.0.1
 -----
 
 * several bug fixes, including:
