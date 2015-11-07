@@ -11,7 +11,7 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
-1.0.2
+1.0.3
 -----
 
 * minor change to force ``Detector.filth_cls`` to exist (`#13`_)
