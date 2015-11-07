@@ -14,6 +14,7 @@ class PhoneDetector(Detector):
     ``"US"``). Specify ``None`` to only consider numbers with a leading
     ``+`` to be considered.
     """
+    filth_cls = PhoneFilth
     region = 'US'
 
     def iter_filth(self, text):

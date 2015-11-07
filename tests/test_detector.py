@@ -1,5 +1,6 @@
 import unittest
 
+import scrubadub
 from scrubadub.detectors.base import RegexDetector
 from scrubadub.filth.base import Filth
 from scrubadub.exceptions import UnexpectedFilth
@@ -21,3 +22,10 @@ class RegexDetectorTestCase(unittest.TestCase):
         with self.assertRaises(UnexpectedFilth):
             for filth in detector.iter_filth(text):
                 pass
+
+    def test_detector_filth_cls(self):
+        """Detector.filth_cls should always exist"""
+        for name, detector_cls in scrubadub.detectors.types.iteritems():
+            self.assertTrue(getattr(detector_cls, 'filth_cls', False),
+                '%s does not have a filth_cls set' % detector_cls
+            )
