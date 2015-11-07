@@ -27,7 +27,9 @@ with open(os.path.join('scrubadub', '__init__.py')) as stream:
 setup(
     name='scrubadub',
     version=version,
-    description="",
+    description=(
+        "Clean personally identifiable information from dirty dirty text."
+    ),
     long_description=long_description,
     url=github_url,
     download_url="%s/archives/master" % github_url,
