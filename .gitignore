@@ -55,3 +55,5 @@ docs/build/
 
 # PyBuilder
 target/
+
+/data
