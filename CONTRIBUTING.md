@@ -62,3 +62,42 @@ generally recommend:
 - `code comments should be about *what* and *why* is being done, not *how* it is
   being done <https://www.kernel.org/doc/Documentation/CodingStyle>`_ ---
   that should be self-evident from the code itself.
+
+
+Common contributions: Removing a new type of filth
+--------------------------------------------------
+
+This project has really taken off, much more so than I would have thought
+(thanks everybody!). One very common contribution is adding a new type of filth
+that should be removed by `scrubadub`. To make it as easy as possible to add
+these types of contributions, I thought I'd jot down a few notes about how to
+add a new type of filth, for example, addresses.
+
+* Create an appropriately named python file in `scrubadub/filth/` and write a
+  new `Filth` class that inherits from `scrubadub.filth.base.Filth`. In this
+  case, perhaps you'd create an `AddressFilth` class in
+  `scrubadub/filth/address.py`
+
+* Add your new type of `Filth` to the `scrubadub.filth` namespace by importing
+  it in `scrubadub/filth/__init__.py`
+
+* Create an appropriately named python file in `scrubadub/detectors/` and write
+  a new `Detector` class that inherits from
+  `scrubadub.detectors.base.Detector`. In this case, perhaps you'd create an
+  `AddressDetector` class in `scrubadub/detectors/address.py`.
+
+* Add your new type of `Detector` to the `scrubadub.detectors` namespace by
+  importing it in `scrubadub/detectors/__init__.py`.
+
+* Register your new detector by adding it to the `types` dictionary in
+  `scrubadub/detectors/__init__.py`
+
+* Create a new python file to handle some tests for your particular type of
+  filth. In this case, perhaps you would write your tests in
+  `tests/test_addresses.py`
+
+* Add documentation for the new type of filth in `docs/index.rst` and be sure
+  to give yourself a pat on the back in `docs/changelog.rst`
+
+* Make sure all of the tests are passing by running `./tests/run.py` and fix
+  any lingering problems (usually PEP-8 nonsense).
