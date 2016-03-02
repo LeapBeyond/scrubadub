@@ -4,6 +4,7 @@ from .url import UrlDetector
 from .phone import PhoneDetector
 from .credential import CredentialDetector
 from .skype import SkypeDetector
+from .ssn import SSNDetector
 
 
 # convenience object for instantiating all of the detectors at once
@@ -14,4 +15,5 @@ types = {
     "phone": PhoneDetector,
     "credential": CredentialDetector,
     "skype": SkypeDetector,
+    "ssn": SSNDetector,
 }
