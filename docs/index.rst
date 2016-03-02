@@ -23,6 +23,8 @@ text, without comprimising the privacy of the people we are trying to protect.
   <https://github.com/daviddrysdale/python-phonenumbers>`_
 * username / password combinations
 * Skype usernames
+* Social security numbers
+
 
 Quick start
 -----------
