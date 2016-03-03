@@ -33,7 +33,7 @@ class Scrubber(object):
         # TODO: should add tests to make sure filth_cls is actually a proper
         # filth_cls
         name = detector_cls.filth_cls.type
-        if self._detectors.has_key(name):
+        if name in self._detectors:
             raise KeyError((
                 'can not add Detector "%(name)s"---it already exists. '
                 'Try removing it first.'
