@@ -1,10 +1,3 @@
-.. warning::
-
-    This package is a work in progress and is not yet available on pypi. This
-    documentation should be considered more of a design document for what
-    scrubadub will do someday rather than a specification of what it can do
-    today.
-
 
 scrubadub
 ================================
@@ -53,22 +46,11 @@ incorporating it into your python scripts like this:
     >>> surrogate_text
     u"Billy is a cat"
 
-..    # For more fine-grained control, you can subclass Scrubber and adapt your
-    # approach for your particular use case. For example, if you have a specific
-    # reason to keep email addresses in the resulting output, you can disable
-    # the email address cleaning like this:
-    >>> class NoEmailScrubber(scrubadub.Scrubber):
-    ...     def clean_email_addresses(self, text):
-    ...         return text
-    ...
-    >>> text = u"John's email address is cat@gmail.com"
-    >>> text = scrubadub.clean(text, cls=NoEmailScrubber)
-    >>> text
-    u"{{NAME}}'s email address is cat@gmail.com'"
 
-As a python package, ``scrubadub`` also has several more :ref:`advanced features <advanced_usage>` to
-allow users to fine-tune the manner in which ``scrubadub`` cleans dirty dirty
-text.
+There are many ways to tailor the behavior of ``scrubadub`` using
+:ref:`different ``Detector`` and ``Filth`` classes <under_the_hood>`. These
+:ref:`advanced techniques <advanced_usage>` allow users to fine-tune the manner
+in which ``scrubadub`` cleans dirty dirty text.
 
 
 Related work
@@ -107,6 +89,7 @@ Contents:
    :maxdepth: 2
 
    advanced_usage
+   under_the_hood
    contributing
    changelog
 

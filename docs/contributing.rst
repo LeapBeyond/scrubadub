@@ -10,7 +10,7 @@ information that might be personally identifiable. As this project matures, I
 fully expect the project to become ever smarter about how it interprets and
 anonymizes raw text.
 
-Regardless of which peraonl information is identified, this project is committed
+Regardless of which personal information is identified, this project is committed
 to being as agnostic about the manner in which the text is anonymized, so long
 as it is done with rigor and does not inadvertantly lead to `improper
 anonymization <https://medium.com/@vijayp/of-taxis-and-rainbows-f6bc289679a1>`_.
