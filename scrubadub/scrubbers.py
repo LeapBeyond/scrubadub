@@ -18,10 +18,28 @@ class Scrubber(object):
     def __init__(self, *args, **kwargs):
         super(Scrubber, self).__init__(*args, **kwargs)
 
-        # instantiate all of the detectors
-        self.detectors = {}
-        for type, detector_cls in detectors.types.iteritems():
-            self.detectors[type] = detector_cls()
+        # instantiate all of the detectors which, by default, uses all of the
+        # detectors that are in the detectors.types dictionary
+        self._detectors = {}
+        for name, detector_cls in detectors.types.iteritems():
+            self.add_detector(name, detector_cls)
+
+    def add_detector(self, name, detector_cls):
+        """Add a ``Detector`` to scrubadub"""
+        if self._detectors.has_key(name):
+            raise KeyError((
+                'can not add Detector "%(name)s"---it already exists. '
+                'Try removing it first.'
+            ) % locals())
+        if not issubclass(detector_cls, detectors.base.Detector):
+            raise TypeError((
+                '"%(detector_cls)s" is not a subclass of Detector'
+            ) % locals())
+        self._detectors[name] = detector_cls()
+
+    def remove_detector(self, name):
+        """Remove a ``Detector`` from scrubadub"""
+        self._detectors.pop(name)
 
     def clean(self, text, **kwargs):
         """This is the master method that cleans all of the filth out of the
@@ -52,7 +70,7 @@ class Scrubber(object):
         # over all detectors simultaneously. just trying to get something
         # working right now and we can worry about efficiency later
         all_filths = []
-        for detector in self.detectors.itervalues():
+        for detector in self._detectors.itervalues():
             for filth in detector.iter_filth(text):
                 if not isinstance(filth, Filth):
                     raise TypeError('iter_filth must always yield Filth')

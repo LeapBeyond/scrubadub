@@ -42,3 +42,17 @@ class ScrubberTestCase(unittest.TestCase):
             self.assertIsInstance(filth, MergedFilth)
             self.assertTrue('SKYPE' in filth.placeholder, filth.placeholder)
             self.assertTrue('EMAIL' in filth.placeholder, filth.placeholder)
+
+    def test_add_duplicate_detector(self):
+        """make sure adding a detector that already exists raises an error"""
+        scrubber = scrubadub.Scrubber()
+        with self.assertRaises(KeyError):
+            scrubber.add_detector('email', scrubadub.detectors.EmailDetector)
+
+    def test_add_non_detector(self):
+        """make sure you can't add a detector that is not a Detector"""
+        class NotDetector(object):
+            pass
+        scrubber = scrubadub.Scrubber()
+        with self.assertRaises(TypeError):
+            scrubber.add_detector('fargus', NotDetector)
