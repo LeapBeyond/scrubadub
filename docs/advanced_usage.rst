@@ -28,8 +28,8 @@ in the resulting output, you can disable the email address cleaning like this:
     u"contact {{NAME}} {{NAME}} at joe@example.com"
 
 
-Customizing filth identification
---------------------------------
+Customizing filth markers
+-------------------------
 
 By default, ``scrubadub`` uses mustache notation to signify what has been
 removed from the dirty dirty text. This can be inconvenient in situations where
@@ -50,12 +50,29 @@ resulting text in HTML, you might want to do this:
     u"contact <b>NAME</b> <b>NAME</b> at <b>EMAIL</b>"
 
 
-
-
 Adding a new type of filth
 --------------------------
 
-.. todo:: TKTK
+It is quite common for particular use cases of ``scrubadub`` to require
+obfuscation of specific types of filth. If you run across something that is
+very general, please :ref:`contribute it back <contributing>`! In the meantime,
+you can always add your own ``Filth`` and ``Detectors`` like this:
+
+.. code:: pycon
+
+    >>> import scrubadub
+    >>> class MyFilth(scrubadub.filth.base.Filth):
+    >>>     type = 'mine'
+    >>> class MyDetector(scrubadub.Detector.base.Detector):
+    >>>     filth_cls = MyFilth
+    >>>     def iter_filth(self, text):
+    >>>        # do something here
+    >>>        pass
+    >>> scrubber = scrubadub.Scrubber()
+    >>> scrubber.add_detector('my filth', MyDetector)
+    >>> text = u"My stuff can be found there"
+    >>> scrubadub.clean(text)
+    u"{{MINE}} can be found there."
 
 
 Customizing the cleaned text
