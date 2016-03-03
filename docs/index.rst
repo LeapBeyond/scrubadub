@@ -32,18 +32,15 @@ incorporating it into your python scripts like this:
 
     # Replace names with {{NAME}} placeholder. This is the scrubadub default
     # because it maximally omits any information about people.
-    >>> placeholder_text = scrubadub.clean(text)
-    >>> placeholder_text
+    >>> scrubadub.clean(text)
     u"{{NAME}} is a cat"
 
 ..    # Replace names with {{NAME-ID}} anonymous, but consistent IDs.
-    >>> identifier_text = scrubadub.clean(text, replace_with='identifier')
-    >>> identifier_text
+    >>> scrubadub.clean(text, replace_with='identifier')
     u"{{NAME-1287}} is a cat"
 
 ..    # Replace names with random, gender-consistent names
-    >>> surrogate_text = scrubadub.clean(text, replace_with='surrogate')
-    >>> surrogate_text
+    >>> scrubadub.clean(text, replace_with='surrogate')
     u"Billy is a cat"
 
 

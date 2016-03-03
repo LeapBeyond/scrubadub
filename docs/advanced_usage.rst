@@ -20,19 +20,36 @@ in the resulting output, you can disable the email address cleaning like this:
 
 .. code:: pycon
 
-    import scrubadub
-    scurbber = scrubadub.Scrubber()
-    scrubber.remove_detector('email')
-    >>> text = u"John's email address is cat@gmail.com"
-    >>> text = scrubadub.clean(text)
-    >>> text
-    u"{{NAME}}'s email address is cat@gmail.com'"
+    >>> import scrubadub
+    >>> scrubber = scrubadub.Scrubber()
+    >>> scrubber.remove_detector('email')
+    >>> text = u"contact Joe Duffy at joe@example.com"
+    >>> scrubadub.clean(text)
+    u"contact {{NAME}} {{NAME}} at joe@example.com"
 
 
-Customizing cleaned text
-------------------------
+Customizing filth identification
+--------------------------------
 
-.. todo:: TKTK
+By default, ``scrubadub`` uses mustache notation to signify what has been
+removed from the dirty dirty text. This can be inconvenient in situations where
+you want to display the information differently. You can customize the mustache
+notation by changing the ``prefix`` and ``suffix`` in the
+``scrubadub.filth.base.Filth`` object. For example, to bold all of the
+resulting text in HTML, you might want to do this:
+
+.. code:: pycon
+
+    >>> import scrubadub
+    >>> scrubadub.filth.base.Filth.prefix = u'<b>'
+    >>> scrubadub.filth.base.Filth.suffix = u'</b>'
+    >>> scrubber = scrubadub.Scrubber()
+    >>> scrubber.remove_detector('email')
+    >>> text = u"contact Joe Duffy at joe@example.com"
+    >>> scrubadub.clean(text)
+    u"contact <b>NAME</b> <b>NAME</b> at <b>EMAIL</b>"
+
+
 
 
 Adding a new type of filth
