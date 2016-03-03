@@ -1,4 +1,5 @@
 from .. import exceptions
+from .. import utils
 
 
 class Filth(object):
@@ -14,6 +15,10 @@ class Filth(object):
     # the `type` is used when filths are merged to come up with a sane label
     type = None
 
+    # the `lookup` is used to keep track of all of the diffent types of filth
+    # that are encountered across all `Filth` types.
+    lookup = utils.Lookup()
+
     def __init__(self, beg=0, end=0, text=u''):
         self.beg = beg
         self.end = end
@@ -23,13 +28,21 @@ class Filth(object):
     def placeholder(self):
         return self.type.upper()
 
+    @property
+    def identifier(self):
+        # NOTE: this is not an efficient way to store this in memory. could
+        # alternatively hash the type and text and do away with the overhead
+        # bits of storing the tuple in the lookup
+        i = self.lookup[(self.type, self.text.lower())]
+        return u'%s-%d' % (self.placeholder, i)
+
     def replace_with(self, replace_with='placeholder', **kwargs):
         if replace_with == 'placeholder':
             return self.prefix + self.placeholder + self.suffix
         # elif replace_with == 'surrogate':
         #     raise NotImplementedError
-        # elif replace_with == 'identifier':
-        #     raise NotImplementedError
+        elif replace_with == 'identifier':
+            return self.prefix + self.identifier + self.suffix
         else:
             raise exceptions.InvalidReplaceWith(replace_with)
 

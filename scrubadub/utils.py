@@ -37,3 +37,19 @@ class CanonicalStringSet(set):
         return super(CanonicalStringSet, self).discard(
             self._cast_as_lower(element)
         )
+
+
+class Lookup(object):
+    """The Lookup object is used to create an in-memory reference table to
+    create unique identifiers for ``Filth`` that is encountered.
+    """
+
+    def __init__(self):
+        self.table = {}
+
+    def __getitem__(self, key):
+        try:
+            return self.table[key]
+        except KeyError:
+            self.table[key] = len(self.table)
+            return self.table[key]
