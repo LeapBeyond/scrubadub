@@ -21,19 +21,22 @@ class Scrubber(object):
         # instantiate all of the detectors which, by default, uses all of the
         # detectors that are in the detectors.types dictionary
         self._detectors = {}
-        for name, detector_cls in detectors.types.iteritems():
-            self.add_detector(name, detector_cls)
+        for detector_cls in detectors.iter_detector_clss():
+            self.add_detector(detector_cls)
 
-    def add_detector(self, name, detector_cls):
+    def add_detector(self, detector_cls):
         """Add a ``Detector`` to scrubadub"""
+        if not issubclass(detector_cls, detectors.base.Detector):
+            raise TypeError((
+                '"%(detector_cls)s" is not a subclass of Detector'
+            ) % locals())
+        # TODO: should add tests to make sure filth_cls is actually a proper
+        # filth_cls
+        name = detector_cls.filth_cls.type
         if self._detectors.has_key(name):
             raise KeyError((
                 'can not add Detector "%(name)s"---it already exists. '
                 'Try removing it first.'
-            ) % locals())
-        if not issubclass(detector_cls, detectors.base.Detector):
-            raise TypeError((
-                '"%(detector_cls)s" is not a subclass of Detector'
             ) % locals())
         self._detectors[name] = detector_cls()
 
