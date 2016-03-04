@@ -7,8 +7,10 @@ import scrubadub
 # functionality of the test suite
 class BaseTestCase(object):
 
-    def clean(self, text):
-        return scrubadub.clean(text)
+    def clean(self, text, **kwargs):
+        if 'replace_with' in kwargs:
+            scrubadub.filth.base.Filth.lookup = scrubadub.utils.Lookup()
+        return scrubadub.clean(text, **kwargs)
 
     def get_before_after(self, docstring=None):
         """Recursively parse the docstrings of methods that are called in the
@@ -37,9 +39,9 @@ class BaseTestCase(object):
             '\nEXPECTED:\n"%s"\n\nBUT GOT THIS:\n"%s"'%(expected, actual),
         )
 
-    def compare_before_after(self, docstring=None):
+    def compare_before_after(self, docstring=None, **clean_kwargs):
         """Convenience method for quickly writing tests using the BEFORE and
         AFTER keywords to parse the docstring.
         """
         before, after = self.get_before_after(docstring=docstring)
-        self.check_equal(after, self.clean(before))
+        self.check_equal(after, self.clean(before, **clean_kwargs))
