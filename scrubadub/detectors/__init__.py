@@ -8,7 +8,7 @@ def _iter_module_names():
     this_filename = os.path.abspath(__file__)
     this_dir = os.path.dirname(this_filename)
     base_filename = os.path.join(this_dir, 'base.py')
-    for py_filename in glob.glob(os.path.join(this_dir, '*.py')):
+    for py_filename in sorted(glob.glob(os.path.join(this_dir, '*.py'))):
         if py_filename != this_filename and py_filename != base_filename:
             filename_root, _ = os.path.splitext(py_filename)
             module_name = os.path.basename(filename_root)
