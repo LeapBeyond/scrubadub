@@ -7,9 +7,13 @@ import importlib
 def _iter_module_names():
     this_filename = os.path.abspath(__file__)
     this_dir = os.path.dirname(this_filename)
-    base_filename = os.path.join(this_dir, 'base.py')
+    exclude_filenames = set((
+        this_filename,
+        this_filename.replace('.pyc', '.py'),
+        os.path.join(this_dir, 'base.py'),
+    ))
     for py_filename in sorted(glob.glob(os.path.join(this_dir, '*.py'))):
-        if py_filename != this_filename and py_filename != base_filename:
+        if py_filename not in exclude_filenames:
             filename_root, _ = os.path.splitext(py_filename)
             module_name = os.path.basename(filename_root)
             yield module_name
@@ -38,3 +42,11 @@ def iter_detector_clss():
         detector_cls = _get_detector(module_name)
         if detector_cls is not None:
             yield detector_cls
+
+
+# import all of the detector classes into the local namespace to make it easy
+# to do things like `import scrubadub.detectors.NameDetector`
+# http://stackoverflow.com/a/4526709/564709
+# http://stackoverflow.com/a/511059/564709
+for _detector_cls in iter_detector_clss():
+    locals().update({type(_detector_cls()).__name__: _detector_cls})
