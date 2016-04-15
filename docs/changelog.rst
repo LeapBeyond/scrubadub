@@ -11,9 +11,16 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+1.1.0
+-----
+
 * regular expression detection of Social Security Numbers (`#17`_)
 
 * Added functionality to keep ``replace_with = "identifier"`` (`#21`_)
+
+* several bug fixes, including:
+
+   * inaccurate name detection (`#19`_)
 
 1.0.3
 -----
@@ -77,4 +84,5 @@ latest changes in development for next release
 .. _#12: https://github.com/datascopeanalytics/scrubadub/issues/12
 .. _#13: https://github.com/datascopeanalytics/scrubadub/issues/13
 .. _#17: https://github.com/datascopeanalytics/scrubadub/issues/17
+.. _#19: https://github.com/datascopeanalytics/scrubadub/issues/19
 .. _#21: https://github.com/datascopeanalytics/scrubadub/issues/21
