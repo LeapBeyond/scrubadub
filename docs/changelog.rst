@@ -11,6 +11,8 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+* Added functionality to keep ``replace_with = "identifier"``
+
 1.0.3
 -----
 
