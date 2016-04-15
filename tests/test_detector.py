@@ -25,7 +25,7 @@ class RegexDetectorTestCase(unittest.TestCase):
 
     def test_detector_filth_cls(self):
         """Detector.filth_cls should always exist"""
-        for detector_cls in scrubadub.detectors.iter_detector_clss():
+        for detector_cls in scrubadub.detectors.iter_detectors():
             self.assertTrue(getattr(detector_cls, 'filth_cls', False),
                 '%s does not have a filth_cls set' % detector_cls
             )

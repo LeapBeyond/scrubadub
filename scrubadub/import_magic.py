@@ -26,9 +26,9 @@ def _iter_module_subclasses(package, module_name, base_cls):
 def iter_subclasses(package_root, base_cls, is_abstract):
     package = 'scrubadub.' + os.path.basename(package_root)
     for module_name in _iter_package_module_names(package_root):
-        for subclass in _iter_module_subclasses(package, module_name, base_cls):
-            if not is_abstract(subclass):
-                yield subclass
+        for cls in _iter_module_subclasses(package, module_name, base_cls):
+            if not is_abstract(cls):
+                yield cls
 
 
 def update_locals(locals_instance, instance_iterator, *args, **kwargs):
