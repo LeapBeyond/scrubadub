@@ -5,3 +5,4 @@ from .url import UrlFilth
 from .phone import PhoneFilth
 from .credential import CredentialFilth
 from .skype import SkypeFilth
+from .ssn import SSNFilth

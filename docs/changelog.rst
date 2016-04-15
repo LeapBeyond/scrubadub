@@ -11,6 +11,9 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+* regular expression detection of Social Security Numbers (`#17`_)
+
+
 1.0.3
 -----
 
@@ -72,3 +75,4 @@ latest changes in development for next release
 .. _#11: https://github.com/datascopeanalytics/scrubadub/issues/11
 .. _#12: https://github.com/datascopeanalytics/scrubadub/issues/12
 .. _#13: https://github.com/datascopeanalytics/scrubadub/issues/13
+.. _#17: https://github.com/datascopeanalytics/scrubadub/issues/17
