@@ -11,8 +11,6 @@ class FilthTestCase(unittest.TestCase):
         with self.assertRaises(InvalidReplaceWith):
             filth.replace_with('surrogate')
         with self.assertRaises(InvalidReplaceWith):
-            filth.replace_with('identifier')
-        with self.assertRaises(InvalidReplaceWith):
             filth.replace_with('something_invalid')
 
     def test_nonoverlapping_filth(self):

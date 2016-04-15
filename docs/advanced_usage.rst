@@ -69,7 +69,7 @@ you can always add your own ``Filth`` and ``Detectors`` like this:
     >>>        # do something here
     >>>        pass
     >>> scrubber = scrubadub.Scrubber()
-    >>> scrubber.add_detector('my filth', MyDetector)
+    >>> scrubber.add_detector(MyDetector)
     >>> text = u"My stuff can be found there"
     >>> scrubadub.clean(text)
     u"{{MINE}} can be found there."

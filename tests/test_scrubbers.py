@@ -47,7 +47,7 @@ class ScrubberTestCase(unittest.TestCase):
         """make sure adding a detector that already exists raises an error"""
         scrubber = scrubadub.Scrubber()
         with self.assertRaises(KeyError):
-            scrubber.add_detector('email', scrubadub.detectors.EmailDetector)
+            scrubber.add_detector(scrubadub.detectors.email.EmailDetector)
 
     def test_add_non_detector(self):
         """make sure you can't add a detector that is not a Detector"""
@@ -55,4 +55,4 @@ class ScrubberTestCase(unittest.TestCase):
             pass
         scrubber = scrubadub.Scrubber()
         with self.assertRaises(TypeError):
-            scrubber.add_detector('fargus', NotDetector)
+            scrubber.add_detector(NotDetector)

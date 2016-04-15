@@ -37,9 +37,11 @@ incorporating it into your python scripts like this:
     >>> scrubadub.clean(text)
     u"{{NAME}} is a cat"
 
-..    # Replace names with {{NAME-ID}} anonymous, but consistent IDs.
+    # Replace names with {{NAME-ID}} anonymous, but consistent IDs.
     >>> scrubadub.clean(text, replace_with='identifier')
-    u"{{NAME-1287}} is a cat"
+    u"{{NAME-0}} is a cat"
+    >>> scrubadub.clean("John spoke with Doug.", replace_with='identifier')
+    u"{{NAME-0}} spoke with {{NAME-1}}."
 
 ..    # Replace names with random, gender-consistent names
     >>> scrubadub.clean(text, replace_with='surrogate')

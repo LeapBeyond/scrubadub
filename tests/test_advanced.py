@@ -31,3 +31,17 @@ class AdvancedTestCase(unittest.TestCase, BaseTestCase):
         self.check_equal(after, scrubber.clean(before))
         scrubadub.filth.base.Filth.prefix = prefix
         scrubadub.filth.base.Filth.suffix = suffix
+
+    def test_identifier(self):
+        """
+        BEFORE: i'm on skype (dean.malmgren) or can be reached at +1.800.346.1819
+        AFTER:  i'm on skype ({{SKYPE-0}}) or can be reached at {{PHONE-1}}
+        """
+        self.compare_before_after(replace_with='identifier')
+
+    def test_identifier_repeat(self):
+        """
+        BEFORE: my name is Dean Malmgren. Did I mention my name is Dean?
+        AFTER:  my name is {{NAME-0}} {{NAME-1}}. Did I mention my name is {{NAME-0}}?
+        """
+        self.compare_before_after(replace_with='identifier')
