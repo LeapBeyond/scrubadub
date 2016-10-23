@@ -26,7 +26,7 @@ def iter_filths():
     """Iterate over all instances of filth"""
     for filth_cls in iter_filth_clss():
         if issubclass(filth_cls, RegexFilth):
-            m = re.finditer(r"\s+", "fake pattern string").next()
+            m = next(re.finditer(r"\s+", "fake pattern string"))
             yield filth_cls(m)
         else:
             yield filth_cls()

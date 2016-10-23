@@ -1,12 +1,9 @@
-import re
 import operator
-
-import textblob
-import nltk
+import sys
 
 from . import exceptions
 from . import detectors
-from .filth import Filth, MergedFilth
+from .filth import Filth
 
 
 class Scrubber(object):
@@ -50,8 +47,9 @@ class Scrubber(object):
         through to the  ``Filth.replace_with`` method to fine-tune how the
         ``Filth`` is cleaned.
         """
-        if not isinstance(text, unicode):
-            raise exceptions.UnicodeRequired
+        if sys.version_info < (3, 0):  # Only in Python 2, in 3 every string is a Python 2 unicode
+            if not isinstance(text, unicode):
+                raise exceptions.UnicodeRequired
 
         clean_chunks = []
         filth = Filth()
@@ -73,7 +71,7 @@ class Scrubber(object):
         # over all detectors simultaneously. just trying to get something
         # working right now and we can worry about efficiency later
         all_filths = []
-        for detector in self._detectors.itervalues():
+        for detector in self._detectors.values():
             for filth in detector.iter_filth(text):
                 if not isinstance(filth, Filth):
                     raise TypeError('iter_filth must always yield Filth')

@@ -1,3 +1,8 @@
+try:
+    unicode
+except NameError:
+    basestring = str  # Compatibility for Python 2 and 3
+
 
 class CanonicalStringSet(set):
     """Just like a set, except it makes sure that all elements are lower case
@@ -5,7 +10,7 @@ class CanonicalStringSet(set):
     """
 
     def _cast_as_lower(self, x):
-        if not isinstance(x, (str, unicode)):
+        if not isinstance(x, basestring):
             raise TypeError('CanonicalStringSet only works with strings')
         return x.lower()
 

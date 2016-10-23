@@ -3,6 +3,11 @@ import inspect
 import scrubadub
 
 
+try:
+    unicode
+except NameError:
+    unicode = str  # Python 2 and 3 compatibility
+
 # this is a mixin class to make it easy to centralize a lot of the core
 # functionality of the test suite
 class BaseTestCase(object):

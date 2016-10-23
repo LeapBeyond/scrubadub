@@ -1,9 +1,11 @@
+import sys
 import unittest
 
 import scrubadub
 
 from base import BaseTestCase
 
+@unittest.skipIf(sys.version_info >= (3,0), "Test only needed in Python 2")
 class UnicodeTestCase(unittest.TestCase, BaseTestCase):
 
     def test_empty(self):
