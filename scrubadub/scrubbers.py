@@ -78,7 +78,7 @@ class Scrubber(object):
                 if not isinstance(filth, Filth):
                     raise TypeError('iter_filth must always yield Filth')
                 all_filths.append(filth)
-                
+
         # Sort per start position and substrings
         all_filths = sorted(all_filths, cmp=_sort_filths)
 
@@ -94,11 +94,11 @@ class Scrubber(object):
             else:
                 filth = filth.merge(next_filth)
         yield filth
-        
-        
+
+
 def _sort_filths(a_filth, b_filth):
     """Sort list of filths per starting position and substrings"""
-    
+
     # if a_filth starts first return a
     if a_filth.beg < b_filth.beg:
         return -1
@@ -113,4 +113,3 @@ def _sort_filths(a_filth, b_filth):
         return -1
 
     return 1
-
