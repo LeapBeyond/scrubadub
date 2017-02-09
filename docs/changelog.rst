@@ -11,6 +11,11 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+1.1.1
+-----
+
+* fixed ``FilthMergeError`` (`#29`_ via `@hugofvs`_)
+
 1.1.0
 -----
 
@@ -68,6 +73,7 @@ latest changes in development for next release
    to make the text above relatively clean
 
 .. _@deanmalmgren: https://github.com/deanmalmgren
+.. _@hugofvs: https://github.com/hugofvs
 
 
 .. list of issues that have been resolved. putting links here to make
@@ -86,3 +92,4 @@ latest changes in development for next release
 .. _#17: https://github.com/datascopeanalytics/scrubadub/issues/17
 .. _#19: https://github.com/datascopeanalytics/scrubadub/issues/19
 .. _#21: https://github.com/datascopeanalytics/scrubadub/issues/21
+.. _#29: https://github.com/datascopeanalytics/scrubadub/issues/29
