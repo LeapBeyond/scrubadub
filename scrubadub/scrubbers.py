@@ -47,7 +47,8 @@ class Scrubber(object):
         through to the  ``Filth.replace_with`` method to fine-tune how the
         ``Filth`` is cleaned.
         """
-        if sys.version_info < (3, 0):  # Only in Python 2, in 3 every string is a Python 2 unicode
+        if sys.version_info < (3, 0):
+            # Only in Python 2. In 3 every string is a Python 2 unicode
             if not isinstance(text, unicode):
                 raise exceptions.UnicodeRequired
 
