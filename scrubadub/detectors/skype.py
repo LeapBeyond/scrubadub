@@ -44,7 +44,7 @@ class SkypeDetector(RegexDetector):
         for i in skype_indices:
             jmin = max(i-self.word_radius, 0)
             jmax = min(i+self.word_radius+1, len(tokens))
-            for j in range(jmin, i) + range(i+1, jmax):
+            for j in list(range(jmin, i)) + list(range(i+1, jmax)):
                 token = tokens[j]
                 if self.filth_cls.SKYPE_USERNAME.match(token):
 
