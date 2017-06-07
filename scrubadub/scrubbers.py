@@ -77,8 +77,9 @@ class Scrubber(object):
                     raise TypeError('iter_filth must always yield Filth')
                 all_filths.append(filth)
 
-        # Sort per start position and substrings
-        all_filths = sorted(all_filths, cmp=_sort_filths)
+        # Sort by start position. If two filths start in the same place then
+        # return the longer one first
+        all_filths.sort(key=lambda f: (f.beg, -f.end))
 
         # this is where the Scrubber does its hard work and merges any
         # overlapping filths.
@@ -92,22 +93,3 @@ class Scrubber(object):
             else:
                 filth = filth.merge(next_filth)
         yield filth
-
-
-def _sort_filths(a_filth, b_filth):
-    """Sort list of filths per starting position and substrings"""
-
-    # if a_filth starts first return a
-    if a_filth.beg < b_filth.beg:
-        return -1
-
-    # if b_filth starts first return b
-    if a_filth.beg > b_filth.beg:
-        return 1
-
-    # if boths filths start in the same position
-    # return the inclusive filth
-    if a_filth.end > b_filth.end:
-        return -1
-
-    return 1
