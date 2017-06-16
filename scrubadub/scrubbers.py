@@ -1,12 +1,9 @@
-import re
 import operator
-
-import textblob
-import nltk
+import sys
 
 from . import exceptions
 from . import detectors
-from .filth import Filth, MergedFilth
+from .filth import Filth
 
 
 class Scrubber(object):
@@ -50,8 +47,10 @@ class Scrubber(object):
         through to the  ``Filth.replace_with`` method to fine-tune how the
         ``Filth`` is cleaned.
         """
-        if not isinstance(text, unicode):
-            raise exceptions.UnicodeRequired
+        if sys.version_info < (3, 0):
+            # Only in Python 2. In 3 every string is a Python 2 unicode
+            if not isinstance(text, unicode):
+                raise exceptions.UnicodeRequired
 
         clean_chunks = []
         filth = Filth()
@@ -73,14 +72,15 @@ class Scrubber(object):
         # over all detectors simultaneously. just trying to get something
         # working right now and we can worry about efficiency later
         all_filths = []
-        for detector in self._detectors.itervalues():
+        for detector in self._detectors.values():
             for filth in detector.iter_filth(text):
                 if not isinstance(filth, Filth):
                     raise TypeError('iter_filth must always yield Filth')
                 all_filths.append(filth)
 
-        # Sort per start position and substrings
-        all_filths = sorted(all_filths, cmp=_sort_filths)
+        # Sort by start position. If two filths start in the same place then
+        # return the longer one first
+        all_filths.sort(key=lambda f: (f.beg, -f.end))
 
         # this is where the Scrubber does its hard work and merges any
         # overlapping filths.
@@ -94,22 +94,3 @@ class Scrubber(object):
             else:
                 filth = filth.merge(next_filth)
         yield filth
-
-
-def _sort_filths(a_filth, b_filth):
-    """Sort list of filths per starting position and substrings"""
-
-    # if a_filth starts first return a
-    if a_filth.beg < b_filth.beg:
-        return -1
-
-    # if b_filth starts first return b
-    if a_filth.beg > b_filth.beg:
-        return 1
-
-    # if boths filths start in the same position
-    # return the inclusive filth
-    if a_filth.end > b_filth.end:
-        return -1
-
-    return 1
