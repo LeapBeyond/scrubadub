@@ -11,6 +11,11 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+1.2.0
+-----
+
+* added python 3 compatability (`#31`_ via `@davidread`_)
+
 1.1.1
 -----
 
@@ -72,6 +77,7 @@ latest changes in development for next release
 .. list of contributors that are linked to above. putting links here
    to make the text above relatively clean
 
+.. _@davidread: https://github.com/davidread
 .. _@deanmalmgren: https://github.com/deanmalmgren
 .. _@hugofvs: https://github.com/hugofvs
 
@@ -93,3 +99,4 @@ latest changes in development for next release
 .. _#19: https://github.com/datascopeanalytics/scrubadub/issues/19
 .. _#21: https://github.com/datascopeanalytics/scrubadub/issues/21
 .. _#29: https://github.com/datascopeanalytics/scrubadub/issues/29
+.. _#31: https://github.com/datascopeanalytics/scrubadub/pull/31
