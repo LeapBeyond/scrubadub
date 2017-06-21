@@ -11,6 +11,10 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+* bug fixes:
+
+  * fixed documentation (`#32`_ via `@ivyleavedtoadflax`_)
+
 1.2.0
 -----
 
@@ -80,6 +84,7 @@ latest changes in development for next release
 .. _@davidread: https://github.com/davidread
 .. _@deanmalmgren: https://github.com/deanmalmgren
 .. _@hugofvs: https://github.com/hugofvs
+.. _@ivyleavedtoadflax: https://github.com/ivyleavedtoadflax
 
 
 .. list of issues that have been resolved. putting links here to make
@@ -100,3 +105,4 @@ latest changes in development for next release
 .. _#21: https://github.com/datascopeanalytics/scrubadub/issues/21
 .. _#29: https://github.com/datascopeanalytics/scrubadub/issues/29
 .. _#31: https://github.com/datascopeanalytics/scrubadub/pull/31
+.. _#32: https://github.com/datascopeanalytics/scrubadub/pull/32
