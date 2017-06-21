@@ -24,7 +24,7 @@ in the resulting output, you can disable the email address cleaning like this:
     >>> scrubber = scrubadub.Scrubber()
     >>> scrubber.remove_detector('email')
     >>> text = u"contact Joe Duffy at joe@example.com"
-    >>> scrubadub.clean(text)
+    >>> scrubber.clean(text)
     u"contact {{NAME}} {{NAME}} at joe@example.com"
 
 
@@ -46,7 +46,7 @@ resulting text in HTML, you might want to do this:
     >>> scrubber = scrubadub.Scrubber()
     >>> scrubber.remove_detector('email')
     >>> text = u"contact Joe Duffy at joe@example.com"
-    >>> scrubadub.clean(text)
+    >>> scrubber.clean(text)
     u"contact <b>NAME</b> <b>NAME</b> at <b>EMAIL</b>"
 
 
@@ -71,7 +71,7 @@ you can always add your own ``Filth`` and ``Detectors`` like this:
     >>> scrubber = scrubadub.Scrubber()
     >>> scrubber.add_detector(MyDetector)
     >>> text = u"My stuff can be found there"
-    >>> scrubadub.clean(text)
+    >>> scrubber.clean(text)
     u"{{MINE}} can be found there."
 
 
