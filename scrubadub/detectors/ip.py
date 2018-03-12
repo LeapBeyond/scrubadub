@@ -1,9 +1,9 @@
 from IPy import IP
-from .base import RegexDetector
+from .base import Detector
 from ..filth.ip import FilthyIP
 
 
-class IPv4Detector(RegexDetector):
+class IPDetector(Detector):
     filth_cls = FilthyIP
 
     def iter_filth(self, text):
