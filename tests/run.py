@@ -8,7 +8,7 @@ import subprocess
 
 import yaml
 
-from scrubadub.colors import green, red
+from colors import green, red
 
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
