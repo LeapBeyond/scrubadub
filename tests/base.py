@@ -17,12 +17,15 @@ class BaseTestCase(object):
             scrubadub.filth.base.Filth.lookup = scrubadub.utils.Lookup()
         return scrubadub.clean(text, **kwargs)
 
+    def scan(self, text, **kwargs):
+        return scrubadub.scan(text, **kwargs)
+
     def get_before_after(self, docstring=None):
         """Recursively parse the docstrings of methods that are called in the
         stack to find the docstring that has been used to define the test.
         """
         # get the before and after outcomes from the docstring of the method
-        # that calls compare_before_after
+        # that calls compare_clean_before_after
         if docstring is None:
             stack = inspect.stack()
             for frame in inspect.stack():
@@ -44,9 +47,17 @@ class BaseTestCase(object):
             '\nEXPECTED:\n"%s"\n\nBUT GOT THIS:\n"%s"'%(expected, actual),
         )
 
-    def compare_before_after(self, docstring=None, **clean_kwargs):
+    def compare_clean_before_after(self, docstring=None, **clean_kwargs):
         """Convenience method for quickly writing tests using the BEFORE and
         AFTER keywords to parse the docstring.
         """
         before, after = self.get_before_after(docstring=docstring)
         self.check_equal(after, self.clean(before, **clean_kwargs))
+
+    def compare_scan_before_after(self, docstring=None, **clean_kwargs):
+        """Convenience method for quickly writing tests using the BEFORE and
+        AFTER keywords to parse the docstring.
+        """
+        before, after = self.get_before_after(docstring=docstring)
+        scanned_value = ", ".join(self.scan(before, **clean_kwargs))
+        self.check_equal(after, scanned_value)

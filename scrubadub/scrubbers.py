@@ -41,6 +41,29 @@ class Scrubber(object):
         """Remove a ``Detector`` from scrubadub"""
         self._detectors.pop(name)
 
+    def get_all_filths(self, text):
+
+        # currently doing this by aggregating all_filths and then sorting
+        # inline instead of with a Filth.__cmp__ method, which is apparently
+        # much slower http://stackoverflow.com/a/988728/564709
+        #
+        # NOTE: we could probably do this in a more efficient way by iterating
+        # over all detectors simultaneously. just trying to get something
+        # working right now and we can worry about efficiency later
+        all_filths = []
+
+        for detector in self._detectors.values():
+            for filth in detector.iter_filth(text):
+                if not isinstance(filth, Filth):
+                    raise TypeError('iter_filth must always yield Filth')
+                all_filths.append(filth)
+
+        # Sort by start position. If two filths start in the same place then
+        # return the longer one first
+        all_filths.sort(key=lambda f: (f.beg, -f.end))
+
+        return all_filths
+
     def clean(self, text, **kwargs):
         """This is the master method that cleans all of the filth out of the
         dirty dirty ``text``. All keyword arguments to this function are passed
@@ -54,33 +77,17 @@ class Scrubber(object):
 
         clean_chunks = []
         filth = Filth()
-        for next_filth in self.iter_filth(text):
+        for next_filth in self.iter_filth_for_clean(text):
             clean_chunks.append(text[filth.end:next_filth.beg])
             clean_chunks.append(next_filth.replace_with(**kwargs))
             filth = next_filth
         clean_chunks.append(text[filth.end:])
         return u''.join(clean_chunks)
 
-    def iter_filth(self, text):
+    def iter_filth_for_clean(self, text):
         """Iterate over the different types of filth that can exist.
         """
-        # currently doing this by aggregating all_filths and then sorting
-        # inline instead of with a Filth.__cmp__ method, which is apparently
-        # much slower http://stackoverflow.com/a/988728/564709
-        #
-        # NOTE: we could probably do this in a more efficient way by iterating
-        # over all detectors simultaneously. just trying to get something
-        # working right now and we can worry about efficiency later
-        all_filths = []
-        for detector in self._detectors.values():
-            for filth in detector.iter_filth(text):
-                if not isinstance(filth, Filth):
-                    raise TypeError('iter_filth must always yield Filth')
-                all_filths.append(filth)
-
-        # Sort by start position. If two filths start in the same place then
-        # return the longer one first
-        all_filths.sort(key=lambda f: (f.beg, -f.end))
+        all_filths = self.get_all_filths(text)
 
         # this is where the Scrubber does its hard work and merges any
         # overlapping filths.
@@ -93,4 +100,32 @@ class Scrubber(object):
                 filth = next_filth
             else:
                 filth = filth.merge(next_filth)
+        yield filth
+
+    def scan(self, text):
+        """This is the master method that scans for any filter out of the
+        dirty dirty ``text``
+        """
+        if sys.version_info < (3, 0):
+            # Only in Python 2. In 3 every string is a Python 2 unicode
+            if not isinstance(text, unicode):
+                raise exceptions.UnicodeRequired
+
+        matched_filths = []
+        for next_filth in self.iter_filth_for_scan(text):
+            matched_filths.append(next_filth.type)
+
+        results = list(sorted(set(matched_filths)))
+        return results
+
+    def iter_filth_for_scan(self, text):
+        """Iterate over the different types of filth that can exist."""
+        all_filths = self.get_all_filths(text)
+
+        if not all_filths:
+            raise StopIteration
+        filth = all_filths[0]
+        for next_filth in all_filths[1:]:
+            yield filth
+            filth = next_filth
         yield filth

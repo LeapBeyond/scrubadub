@@ -4,7 +4,7 @@ from .scrubbers import Scrubber
 from . import filth
 from . import detectors
 
-__version__ = VERSION = "1.2.0"
+__version__ = VERSION = "1.3.0"
 
 
 def clean(text, cls=None, **kwargs):
@@ -14,3 +14,10 @@ def clean(text, cls=None, **kwargs):
     cls = cls or Scrubber
     scrubber = cls()
     return scrubber.clean(text, **kwargs)
+
+
+def scan(text, cls=None, **kwargs):
+    """Public function to check for ``text`` using the scrubber ``cls``"""
+    cls = cls or Scrubber
+    scrubber = cls()
+    return scrubber.scan(text, **kwargs)

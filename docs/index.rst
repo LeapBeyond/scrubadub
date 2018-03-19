@@ -49,7 +49,7 @@ incorporating it into your python scripts like this:
 
 
 There are many ways to tailor the behavior of ``scrubadub`` using
-:ref:`different ``Detector`` and ``Filth`` classes <under_the_hood>`. These
+:ref:`different Detector and Filth classes <under_the_hood>`. These
 :ref:`advanced techniques <advanced_usage>` allow users to fine-tune the manner
 in which ``scrubadub`` cleans dirty dirty text.
 
