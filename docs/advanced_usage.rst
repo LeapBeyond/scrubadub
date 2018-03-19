@@ -75,6 +75,21 @@ you can always add your own ``Filth`` and ``Detectors`` like this:
     u"{{MINE}} can be found there."
 
 
+Scanning for types of filth
+---------------------------
+
+Sometimes you don't want to replace the text, but instead see if there are any
+types of filth in the text. In this case you can ``scan`` the text and get a 
+list of filth that are found.
+
+.. code:: pycon
+
+    >>> import scrubadub
+    >>> text = u"Contact Joe Duffy at joe@example.com. Website is http://www.example.com" 
+    >>> scrubadub.scan(text)
+    ['email', 'name', 'url']
+
+
 Customizing the cleaned text
 ----------------------------
 
