@@ -85,7 +85,7 @@ class Scrubber(object):
         # this is where the Scrubber does its hard work and merges any
         # overlapping filths.
         if not all_filths:
-            raise StopIteration
+            return
         filth = all_filths[0]
         for next_filth in all_filths[1:]:
             if filth.end < next_filth.beg:
