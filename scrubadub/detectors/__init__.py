@@ -2,6 +2,11 @@ import os
 
 from ..import_magic import iter_subclasses, update_locals
 from .base import Detector
+from textblob.blob import BaseBlob
+from textblob.en.taggers import PatternTagger
+
+# BaseBlob uses NLTKTagger as a pos_tagger, but it works wrong
+BaseBlob.pos_tagger = PatternTagger()
 
 
 def _is_abstract_detector(detector_cls):
