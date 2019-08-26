@@ -11,7 +11,12 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+1.2.1
+-----
+
 * bug fixes:
+
+  * bumped ``textblob`` version (`#43`_ via `@roman-y-korolev`_)
 
   * fixed documentation (`#32`_ via `@ivyleavedtoadflax`_)
 
@@ -85,6 +90,7 @@ latest changes in development for next release
 .. _@deanmalmgren: https://github.com/deanmalmgren
 .. _@hugofvs: https://github.com/hugofvs
 .. _@ivyleavedtoadflax: https://github.com/ivyleavedtoadflax
+.. _@roman-y-korolev: https://github.com/roman-y-korolev
 
 
 .. list of issues that have been resolved. putting links here to make
@@ -106,3 +112,4 @@ latest changes in development for next release
 .. _#29: https://github.com/datascopeanalytics/scrubadub/issues/29
 .. _#31: https://github.com/datascopeanalytics/scrubadub/pull/31
 .. _#32: https://github.com/datascopeanalytics/scrubadub/pull/32
+.. _#43: https://github.com/datascopeanalytics/scrubadub/pull/43
