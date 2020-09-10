@@ -1,11 +1,12 @@
 
 .. NOTES FOR CREATING A RELEASE:
 ..
-..   * bump the version number
+..   * bump the version number in scrubadub/__init__.py
 ..   * update docs/changelog.rst
 ..   * git push
-..   * python setup.py sdist upload
 ..   * create a release https://github.com/LeapBeyond/scrubadub/releases
+..      * This should trigger a github action to upload to pypi
+..      * ReadTheDocs.io should see any changes and also rebuild the docs
 
 
 scrubadub
