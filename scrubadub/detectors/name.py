@@ -37,7 +37,7 @@ class NameDetector(RegexDetector):
         if proper_nouns:
             re_list = []
             for proper_noun in proper_nouns:
-                re_list.append(r'\b' + re.escape(proper_noun) + r'\b')
+                re_list.append(r'\b' + re.escape(str(proper_noun)) + r'\b')
             self.filth_cls.regex = re.compile('|'.join(re_list))
         else:
             self.filth_cls.regex = None
