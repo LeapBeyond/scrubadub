@@ -33,5 +33,5 @@ Clean personally identifiable information from dirty dirty text.
 New maintainers
 ---------------
 
-`LeapBeyond <http://leapbeyond.ai/>`_ are excited to be supporting scrubadub by with ongoing maintenance and development.
+`LeapBeyond <http://leapbeyond.ai/>`_ are excited to be supporting scrubadub with ongoing maintenance and development.
 Thanks to all of the contributors who made this package a success, but especially `@deanmalmgren <https://github.com/deanmalmgren>`_, `IDEO <https://www.ideo.com/>`_ and `Datascope <https://datascopeanalytics.com/>`_.
