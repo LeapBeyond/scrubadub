@@ -24,8 +24,8 @@ Clean personally identifiable information from dirty dirty text.
    :target: https://pypi.org/project/scrubadub/
 .. |Downloads| image:: https://img.shields.io/pypi/dm/scrubadub.svg
    :target: https://pypi.org/project/scrubadub/
-.. |Test Coverage| image:: https://coveralls.io/repos/github/datascopeanalytics/scrubadub/badge.svg?branch=master
-   :target: https://coveralls.io/r/datascopeanalytics/scrubadub
+.. |Test Coverage| image:: https://coveralls.io/repos/github/LeapBeyond/scrubadub/badge.svg?branch=master
+   :target: https://coveralls.io/github/LeapBeyond/scrubadub?branch=master
 .. |Documentation Status| image:: https://readthedocs.org/projects/scrubadub/badge/?version=latest
    :target: https://readthedocs.org/projects/scrubadub/?badge=latest
 
