@@ -1,3 +1,0 @@
-# Requirements needed to build the docs and publish to readthedocs.io
-sphinx
-sphinx_rtd_theme
