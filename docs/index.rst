@@ -78,8 +78,8 @@ inspiration for how ``scrubadub`` should work.
    lists of names that might be useful in spite of the fact it has 5k+
    lines of gross perl.
 
-.. |Build Status| image:: https://travis-ci.org/datascopeanalytics/scrubadub.svg?branch=master
-   :target: https://travis-ci.org/datascopeanalytics/scrubadub
+.. |Build Status| image:: https://travis-ci.org/LeapBeyond/scrubadub.svg?branch=master
+   :target: https://travis-ci.org/LeapBeyond/scrubadub
 .. |Coverage Status| image:: https://coveralls.io/repos/datascopeanalytics/scrubadub/badge.svg
    :target: https://coveralls.io/r/datascopeanalytics/scrubadub
 

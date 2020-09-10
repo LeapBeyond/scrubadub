@@ -28,7 +28,7 @@ error, confusing statement etc, please fix it!
 Quick start
 -----------
 
-1. `Fork <https://github.com/datascopeanalytics/scrubadub/fork>`_ and clone the
+1. `Fork <https://github.com/LeapBeyond/scrubadub/fork>`_ and clone the
    project:
 
    .. code-block:: bash
@@ -43,9 +43,9 @@ Quick start
        pip install -r requirements/python-dev
 
 3. Contribute! There are several `open issues
-   <https://github.com/datascopeanalytics/scrubadub/issues>`_ that provide
+   <https://github.com/LeapBeyond/scrubadub/issues>`_ that provide
    good places to dig in. Check out the `contribution guidelines
-   <https://github.com/datascopeanalytics/scrubadub/blob/master/CONTRIBUTING.md>`_
+   <https://github.com/LeapBeyond/scrubadub/blob/master/CONTRIBUTING.md>`_
    and send pull requests; your help is greatly appreciated!
 
 4. Run the test suite that is defined in ``.travis.yml`` to make sure
@@ -57,5 +57,5 @@ Quick start
 
    Current build status: |Build Status|
 
-.. |Build Status| image:: https://travis-ci.org/datascopeanalytics/scrubadub.png
-   :target: https://travis-ci.org/datascopeanalytics/scrubadub
+.. |Build Status| image:: https://travis-ci.org/LeapBeyond/scrubadub.png
+   :target: https://travis-ci.org/LeapBeyond/scrubadub
