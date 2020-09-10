@@ -7,9 +7,14 @@ import os
 import subprocess
 
 import yaml
-
+import sys
 from colors import green, red
 
+
+PY3 = int(sys.version[0]) == 3
+
+if PY3:
+    unicode = str
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def run_test(command):
@@ -27,11 +32,14 @@ def run_test(command):
 # load the script tests from the .travis.yml file
 with open(os.path.join(root_dir, '.travis.yml')) as stream:
     travis_yml = yaml.load_all(stream.read())
-config = travis_yml.next()
+if PY3:
+    config = next(travis_yml)
+else:
+    config = travis_yml.next()
 tests = config['script']
 
 # run the tests
-if isinstance(tests, (str, unicode)):
+if isinstance(tests, unicode):
     returncode = run_test(tests)
 elif isinstance(tests, (list, tuple)):
     returncode = 0
