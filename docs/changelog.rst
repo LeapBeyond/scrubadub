@@ -11,6 +11,19 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+1.2.2
+-----
+
+`LeapBeyond <http://leapbeyond.ai/>`_ are now supporting scrubadub with maintanance and development.
+
+* bug fixes:
+
+  * StopIteration no longer supported in recent python varions (`#41`_ via `@roman-y-korolev`_)
+
+  * Fix test runner with python 3 (`#42`_ via `@roman-y-korolev`_)
+
+  * Update documentation to reflect new repository location (`#49`_)
+
 1.2.1
 -----
 
@@ -112,4 +125,7 @@ latest changes in development for next release
 .. _#29: https://github.com/LeapBeyond/scrubadub/issues/29
 .. _#31: https://github.com/LeapBeyond/scrubadub/pull/31
 .. _#32: https://github.com/LeapBeyond/scrubadub/pull/32
+.. _#41: https://github.com/LeapBeyond/scrubadub/pull/41
+.. _#42: https://github.com/LeapBeyond/scrubadub/pull/42
 .. _#43: https://github.com/LeapBeyond/scrubadub/pull/43
+.. _#49: https://github.com/LeapBeyond/scrubadub/pull/49
