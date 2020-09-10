@@ -19,10 +19,10 @@ Clean personally identifiable information from dirty dirty text.
 
 .. |Build Status| image:: https://travis-ci.org/LeapBeyond/scrubadub.svg?branch=master
    :target: https://travis-ci.org/LeapBeyond/scrubadub
-.. |Version| image:: https://pypip.in/v/scrubadub/badge.png
-   :target: https://warehouse.python.org/project/scrubadub/
-.. |Downloads| image:: https://pypip.in/d/scrubadub/badge.png
-   :target: https://warehouse.python.org/project/scrubadub/
+.. |Version| image:: https://img.shields.io/pypi/v/scrubadub.svg
+   :target: https://pypi.org/project/scrubadub/
+.. |Downloads| image:: https://img.shields.io/pypi/dm/scrubadub.svg
+   :target: https://pypi.org/project/scrubadub/
 .. |Test Coverage| image:: https://coveralls.io/repos/github/datascopeanalytics/scrubadub/badge.svg?branch=master
    :target: https://coveralls.io/r/datascopeanalytics/scrubadub
 .. |Documentation Status| image:: https://readthedocs.org/projects/scrubadub/badge/?version=latest
