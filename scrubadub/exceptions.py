@@ -5,7 +5,7 @@
 class ScrubadubException(Exception):
 
     def __init__(self, *args, **kwargs):
-        self.issues_url = 'http://github.com/deanmalmgren/scrubadub/issues'
+        self.issues_url = 'http://github.com/LeapBeyond/scrubadub/issues'
 
     def render(self, msg):
         return msg % vars(self)
