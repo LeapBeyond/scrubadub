@@ -31,6 +31,7 @@ def iter_filths():
         else:
             yield filth_cls()
 
+
 # import all of the detector classes into the local namespace to make it easy
 # to do things like `import scrubadub.detectors.NameDetector`
 update_locals(locals(), iter_filths)

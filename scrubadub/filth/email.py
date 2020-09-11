@@ -12,13 +12,13 @@ class EmailFilth(RegexFilth):
     #
     # adapted from https://gist.github.com/dideler/5219706
     regex = re.compile((
-        "[a-z0-9!#$%&'*+\/=?^_`{|}~-]+"             # start with this character
-        "(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*"      # valid next characters
-        "(@|\sat\s)"                                # @ or at fanciness
-        "(?:"
-        "[a-z0-9]"                                  # domain starts like this
-        "(?:[a-z0-9-]*[a-z0-9])?"                   # might have this
-        "(\.|\sdot\s)"                              # . or dot fanciness
-        ")+"                                        # repeat as necessary
-        "[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"           # end of domain
-    ), re.VERBOSE)
+        r"[a-z0-9!#$%&'*+\/=?^_`{|}~-]+"           # start with this character
+        r"(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*"    # valid next characters
+        r"(@|\sat\s)"                              # @ or at fanciness
+        r"(?:"
+        r"[a-z0-9]"                                # domain starts like this
+        r"(?:[a-z0-9-]*[a-z0-9])?"                 # might have this
+        r"(\.|\sdot\s)"                            # . or dot fanciness
+        r")+"                                      # repeat as necessary
+        r"[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"         # end of domain
+    ), re.VERBOSE | re.IGNORECASE)
