@@ -12,7 +12,7 @@ install:
 # commands to run the testing suite. if any of these fail, travic lets us know
 script:
   - nosetests --with-coverage --cover-package=scrubadub
-  - pep8 scrubadub/
+  - pycodestyle scrubadub/
   - cd docs && make html && cd -
 
 # commands to run after the tests successfully complete

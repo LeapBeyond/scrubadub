@@ -11,9 +11,9 @@ class SSNFilth(RegexFilth):
     # any filth with a cleaner alternative.
     # https://en.wikipedia.org/wiki/Social_Security_number#Valid_SSNs
     regex = re.compile((
-        "[0-9][0-9][0-9]"       # first three digits
-        "[\-. ]"                # separator
-        "[0-9][0-9]"            # next two digits
-        "[\-. ]"                # separator
-        "[0-9][0-9][0-9][0-9]"  # last four digits
+        r"[0-9][0-9][0-9]"       # first three digits
+        r"[\-. ]"                # separator
+        r"[0-9][0-9]"            # next two digits
+        r"[\-. ]"                # separator
+        r"[0-9][0-9][0-9][0-9]"  # last four digits
     ), re.VERBOSE)

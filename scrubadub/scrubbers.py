@@ -27,8 +27,11 @@ class Scrubber(object):
             raise TypeError((
                 '"%(detector_cls)s" is not a subclass of Detector'
             ) % locals())
-        # TODO: should add tests to make sure filth_cls is actually a proper
-        # filth_cls
+        if not issubclass(detector_cls.filth_cls, Filth):
+            raise TypeError((
+                'The filth_cls "{}" in the detector "{}" is not a subclass '
+                'of Filth'
+            ).format(detector_cls.filth_cls, detector_cls))
         name = detector_cls.filth_cls.type
         if name in self._detectors:
             raise KeyError((

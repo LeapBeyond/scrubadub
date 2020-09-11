@@ -30,5 +30,16 @@ class FilthTestCase(unittest.TestCase):
         text = "the end"
         a_filth = SomeFilth(beg=0, end=3, text=text[:3])
         b_filth = SomeFilth(beg=1, end=7, text=text[1:])
+
         c_filth = a_filth.merge(b_filth)
         self.assertEqual(c_filth.text, text)
+
+        c_filth = b_filth.merge(a_filth)
+        self.assertEqual(c_filth.text, text)
+
+        d_filth = c_filth.merge(a_filth)
+        self.assertEqual(d_filth.text, text)
+
+        b_filth.end = 2
+        with self.assertRaises(FilthMergeError):
+            b_filth.merge(a_filth)

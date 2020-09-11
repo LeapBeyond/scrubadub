@@ -1,7 +1,7 @@
 import unittest
 
 import scrubadub
-from scrubadub.filth import MergedFilth
+from scrubadub.filth import MergedFilth, Filth
 
 
 class ScrubberTestCase(unittest.TestCase):
@@ -53,6 +53,31 @@ class ScrubberTestCase(unittest.TestCase):
         """make sure you can't add a detector that is not a Detector"""
         class NotDetector(object):
             pass
+
         scrubber = scrubadub.Scrubber()
         with self.assertRaises(TypeError):
             scrubber.add_detector(NotDetector)
+
+    def test_add_detector_no_filth(self):
+        """make sure you can't add a detector that is a Detector with a bad filth class"""
+        class CleanDetector(scrubadub.detectors.Detector):
+            filth_cls = object
+
+        scrubber = scrubadub.Scrubber()
+        with self.assertRaises(TypeError):
+            scrubber.add_detector(CleanDetector)
+
+    def test_iter_not_return_filth(self):
+        """make sure a detector cant return non filth"""
+        class FakeFilth(Filth):
+            name = 'fakerfilth'
+
+        class BadDetector(scrubadub.detectors.Detector):
+            filth_cls = FakeFilth
+            def iter_filth(self, text):
+                yield 'Non-filth'
+
+        scrubber = scrubadub.Scrubber()
+        scrubber._detectors = {'fakerfilth': BadDetector}
+        with self.assertRaises(TypeError):
+            list(scrubber.iter_filth('A fake document with no pii'))
