@@ -4,6 +4,14 @@ from ..import_magic import iter_subclasses, update_locals
 from .base import Detector
 from textblob.blob import BaseBlob
 from textblob.en.taggers import PatternTagger
+from .credential import CredentialDetector
+from .email import EmailDetector
+from .name import NameDetector
+from .phone import PhoneDetector
+from .predefined import PredefinedDetector
+from .skype import SkypeDetector
+from .ssn import SSNDetector
+from .url import UrlDetector
 
 # BaseBlob uses NLTKTagger as a pos_tagger, but it works wrong
 BaseBlob.pos_tagger = PatternTagger()
@@ -36,4 +44,4 @@ def iter_detectors():
 
 # import all of the detector classes into the local namespace to make it easy
 # to do things like `import scrubadub.detectors.NameDetector`
-update_locals(locals(), iter_detectors)
+# update_locals(locals(), iter_detectors)

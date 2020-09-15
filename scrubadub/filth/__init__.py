@@ -3,6 +3,14 @@ import re
 
 from ..import_magic import iter_subclasses, update_locals
 from .base import Filth, RegexFilth, MergedFilth
+from .credential import CredentialFilth
+from .email import EmailFilth
+from .name import NameFilth
+from .phone import PhoneFilth
+from .predefined import PredefinedFilth
+from .skype import SkypeFilth
+from .ssn import SSNFilth
+from .url import UrlFilth
 
 
 def _is_abstract_filth(filth_cls):
@@ -34,4 +42,4 @@ def iter_filths():
 
 # import all of the detector classes into the local namespace to make it easy
 # to do things like `import scrubadub.detectors.NameDetector`
-update_locals(locals(), iter_filths)
+# update_locals(locals(), iter_filths)
