@@ -69,9 +69,12 @@ class Scrubber(object):
             ) % locals())
         self._detectors[name] = detector
 
-    def remove_detector(self, name):
+    def remove_detector(self, detector):
         """Remove a ``Detector`` from scrubadub"""
-        self._detectors.pop(name)
+        if inspect.isclass(detector) or isinstance(detector, detectors.base.Detector):
+            self._detectors.pop(detector.filth_cls.type)
+        elif isinstance(detector, str):
+            self._detectors.pop(detector)
 
     def clean(self, text, **kwargs):
         """This is the master method that cleans all of the filth out of the
