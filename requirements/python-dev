@@ -17,3 +17,5 @@ sphinx_rtd_theme
 # old versions needed for python 2.7 compatibility, despite what the docs say
 ipython==5.4
 ipdb==0.10.2
+
+mypy
