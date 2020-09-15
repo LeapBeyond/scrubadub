@@ -10,10 +10,10 @@ install:
   - python -m textblob.download_corpora
 
 # commands to run the testing suite. if any of these fail, travic lets us know
-# Enabling type checking with mypy, but only
+# Enabling type checking with mypy, but only showing the warning messages
 script:
   - nosetests --with-coverage --cover-package=scrubadub
-  - mypy --config-file setup.cfg scrubadub/ || exit 0
+  - mypy --config-file setup.cfg scrubadub/ || true
   - pycodestyle scrubadub/
   - cd docs && make html && cd -
 
