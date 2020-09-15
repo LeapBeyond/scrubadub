@@ -43,6 +43,12 @@ class ScrubberTestCase(unittest.TestCase):
             self.assertTrue('SKYPE' in filth.placeholder, filth.placeholder)
             self.assertTrue('EMAIL' in filth.placeholder, filth.placeholder)
 
+    def test_add_detector_instance(self):
+        """make sure adding an inialised detector works"""
+        scrubber = scrubadub.Scrubber()
+        scrubber.remove_detector('email')
+        scrubber.add_detector(scrubadub.detectors.email.EmailDetector())
+
     def test_add_duplicate_detector(self):
         """make sure adding a detector that already exists raises an error"""
         scrubber = scrubadub.Scrubber()

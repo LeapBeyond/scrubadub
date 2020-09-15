@@ -1,5 +1,6 @@
-import operator
 import sys
+import typing
+import inspect
 
 from . import exceptions
 from . import detectors
@@ -12,33 +13,61 @@ class Scrubber(object):
     for identifying their particular kind of ``Filth``.
     """
 
+    default_detectors = [
+        detectors.CredentialDetector,
+        detectors.EmailDetector,
+        detectors.NameDetector,
+        detectors.PhoneDetector,
+        detectors.SkypeDetector,
+        detectors.SSNDetector,
+        detectors.UrlDetector,
+    ]
+
     def __init__(self, *args, **kwargs):
-        super(Scrubber, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # instantiate all of the detectors which, by default, uses all of the
         # detectors that are in the detectors.types dictionary
         self._detectors = {}
-        for detector_cls in detectors.iter_detector_clss():
+        for detector_cls in self.default_detectors:
             self.add_detector(detector_cls)
 
-    def add_detector(self, detector_cls):
+    def add_detector(self, detector):
         """Add a ``Detector`` to scrubadub"""
-        if not issubclass(detector_cls, detectors.base.Detector):
+        if inspect.isclass(detector):
+            if not issubclass(detector, detectors.base.Detector):
+                raise TypeError((
+                    '"%(detector)s" is not a subclass of Detector'
+                ) % locals())
+            self._check_and_add_detector(detector())
+        elif isinstance(detector, detectors.base.Detector):
+            self._check_and_add_detector(detector)
+        elif isinstance(detector, str):
+            detector_lookup = {x.filth_cls.type: x for x in self.default_detectors}
+            if detector in detector_lookup:
+                self._check_and_add_detector(detector_lookup[detector]())
+            else:
+                raise ValueError("Unknown detector")
+
+    def _check_and_add_detector(self, detector):
+        """Check the types and add the detector to the scrubber"""
+        if not isinstance(detector, detectors.base.Detector):
             raise TypeError((
-                '"%(detector_cls)s" is not a subclass of Detector'
-            ) % locals())
-        if not issubclass(detector_cls.filth_cls, Filth):
+                'The detector "{}" is not an instance of the '
+                'Detector class.'
+            ).format(detector))
+        if not issubclass(detector.filth_cls, Filth):
             raise TypeError((
                 'The filth_cls "{}" in the detector "{}" is not a subclass '
                 'of Filth'
-            ).format(detector_cls.filth_cls, detector_cls))
-        name = detector_cls.filth_cls.type
+            ).format(detector.filth_cls, detector))
+        name = detector.filth_cls.type
         if name in self._detectors:
             raise KeyError((
                 'can not add Detector "%(name)s"---it already exists. '
                 'Try removing it first.'
             ) % locals())
-        self._detectors[name] = detector_cls()
+        self._detectors[name] = detector
 
     def remove_detector(self, name):
         """Remove a ``Detector`` from scrubadub"""
@@ -81,16 +110,24 @@ class Scrubber(object):
                     raise TypeError('iter_filth must always yield Filth')
                 all_filths.append(filth)
 
+        for filth in self._merge_filths(all_filths):
+            yield filth
+
+    @staticmethod
+    def _merge_filths(filth_list: typing.List[Filth]) -> typing.Generator[Filth, None, None]:
+        """Merge a list of filths if the filths overlap"""
+
         # Sort by start position. If two filths start in the same place then
         # return the longer one first
-        all_filths.sort(key=lambda f: (f.beg, -f.end))
+        filth_list.sort(key=lambda f: (f.beg, -f.end))
 
         # this is where the Scrubber does its hard work and merges any
         # overlapping filths.
-        if not all_filths:
+        if not filth_list:
             return
-        filth = all_filths[0]
-        for next_filth in all_filths[1:]:
+
+        filth = filth_list[0]
+        for next_filth in filth_list[1:]:
             if filth.end < next_filth.beg:
                 yield filth
                 filth = next_filth
