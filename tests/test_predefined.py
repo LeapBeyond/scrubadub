@@ -1,6 +1,6 @@
 import unittest
 
-from scrubadub.detectors.predefined import PredefinedDetector
+from scrubadub.detectors.known import KnownFilthDetector
 
 class PredefinedTestCase(unittest.TestCase):
 
@@ -8,7 +8,7 @@ class PredefinedTestCase(unittest.TestCase):
         """test a simple matching"""
 
         test_str = 'this is a test string'
-        detector = PredefinedDetector([
+        detector = KnownFilthDetector([
             {'match': 'test'},
         ])
 
@@ -20,7 +20,7 @@ class PredefinedTestCase(unittest.TestCase):
         """text matches with a start and end"""
 
         test_str = 'hello this is a test string'
-        detector = PredefinedDetector([
+        detector = KnownFilthDetector([
             {'start': 'this is', 'end': 'test'},
         ])
 
@@ -32,7 +32,7 @@ class PredefinedTestCase(unittest.TestCase):
         """text exceptions thrown by predefined"""
 
         test_str = 'hello this is a test string'
-        detector = PredefinedDetector([
+        detector = KnownFilthDetector([
             {'non_existiant': 'this is', 'items': 'test'},
         ])
 

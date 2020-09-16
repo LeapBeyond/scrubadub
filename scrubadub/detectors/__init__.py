@@ -8,7 +8,7 @@ from .credential import CredentialDetector
 from .email import EmailDetector
 from .name import NameDetector
 from .phone import PhoneDetector
-from .predefined import PredefinedDetector
+from .known import KnownFilthDetector
 from .skype import SkypeDetector
 from .ssn import SSNDetector
 from .url import UrlDetector

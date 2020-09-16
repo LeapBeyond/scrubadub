@@ -7,7 +7,7 @@ from .credential import CredentialFilth
 from .email import EmailFilth
 from .name import NameFilth
 from .phone import PhoneFilth
-from .predefined import PredefinedFilth
+from .known import KnownFilth
 from .skype import SkypeFilth
 from .ssn import SSNFilth
 from .url import UrlFilth

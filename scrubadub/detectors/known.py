@@ -1,10 +1,10 @@
 import typing
 
 from .base import Detector
-from ..filth.predefined import PredefinedFilth
+from ..filth.known import KnownFilth
 
 
-class PredefinedDetector(Detector):
+class KnownFilthDetector(Detector):
     """Use some predefined phrases to label the text.
 
     This is useful if you have found that some particular
@@ -12,7 +12,7 @@ class PredefinedDetector(Detector):
     scrubadub with already selected PII.
     """
 
-    filth_cls = PredefinedFilth
+    filth_cls = KnownFilth
 
     def __init__(self, predefined_pii: typing.Optional[typing.List[typing.Dict[str, str]]] = None):
         super().__init__()
@@ -25,13 +25,13 @@ class PredefinedDetector(Detector):
             text,
             substr,
             comparison_type: typing.Optional[str] = None,
-    ) -> typing.Generator[PredefinedFilth, None, None]:
+    ) -> typing.Generator[KnownFilth, None, None]:
         """Yield filth for each match to substr in text."""
         substr_len = len(substr)
         start_location = text.find(substr)
 
         while start_location >= 0:
-            yield PredefinedFilth(
+            yield KnownFilth(
                 start_location,
                 start_location + substr_len,
                 text[start_location:start_location + substr_len],
@@ -49,7 +49,7 @@ class PredefinedDetector(Detector):
             substr_end: str,
             limit: int = 150,
             comparison_type: typing.Optional[str] = None,
-    ) -> typing.Generator[PredefinedFilth, None, None]:
+    ) -> typing.Generator[KnownFilth, None, None]:
         """Yield filth for text between (and including)
         substr_start and substr_end, but only if the text
         between the two is less than limit characters.
@@ -65,7 +65,7 @@ class PredefinedDetector(Detector):
                 start_location + substr_start_len + limit + substr_end_len
             )
             if end_location >= 0:
-                yield PredefinedFilth(
+                yield KnownFilth(
                     start_location,
                     end_location + substr_end_len,
                     text[start_location:end_location + substr_end_len],
@@ -80,7 +80,7 @@ class PredefinedDetector(Detector):
     def iter_filth(
             self,
             text: str
-    ) -> typing.Generator[PredefinedFilth, None, None]:
+    ) -> typing.Generator[KnownFilth, None, None]:
         """Iterate over the predefined PII list and yield
         filth instances."""
         for pii_item in self._predefined_pii:
