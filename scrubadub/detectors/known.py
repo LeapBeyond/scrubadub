@@ -23,7 +23,8 @@ class PredefinedDetector(Detector):
     @staticmethod
     def _find_all(
             text,
-            substr
+            substr,
+            comparison_type: typing.Optional[str] = None,
     ) -> typing.Generator[PredefinedFilth, None, None]:
         """Yield filth for each match to substr in text."""
         substr_len = len(substr)
@@ -33,7 +34,8 @@ class PredefinedDetector(Detector):
             yield PredefinedFilth(
                 start_location,
                 start_location + substr_len,
-                text[start_location:start_location + substr_len]
+                text[start_location:start_location + substr_len],
+                comparison_type=comparison_type,
             )
             start_location = text.find(
                 substr,
@@ -45,7 +47,8 @@ class PredefinedDetector(Detector):
             text: str,
             substr_start: str,
             substr_end: str,
-            limit: int = 150
+            limit: int = 150,
+            comparison_type: typing.Optional[str] = None,
     ) -> typing.Generator[PredefinedFilth, None, None]:
         """Yield filth for text between (and including)
         substr_start and substr_end, but only if the text
@@ -65,7 +68,8 @@ class PredefinedDetector(Detector):
                 yield PredefinedFilth(
                     start_location,
                     end_location + substr_end_len,
-                    text[start_location:end_location + substr_end_len]
+                    text[start_location:end_location + substr_end_len],
+                    comparison_type=comparison_type,
                 )
                 next_search_start = end_location + substr_end_len
             else:
@@ -82,14 +86,19 @@ class PredefinedDetector(Detector):
         for pii_item in self._predefined_pii:
             # could also implement other types in here too
             if 'match' in pii_item:
-                for found_item in self._find_all(text, pii_item['match']):
+                for found_item in self._find_all(
+                        text,
+                        pii_item['match'],
+                        comparison_type=pii_item.get('comparison_type', None)
+                ):
                     yield found_item
             elif 'start' in pii_item and 'end' in pii_item:
                 for found_item in self._find_all_between(
                     text,
                     pii_item['start'],
                     pii_item['end'],
-                    limit=pii_item.get('limit', 150)
+                    limit=pii_item.get('limit', 150),
+                    comparison_type=pii_item.get('comparison_type', None)
                 ):
                     yield found_item
             else:
