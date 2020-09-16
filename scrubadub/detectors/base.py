@@ -1,11 +1,11 @@
-import re
+import typing
 
 from .. import exceptions
 from ..filth import Filth, RegexFilth
 
 
 class Detector(object):
-    filth_cls = None
+    filth_cls: typing.ClassVar[Filth] = Filth
 
     def iter_filth(self, text):
         raise NotImplementedError('must be overridden by base classes')
