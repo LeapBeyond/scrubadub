@@ -7,7 +7,7 @@ By default, ``scrubadub`` aggressively removes content from text that may
 reveal personal identity, but there are certainly circumstances where you may
 want to customize the behavior of ``scrubadub``. This section outlines a few of
 these use cases. If you don't see your particular use case here, please take a
-look :ref:`under the hood <under_the_hood>` and :ref:`contribute
+look :ref:`under the hood <api>` and :ref:`contribute
 <contributing>` it back to the documentation!
 
 
@@ -75,7 +75,7 @@ you can always add your own ``Filth`` and ``Detectors`` like this:
     u"{{MINE}} can be found there."
 
 
-Customizing the cleaned text
+
 ----------------------------
 
 .. todo:: TKTK
