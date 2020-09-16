@@ -15,7 +15,7 @@ class Filth(object):
     suffix = u'}}'
 
     # the `type` is used when filths are merged to come up with a sane label
-    type: typing.ClassVar[str] = ''
+    type = ''  # type: ClassVar[str]
 
     # the `lookup` is used to keep track of all of the diffent types of filth
     # that are encountered across all `Filth` types.

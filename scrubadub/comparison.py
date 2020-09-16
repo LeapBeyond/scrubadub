@@ -13,12 +13,12 @@ def compare_detectors_to_known_types(
         output_dict: bool = False,
 ) -> typing.Dict[str, float]:
     """Compares how much filth is detected by various detectors"""
-    results: typing.List[typing.List[float]] = []
-    filth_types: typing.List[str] = [det.filth_cls.type for det in detector_list]
+    results = []  # type: List[List[float]]
+    filth_types = [det.filth_cls.type for det in detector_list]  # type: List[str]
     if filth.KnownFilth.type in filth_types:
         filth_types.pop(filth_types.index(filth.KnownFilth.type))
 
-    filth_types_to_search: typing.List[typing.Tuple[str, typing.Optional[str]]] = [(t, None) for t in filth_types]
+    filth_types_to_search = [(t, None) for t in filth_types]  # type: List[Tuple[str, Optional[str]]]
     filth_types_to_search += [(filth.KnownFilth.type, t[0]) for t in filth_types_to_search]
 
     for filth_item in filth_list:

@@ -5,7 +5,7 @@ from ..filth import Filth, RegexFilth
 
 
 class Detector(object):
-    filth_cls: typing.ClassVar[Filth] = Filth
+    filth_cls = Filth  # type: ClassVar[Filth]
 
     def iter_filth(self, text):
         raise NotImplementedError('must be overridden by base classes')
