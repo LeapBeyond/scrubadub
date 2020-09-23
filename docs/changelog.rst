@@ -24,6 +24,8 @@ latest changes in development for next release
 
   * Update documentation to reflect new repository location (`#49`_)
 
+This is the last version that will be explicitly compatible with python 2.7.
+
 1.2.1
 -----
 

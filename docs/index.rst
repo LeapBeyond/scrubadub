@@ -1,6 +1,8 @@
+.. _quick_start:
 
+*********
 scrubadub
-================================
+*********
 
 Remove personally identifiable information from free text. Sometimes we have
 additional metadata about the people we wish to anonymize. Other times we don't.
@@ -17,6 +19,22 @@ text, without comprimising the privacy of the people we are trying to protect.
 * username / password combinations
 * Skype usernames
 * Social security numbers
+
+.. image:: https://travis-ci.org/LeapBeyond/scrubadub.svg?branch=master
+   :target: https://travis-ci.org/LeapBeyond/scrubadub
+   :alt:  Build Status
+.. image:: https://img.shields.io/pypi/v/scrubadub.svg
+   :target: https://pypi.org/project/scrubadub/
+   :alt:  Version
+.. image:: https://img.shields.io/pypi/dm/scrubadub.svg
+   :target: https://pypi.org/project/scrubadub/
+   :alt:  Downloads
+.. image:: https://coveralls.io/repos/github/LeapBeyond/scrubadub/badge.svg?branch=master
+   :target: https://coveralls.io/r/LeapBeyond/scrubadub
+   :alt:  Test Coverage
+.. image:: https://readthedocs.org/projects/scrubadub/badge/?version=latest
+   :target: https://readthedocs.org/projects/scrubadub/?badge=latest
+   :alt:  Documentation Status
 
 
 Quick start
@@ -49,7 +67,7 @@ incorporating it into your python scripts like this:
 
 
 There are many ways to tailor the behavior of ``scrubadub`` using
-:ref:`different Detector and Filth classes <under_the_hood>`. These
+:ref:`different Detector and Filth classes <api>`. These
 :ref:`advanced techniques <advanced_usage>` allow users to fine-tune the manner
 in which ``scrubadub`` cleans dirty dirty text.
 
@@ -78,25 +96,21 @@ inspiration for how ``scrubadub`` should work.
    lists of names that might be useful in spite of the fact it has 5k+
    lines of gross perl.
 
-.. |Build Status| image:: https://travis-ci.org/LeapBeyond/scrubadub.svg?branch=master
-   :target: https://travis-ci.org/LeapBeyond/scrubadub
-.. |Coverage Status| image:: https://coveralls.io/repos/datascopeanalytics/scrubadub/badge.svg
-   :target: https://coveralls.io/r/datascopeanalytics/scrubadub
 
-
-Contents:
+Contents
+--------
 
 .. toctree::
    :maxdepth: 2
 
    advanced_usage
-   under_the_hood
+   api
    contributing
    changelog
 
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
