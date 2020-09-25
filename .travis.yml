@@ -8,12 +8,15 @@ python:
 install:
   - pip install -r requirements/python-dev
   - python -m textblob.download_corpora
+#  - apt-get install curl autoconf automake libtool pkg-config
+#  - git clone https://github.com/openvenues/libpostal && cd libpostal && ./bootstrap.sh && ./configure && \
+#    make -j4 && make install
 
 # commands to run the testing suite. if any of these fail, travic lets us know
 # Enabling type checking with mypy, but only showing the warning messages
 script:
+  - mypy --config-file setup.cfg scrubadub/
   - nosetests --with-coverage --cover-package=scrubadub
-  - mypy --config-file setup.cfg scrubadub/ || true
   - pycodestyle scrubadub/
   - cd docs && make html && cd -
 
