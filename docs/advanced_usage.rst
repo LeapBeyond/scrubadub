@@ -64,15 +64,22 @@ you can always add your own ``Filth`` and ``Detectors`` like this:
     >>> class MyFilth(scrubadub.filth.base.Filth):
     >>>     type = 'mine'
     >>> class MyDetector(scrubadub.Detector.base.Detector):
-    >>>     filth_cls = MyFilth
-    >>>     def iter_filth(self, text):
+    >>>     name = 'my_detector'
+    >>>     def iter_filth(self, text, document_name=None):
     >>>        # do something here
-    >>>        pass
+    >>>        yield MyFilth(beg=0, end=5, text='hello', document_name=document_name, detector_name=self.name)
     >>> scrubber = scrubadub.Scrubber()
     >>> scrubber.add_detector(MyDetector)
     >>> text = u"My stuff can be found there"
     >>> scrubber.clean(text)
     u"{{MINE}} can be found there."
+
+When initialising your ``Filth`` in the ``Detector.iter_filth`` function, be
+sure to pass on the name of the document and the name of the detector that
+found the filth.
+While this isn't required, passing the name of the detector allows the Detector
+comparison functions to work and passing the name of the document allows batch
+analysis of related documents with one call to the ``Scrubber``.
 
 
 
