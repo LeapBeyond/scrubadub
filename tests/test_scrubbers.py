@@ -44,7 +44,7 @@ class ScrubberTestCase(unittest.TestCase):
             self.assertTrue('EMAIL' in filth.placeholder, filth.placeholder)
 
     def test_add_detector_instance(self):
-        """make sure adding an inialised detector works"""
+        """make sure adding an initialised detector works"""
         scrubber = scrubadub.Scrubber()
         scrubber.remove_detector('email')
         scrubber.add_detector(scrubadub.detectors.email.EmailDetector())
@@ -55,6 +55,20 @@ class ScrubberTestCase(unittest.TestCase):
         with self.assertRaises(KeyError):
             scrubber.add_detector(scrubadub.detectors.email.EmailDetector)
 
+    def test_add_detector_instance_with_name(self):
+        """make sure adding a duplicate detector with a different name works"""
+        scrubber = scrubadub.Scrubber(detector_list=[
+            scrubadub.detectors.email.EmailDetector(name='email')
+        ])
+        scrubber.add_detector(scrubadub.detectors.email.EmailDetector(name='email_two'))
+        scrubber.add_detector(scrubadub.detectors.email.EmailDetector(name='email_three'))
+        filth = list(scrubber.iter_filth('hello jane@example.com'))
+        self.assertEqual(len(filth), 1)
+        self.assertEqual(len(filth[0].filths), 3)
+        self.assertEqual(filth[0].filths[0].detector_name, 'email')
+        self.assertEqual(filth[0].filths[1].detector_name, 'email_two')
+        self.assertEqual(filth[0].filths[2].detector_name, 'email_three')
+
     def test_add_non_detector(self):
         """make sure you can't add a detector that is not a Detector"""
         class NotDetector(object):
@@ -63,15 +77,6 @@ class ScrubberTestCase(unittest.TestCase):
         scrubber = scrubadub.Scrubber()
         with self.assertRaises(TypeError):
             scrubber.add_detector(NotDetector)
-
-    def test_add_detector_no_filth(self):
-        """make sure you can't add a detector that is a Detector with a bad filth class"""
-        class CleanDetector(scrubadub.detectors.Detector):
-            filth_cls = object
-
-        scrubber = scrubadub.Scrubber()
-        with self.assertRaises(TypeError):
-            scrubber.add_detector(CleanDetector)
 
     def test_iter_not_return_filth(self):
         """make sure a detector cant return non filth"""
@@ -87,3 +92,43 @@ class ScrubberTestCase(unittest.TestCase):
         scrubber._detectors = {'fakerfilth': BadDetector}
         with self.assertRaises(TypeError):
             list(scrubber.iter_filth('A fake document with no pii'))
+
+    def test_dict_document(self):
+        """check we can clean a dict of documents"""
+        text = {
+            'shark tales': 'the apple was eaten by a shark',
+            'fish tales': 'the apple was not eaten by the fish',
+        }
+        scrubber = scrubadub.Scrubber()
+        self.assertEqual(scrubber.clean(text), text)
+
+        text_dirty = {
+            'shark tales': 'shark sent example@example.com a complaint',
+            'fish tales': 'the fish swam on by',
+        }
+        text_clean = {
+            'shark tales': 'shark sent {{EMAIL}} a complaint',
+            'fish tales': 'the fish swam on by',
+        }
+        scrubber = scrubadub.Scrubber()
+        self.assertEqual(scrubber.clean(text_dirty), text_clean)
+
+    def test_list_document(self):
+        """check we can clean a list of documents"""
+        text = [
+            'the apple was eaten by a shark',
+            'the apple was not eaten by the fish',
+        ]
+        scrubber = scrubadub.Scrubber()
+        self.assertEqual(scrubber.clean(text), text)
+
+        text_dirty = [
+            'shark sent example@example.com a complaint',
+            'the fish swam on by',
+        ]
+        text_clean = [
+            'shark sent {{EMAIL}} a complaint',
+            'the fish swam on by',
+        ]
+        scrubber = scrubadub.Scrubber()
+        self.assertEqual(scrubber.clean(text_dirty), text_clean)
