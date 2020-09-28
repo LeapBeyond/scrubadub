@@ -41,4 +41,6 @@ class NameDetector(RegexDetector):
             for proper_noun in proper_nouns:
                 re_list.append(r'\b' + re.escape(str(proper_noun)) + r'\b')
             self.regex = re.compile('|'.join(re_list))
-            return super(NameDetector, self).iter_filth(text, document_name=document_name)
+            for filth in super(NameDetector, self).iter_filth(text, document_name=document_name):
+                yield filth
+        return
