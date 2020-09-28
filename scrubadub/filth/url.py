@@ -1,9 +1,9 @@
 import re
 
-from .base import RegexFilth
+from .base import Filth
 
 
-class UrlFilth(RegexFilth):
+class UrlFilth(Filth):
     type = 'url'
 
     # This allows you to keep the domain

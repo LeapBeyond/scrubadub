@@ -1,4 +1,6 @@
-import typing
+import re
+import warnings
+from typing import Optional, ClassVar, Pattern, List
 
 from .. import exceptions
 from .. import utils
@@ -11,20 +13,44 @@ class Filth(object):
 
     # this allows people to customize the output, especially for placeholder
     # text and identifier replacements
-    prefix = u'{{'
-    suffix = u'}}'
+    prefix = u'{{'  # type: ClassVar[str]
+    suffix = u'}}'  # type: ClassVar[str]
 
     # the `type` is used when filths are merged to come up with a sane label
     type = ''  # type: ClassVar[str]
 
-    # the `lookup` is used to keep track of all of the diffent types of filth
+    # the `lookup` is used to keep track of all of the different types of filth
     # that are encountered across all `Filth` types.
     lookup = utils.Lookup()
 
-    def __init__(self, beg=0, end=0, text=u''):
-        self.beg = beg
-        self.end = end
-        self.text = text
+    # For backwards compatibility, but this is deprecated.
+    regex = None  # type: Optional[Pattern[str]]
+
+    def __init__(self, beg: Optional[int] = None, end: Optional[int] = None, text: Optional[str] = None,
+                 match: Optional[re.Match] = None, detector_name: Optional[str] = None,
+                 document_name: Optional[str] = None, replacement_string: Optional[str] = None):
+
+        self.beg = 0  # type: int
+        self.end = 0  # type: int
+        self.text = ''  # type: str
+        self.match = None  # type: Optional[re.Match]
+
+        if match is not None and isinstance(match, re.Match):
+            self.beg = match.start()
+            self.end = match.end()
+            self.text = match.string[match.start():match.end()]
+            self.match = match
+
+        if beg is not None:
+            self.beg = beg
+        if end is not None:
+            self.end = end
+        if text is not None:
+            self.text = text
+
+        self.detector_name = detector_name  # type: Optional[str]
+        self.document_name = document_name  # type: Optional[str]
+        self.replacement_string = replacement_string  # type: Optional[str]
 
     @property
     def placeholder(self):
@@ -39,6 +65,11 @@ class Filth(object):
         return u'%s-%d' % (self.placeholder, i)
 
     def replace_with(self, replace_with='placeholder', **kwargs):
+        warnings.warn(
+            "Filth.replace_with() will be removed in favour of using the more general PostProcessors",
+            DeprecationWarning
+        )
+
         if replace_with == 'placeholder':
             return self.prefix + self.placeholder + self.suffix
         # elif replace_with == 'surrogate':
@@ -50,6 +81,20 @@ class Filth(object):
 
     def merge(self, other_filth):
         return MergedFilth(self, other_filth)
+
+    def __repr__(self) -> str:
+        return self._to_string()
+
+    def _to_string(self, attributes: Optional[List[str]] = None) -> str:
+        if attributes is None:
+            attributes = ['text', 'document_name', 'detector_name']
+
+        item_attributes = [
+            "{}={}".format(item, getattr(self, item, None).__repr__())
+            for item in attributes
+            if getattr(self, item, None) is not None
+        ]
+        return "<{} {}>".format(self.__class__.__name__, " ".join(item_attributes))
 
 
 class MergedFilth(Filth):
@@ -106,20 +151,5 @@ class MergedFilth(Filth):
         self._update_content(other_filth)
         return self
 
-
-class RegexFilth(Filth):
-    """Convenience class for instantiating a ``Filth`` object from a regular
-    expression match
-    """
-
-    # The regex is stored on the RegexFilth so you can use groups in the
-    # regular expression to properly configure the placeholder
-    regex = None
-
-    def __init__(self, match):
-        self.match = match
-        super(RegexFilth, self).__init__(
-            beg=match.start(),
-            end=match.end(),
-            text=match.string[match.start():match.end()],
-        )
+    def __repr__(self) -> str:
+        return self._to_string(['filths'])

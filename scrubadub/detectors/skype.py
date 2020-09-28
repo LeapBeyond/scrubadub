@@ -1,7 +1,8 @@
 import re
-
 import nltk
 import textblob
+
+from typing import Optional
 
 from .base import RegexDetector
 from ..filth import SkypeFilth
@@ -20,16 +21,28 @@ class SkypeDetector(RegexDetector):
     decreasing the ``word_radius`` will increase the false negative rate.
     """
     filth_cls = SkypeFilth
+    name = 'skype'
 
     word_radius = 10
 
-    def iter_filth(self, text):
+    # these two regular expressions are used to validate a skype usernames.
+    # _TOKEN is the core regular expression that is used to chunk text into
+    # tokens to make sure all valid skype usernames are considered the same
+    # token. Importantly, the word "skype" must pass the _SKYPE regex.
+    # SKYPE_TOKEN is used to tokenize text and SKYPE_USERNAME is the same thing
+    # but with the 6-32 character limit imposed on the username. adapted from
+    # http://bit.ly/1FQs1hD
+    _SKYPE = r'[a-zA-Z][a-zA-Z0-9_\-\,\.]'
+    SKYPE_TOKEN = re.compile(_SKYPE+'+')
+    SKYPE_USERNAME = re.compile(_SKYPE+'{5,31}')
+
+    def iter_filth(self, text, document_name: Optional[str] = None):
 
         # find 'skype' in the text using a customized tokenizer. this makes
         # sure that all valid skype usernames are kept as tokens and not split
         # into different words
         tokenizer = nltk.tokenize.regexp.RegexpTokenizer(
-            self.filth_cls.SKYPE_TOKEN
+            self.SKYPE_TOKEN
         )
         blob = textblob.TextBlob(text, tokenizer=tokenizer)
         skype_indices, tokens = [], []
@@ -46,7 +59,7 @@ class SkypeDetector(RegexDetector):
             jmax = min(i+self.word_radius+1, len(tokens))
             for j in list(range(jmin, i)) + list(range(i+1, jmax)):
                 token = tokens[j]
-                if self.filth_cls.SKYPE_USERNAME.match(token):
+                if self.SKYPE_USERNAME.match(token):
 
                     # this token is a valid skype username. Most skype
                     # usernames appear to be misspelled words. Word.spellcheck
@@ -63,7 +76,7 @@ class SkypeDetector(RegexDetector):
 
         # replace all skype usernames
         if skype_usernames:
-            self.filth_cls.regex = re.compile('|'.join(skype_usernames))
-        else:
-            self.filth_cls.regex = None
-        return super(SkypeDetector, self).iter_filth(text)
+            self.regex = re.compile('|'.join(skype_usernames))
+            return super(SkypeDetector, self).iter_filth(text, document_name=document_name)
+
+        return []

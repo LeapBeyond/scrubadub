@@ -1,9 +1,9 @@
 import re
 
-from .base import RegexFilth
+from .base import Filth
 
 
-class SSNFilth(RegexFilth):
+class SSNFilth(Filth):
     type = 'ssn'
 
     # please note that this not only captures valid SSNs but also invalid ones.

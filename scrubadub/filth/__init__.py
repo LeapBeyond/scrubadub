@@ -2,12 +2,14 @@ import os
 import re
 
 from ..import_magic import iter_subclasses, update_locals
-from .base import Filth, RegexFilth, MergedFilth
+from .base import Filth, MergedFilth
+from .address import AddressFilth
 from .credential import CredentialFilth
 from .email import EmailFilth
-from .name import NameFilth
-from .phone import PhoneFilth
 from .known import KnownFilth
+from .name import NameFilth
+from .organization import OrganizationFilth
+from .phone import PhoneFilth
 from .skype import SkypeFilth
 from .ssn import SSNFilth
 from .url import UrlFilth
@@ -33,11 +35,7 @@ def iter_filth_clss():
 def iter_filths():
     """Iterate over all instances of filth"""
     for filth_cls in iter_filth_clss():
-        if issubclass(filth_cls, RegexFilth):
-            m = next(re.finditer(r"\s+", "fake pattern string"))
-            yield filth_cls(m)
-        else:
-            yield filth_cls()
+        yield filth_cls()
 
 
 # import all of the detector classes into the local namespace to make it easy

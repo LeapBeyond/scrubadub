@@ -1,9 +1,10 @@
 import re
 
-from .base import RegexFilth
+from .base import Filth
+from .. import exceptions
 
 
-class CredentialFilth(RegexFilth):
+class CredentialFilth(Filth):
     type = 'credential'
 
     # specify how the username/password are replaced
