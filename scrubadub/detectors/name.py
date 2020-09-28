@@ -1,9 +1,10 @@
 import re
-
 import textblob
 
+from typing import Optional, Generator
+
 from .base import RegexDetector
-from ..filth import NameFilth
+from ..filth import NameFilth, Filth
 from ..utils import CanonicalStringSet
 
 
@@ -13,10 +14,11 @@ class NameDetector(RegexDetector):
     ``NameDetector.disallowed_nouns`` set.
     """
     filth_cls = NameFilth
+    name = 'name'
 
     disallowed_nouns = CanonicalStringSet(["skype"])
 
-    def iter_filth(self, text):
+    def iter_filth(self, text, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
 
         if not isinstance(self.disallowed_nouns, CanonicalStringSet):
             raise TypeError(
@@ -38,7 +40,5 @@ class NameDetector(RegexDetector):
             re_list = []
             for proper_noun in proper_nouns:
                 re_list.append(r'\b' + re.escape(str(proper_noun)) + r'\b')
-            self.filth_cls.regex = re.compile('|'.join(re_list))
-        else:
-            self.filth_cls.regex = None
-        return super(NameDetector, self).iter_filth(text)
+            self.regex = re.compile('|'.join(re_list))
+            return super(NameDetector, self).iter_filth(text, document_name=document_name)
