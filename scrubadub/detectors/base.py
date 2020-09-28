@@ -1,5 +1,5 @@
 import warnings
-from typing import Optional, ClassVar, Type, Union, Pattern
+from typing import Optional, ClassVar, Type, Generator, Pattern
 
 from .. import exceptions
 from ..filth import Filth
@@ -15,7 +15,7 @@ class Detector(object):
         if name is not None:
             self.name = name
 
-    def iter_filth(self, text: str, document_name: Optional[str] = None):
+    def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
         raise NotImplementedError('must be overridden by base classes')
 
 
@@ -23,7 +23,7 @@ class RegexDetector(Detector):
     """Base class to match PII with a regex"""
     regex = None  # type: Optional[Pattern[str]]
 
-    def iter_filth(self, text: str, document_name: Optional[str] = None):
+    def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
         if not issubclass(self.filth_cls, Filth):
             raise exceptions.UnexpectedFilth(
                 'Filth required for RegexDetector'
