@@ -7,3 +7,4 @@ class CredentialDetector(RegexDetector):
     """Remove username/password combinations from dirty drity ``text``.
     """
     filth_cls = CredentialFilth
+    name = 'credential'

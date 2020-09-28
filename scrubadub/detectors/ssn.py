@@ -10,3 +10,4 @@ class SSNDetector(RegexDetector):
     """
 
     filth_cls = SSNFilth
+    name = 'ssn'

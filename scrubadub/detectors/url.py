@@ -12,3 +12,4 @@ class UrlDetector(RegexDetector):
     ``http://twitter.com/{{replacement}}``.
     """
     filth_cls = UrlFilth
+    name = 'url'
