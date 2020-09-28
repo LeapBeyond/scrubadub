@@ -110,17 +110,6 @@ be cleaned. Every type of ``Filth`` inherits from `scrubadub.filth.base.Filth`.
     :undoc-members:
     :show-inheritance:
 
-There is also a convenience class for ``RegexFilth``, which makes it easy to
-quickly remove new types of filth that can be identified from regular
-expressions:
-
-.. autoclass:: scrubadub.filth.base.RegexFilth
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-
 PostProcessors
 --------------
 
