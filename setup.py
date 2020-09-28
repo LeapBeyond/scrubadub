@@ -40,6 +40,8 @@ setup(
         'scrubadub',
         'scrubadub.filth',
         'scrubadub.detectors',
+        'scrubadub.post_processors',
+        'scrubadub.post_processors.text_replacers',
     ],
     install_requires=dependencies,
     zip_safe=False,
