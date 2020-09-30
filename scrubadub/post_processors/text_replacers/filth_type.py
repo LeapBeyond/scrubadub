@@ -12,5 +12,5 @@ class FilthTypeReplacer(PostProcessor):
 
     def process_filth(self, filth_list: Sequence[Filth]) -> Sequence[Filth]:
         for filth_item in filth_list:
-            filth_item.replacement_string = filth_item.type
+            filth_item.replacement_string = filth_item.type.upper()
         return filth_list
