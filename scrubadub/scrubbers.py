@@ -85,25 +85,25 @@ class Scrubber(object):
         elif isinstance(detector, str):
             self._detectors.pop(detector)
 
-    def add_post_processor(self, post_processor: Union[PostProcessor, Type[PostProcessor], str], index: int = -1):
+    def add_post_processor(self, post_processor: Union[PostProcessor, Type[PostProcessor], str], index: int = None):
         """Add a ``Detector`` to scrubadub"""
         if isinstance(post_processor, type):
             if not issubclass(post_processor, PostProcessor):
                 raise TypeError((
                     '"%(post_processor)s" is not a subclass of PostProcessor'
                 ) % locals())
-            self._check_and_add_post_processor(post_processor())
+            self._check_and_add_post_processor(post_processor(), index=index)
         elif isinstance(post_processor, PostProcessor):
-            self._check_and_add_post_processor(post_processor)
+            self._check_and_add_post_processor(post_processor, index=index)
         elif isinstance(post_processor, str):
             if post_processor in detectors.detector_configuration:
                 self._check_and_add_post_processor(
-                    post_processors.post_processor_configuration[post_processor]['post_processor']()
+                    post_processors.post_processor_configuration[post_processor]['post_processor'](), index=index
                 )
             else:
                 raise ValueError("Unknown PostProcessor: {}".format(post_processor))
 
-    def _check_and_add_post_processor(self, post_processor: PostProcessor, index: int = -1):
+    def _check_and_add_post_processor(self, post_processor: PostProcessor, index: int = None):
         """Check the types and add the PostProcessor to the scrubber"""
         if not isinstance(post_processor, PostProcessor):
             raise TypeError((
@@ -116,7 +116,10 @@ class Scrubber(object):
                 'can not add PostProcessor "%(name)s" to this Scrubber, this name is already in use. '
                 'Try removing it first.'
             ) % locals())
-        self._post_processors.insert(index, post_processor)
+        if index is None:
+            self._post_processors.append(post_processor)
+        else:
+            self._post_processors.insert(index, post_processor)
 
     def remove_post_processor(self, post_processor: Union[PostProcessor, Type[PostProcessor], str]):
         """Remove a ``Detector`` from scrubadub"""
@@ -139,14 +142,7 @@ class Scrubber(object):
         # This is needed for some operations within the PostProcesssors.
         # It could be improved if we know which post processors need collated Filths.
         filth_list = self.iter_filth(document)
-        for post_processor in self._post_processors:
-            if isinstance(filth_list, list):
-                if all(isinstance(el, list) for el in filth_list):
-                    filth_list = [post_processor.process_filth(filths) for filths in filth_list]
-                else:
-                    filth_list = post_processor.process_filth(filth_list)
-            elif isinstance(filth_list, dict):
-                filth_list = {name: post_processor.process_filth(filths) for name, filths in filth_list.items()}
+        filth_list = self._post_process_filth_list(filth_list)
 
         if isinstance(document, list) and isinstance(filth_list, list):
             return [
@@ -182,22 +178,44 @@ class Scrubber(object):
         clean_chunks.append(text[filth.end:])
         return u''.join(clean_chunks)
 
+    # TODO: rename filth_list to somethign more accurate, its a:
+    #  Union[Sequence[Filth], Dict[str, Sequence[Filth]], Sequence[Sequence[Filth]]]
+    def _post_process_filth_list(
+        self, filth_list: Union[Sequence[Filth], Dict[str, Sequence[Filth]], Sequence[Sequence[Filth]]]
+    ) -> Union[Sequence[Filth], Dict[str, Sequence[Filth]], Sequence[Sequence[Filth]]]:
+        # We are collating all Filths so that they can all be passed to the post processing step together.
+        # This is needed for some operations within the PostProcesssors.
+        # It could be improved if we know which post processors need collated Filths.
+        # TODO: this doesnt work as it doesnt process all filths together, it processes it per doc
+        for post_processor in self._post_processors:
+            if isinstance(filth_list, list):
+                if all(isinstance(el, list) for el in filth_list):
+                    filth_list = [post_processor.process_filth(filths) for filths in filth_list]
+                else:
+                    filth_list = post_processor.process_filth(filth_list)
+            elif isinstance(filth_list, dict):
+                filth_list = {name: post_processor.process_filth(filths) for name, filths in filth_list.items()}
+
+        return filth_list
+
     def iter_filth(self, document: Union[str, Sequence[str], Dict[str, str]]) -> \
             Union[Sequence[Filth], Dict[str, Sequence[Filth]], Sequence[Sequence[Filth]]]:
         """Iterate over the different types of filth that can exist.
         """
         if isinstance(document, str):
-            return list(self._iter_document_filth(document))
+            return self._post_process_filth_list(
+                list(self._iter_document_filth(document))
+            )
         elif isinstance(document, dict):
-            return {
+            return self._post_process_filth_list({
                 name: list(self._iter_document_filth(text, document_name=name))
                 for name, text in document.items()
-            }
+            })
         elif isinstance(document, list):
-            return [
+            return self._post_process_filth_list([
                 list(self._iter_document_filth(text, document_name=str(name)))
                 for name, text in enumerate(document)
-            ]
+            ])
         raise TypeError('documents must be one of a string, list of strings or dict of strings.')
 
     def _iter_document_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
