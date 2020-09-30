@@ -27,15 +27,17 @@ class RegexDetector(Detector):
     returned by this ``Detector``.
 
     .. code:: pycon
-    >>> import re, scrubadub
-    >>> class NewUrlDetector(scrubadub.detectors.base.Detector):
-    >>>     name = 'new_url_detector'
-    >>>     filth_cls = scrubadub.filth.url.UrlFilth
-    >>>     regex = re.compile(r'https.*$', re.IGNORECASE)
-    >>> scrubber = scrubadub.Scrubber()
-    >>> scrubber.add_detector(NewUrlDetector())
-    >>> text = u"This url will be found https://example.com"
-    >>> scrubber.clean(text)
+
+        >>> import re, scrubadub
+        >>> class NewUrlDetector(scrubadub.detectors.base.Detector):
+        >>>     name = 'new_url_detector'
+        >>>     filth_cls = scrubadub.filth.url.UrlFilth
+        >>>     regex = re.compile(r'https.*$', re.IGNORECASE)
+        >>> scrubber = scrubadub.Scrubber()
+        >>> scrubber.add_detector(NewUrlDetector())
+        >>> text = u"This url will be found https://example.com"
+        >>> scrubber.clean(text)
+
     """
 
     regex = None  # type: Optional[Pattern[str]]
