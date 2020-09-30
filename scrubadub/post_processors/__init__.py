@@ -6,12 +6,10 @@ from .text_replacers.hash import HashReplacer
 from .text_replacers.numeric import NumericReplacer
 from .text_replacers.prefix_suffix import PrefixSuffixReplacer
 
-
-class PostProcessorConfigurationItem(TypedDict):
-    post_processor: Type[PostProcessor]
-    autoload: bool
-    index: int
-
+PostProcessorConfigurationItem = TypedDict(
+    'PostProcessorConfigurationItem',
+    {'post_processor': Type[PostProcessor], 'autoload': bool, 'index': int}
+)
 
 post_processor_configuration = {
     # PostProcessors that are not automatically loaded by scrubadub

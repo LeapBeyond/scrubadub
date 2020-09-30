@@ -20,11 +20,10 @@ from .skype import SkypeDetector
 from .ssn import SSNDetector
 from .url import UrlDetector
 
-
-class DetectorConfigurationItem(TypedDict):
-    detector: Type[Detector]
-    autoload: bool
-
+DetectorConfigurationItem = TypedDict(
+    'DetectorConfigurationItem',
+    {'detector': Type[Detector], 'autoload': bool}
+)
 
 detector_configuration = {
     # Detectors that are automatically loaded by scrubadub

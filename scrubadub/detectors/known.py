@@ -10,13 +10,10 @@ else:
 from .base import Detector
 from ..filth.known import KnownFilth
 
-
-class KnownFilthItem(TypedDict):
-    start: str
-    end: str
-    limit: int
-    match: str
-    comparison_type: str
+KnownFilthItem = TypedDict(
+    'KnownFilthItem',
+    {'start': str, 'end': str, 'limit': int, 'match': str, 'comparison_type': str}
+)
 
 
 class KnownFilthDetector(Detector):
