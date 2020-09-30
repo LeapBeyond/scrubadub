@@ -1,4 +1,5 @@
 import unittest
+import pandas as pd
 
 import scrubadub
 import scrubadub.comparison
@@ -29,15 +30,46 @@ class ComparisonTestCase(unittest.TestCase):
         self.assertEquals(
             scrubadub.comparison.get_filth_classification_report(
                 filths,
-                # [PhoneDetector, KnownFilthDetector],
                 output_dict=True,
             ),
-           {
-               'macro avg': {'f1-score': 0.6666666666666666, 'precision': 1.0,'recall': 0.5, 'support': 4},
-               'micro avg': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 4},
-               'phone:phone': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 4},
-               'weighted avg': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 4}
-           },
+            {
+                'macro avg': {'f1-score': 0.6666666666666666, 'precision': 1.0,'recall': 0.5, 'support': 4},
+                'micro avg': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 4},
+                'phone:phone': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 4},
+                'weighted avg': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 4}
+            },
+        )
+
+    def test_text_output(self):
+        """test basic comparison"""
+        filths = [
+            MergedFilth(
+                PhoneFilth(beg=0, end=4, text='1234', detector_name='phone'),
+                KnownFilth(beg=0, end=4, text='1234', comparison_type='phone'),
+            ),
+            KnownFilth(beg=5, end=10, text='12345', comparison_type='phone'),
+            MergedFilth(
+                PhoneFilth(beg=5, end=9, text='1234', detector_name='phone'),
+                KnownFilth(beg=5, end=9, text='1234', comparison_type='phone'),
+            ),
+            KnownFilth(beg=15, end=20, text='12345', comparison_type='phone'),
+        ]
+        text = scrubadub.comparison.get_filth_classification_report(
+            filths,
+            output_dict=False,
+        ).strip()
+        print(text)
+        self.assertEquals(
+            text,
+            """
+                 precision    recall  f1-score   support
+
+phone     phone       1.00      0.50      0.67         4
+
+      micro avg       1.00      0.50      0.67         4
+      macro avg       1.00      0.50      0.67         4
+   weighted avg       1.00      0.50      0.67         4
+            """.strip(),
         )
 
     def test_false_positive(self):
@@ -157,3 +189,42 @@ class ComparisonTestCase(unittest.TestCase):
                 'weighted avg': {'precision': 1.0, 'recall': 1.0, 'f1-score': 1.0, 'support': 1}
             },
         )
+
+    def test_empty(self):
+        """Test return value of empty list of filth"""
+
+        self.assertTrue(
+            scrubadub.comparison.get_filth_classification_report(
+                [],
+                output_dict=True,
+            ) is None,
+        )
+
+    def test_dataframe(self):
+        """test basic comparison"""
+        filths = [
+            MergedFilth(
+                PhoneFilth(beg=0, end=4, text='1234', detector_name='phone'),
+                KnownFilth(beg=0, end=4, text='1234', comparison_type='phone'),
+            ),
+            KnownFilth(beg=5, end=10, text='12345', comparison_type='phone'),
+            MergedFilth(
+                PhoneFilth(beg=4, end=9, text=' 1234', detector_name='phone'),
+                KnownFilth(beg=5, end=9, text='1234', comparison_type='phone'),
+            ),
+            KnownFilth(beg=15, end=20, text='12345', comparison_type='phone'),
+        ]
+        dataframe = scrubadub.comparison.get_filth_dataframe(
+            filths,
+        )
+        self.assertEquals(dataframe.shape[0], 4)
+        self.assertEquals(dataframe['filth_type'].fillna('none').values.tolist(), ['phone', 'phone', 'none', 'none'])
+        self.assertEquals(dataframe['beg'].fillna('none').values.tolist(), [0, 4, 'none', 'none'])
+        self.assertEquals(dataframe['end'].fillna('none').values.tolist(), [4, 9, 'none', 'none'])
+        self.assertEquals(dataframe['known_beg'].fillna('none').values.tolist(), [0, 5, 5, 15])
+        self.assertEquals(dataframe['known_end'].fillna('none').values.tolist(), [4, 9, 10, 20])
+        self.assertEquals(dataframe['exact_match'].fillna('none').values.tolist(), [True, False, False, False])
+        self.assertEquals(dataframe['partial_match'].fillna('none').values.tolist(), [True, True, False, False])
+        self.assertEquals(dataframe['true_positive'].fillna('none').values.tolist(), [True, True, False, False])
+        self.assertEquals(dataframe['false_positive'].fillna('none').values.tolist(), [False, False, False, False])
+        self.assertEquals(dataframe['false_negative'].fillna('none').values.tolist(), [False, False, True, True])
