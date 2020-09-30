@@ -1,4 +1,5 @@
 import os
+import math
 import hashlib
 
 from typing import Optional, ClassVar, Sequence, List
@@ -31,7 +32,7 @@ class HashReplacer(PostProcessor):
                 password=filth_item.text.encode('utf8'),
                 salt=self.salt,
                 iterations=100000,
-                dklen=self.length,
-            ).hex()
+                dklen=math.ceil(self.length/2),
+            ).hex()[:self.length]
             filth_item.replacement_string = filth_item.replacement_string.upper()
         return filth_list

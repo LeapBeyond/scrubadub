@@ -141,7 +141,7 @@ class ScrubberTestCase(unittest.TestCase):
         scrubber.add_post_processor(scrubadub.post_processors.PrefixSuffixReplacer(prefix='<<', suffix='>>'))
         print(scrubber._post_processors)
         text = scrubber.clean("hello from example@example.com")
-        self.assertEqual(text, "hello from <<5A337A5C25F9D2601FB703409A5C6011>>")
+        self.assertEqual(text, "hello from <<5A337A5C25F9D260>>")
 
 
     def test_add_post_processor_order(self):
