@@ -1,6 +1,7 @@
 import unittest
 
 import scrubadub
+import scrubadub.post_processors
 from scrubadub.filth import MergedFilth, Filth
 
 
@@ -132,3 +133,32 @@ class ScrubberTestCase(unittest.TestCase):
         ]
         scrubber = scrubadub.Scrubber()
         self.assertEqual(scrubber.clean(text_dirty), text_clean)
+
+    def test_add_post_processor_instance(self):
+        """make sure adding some post processors work"""
+        scrubber = scrubadub.Scrubber()
+        scrubber.add_post_processor(scrubadub.post_processors.HashReplacer(salt='example_salt', include_type=False))
+        scrubber.add_post_processor(scrubadub.post_processors.PrefixSuffixReplacer(prefix='<<', suffix='>>'))
+        print(scrubber._post_processors)
+        text = scrubber.clean("hello from example@example.com")
+        self.assertEqual(text, "hello from <<5A337A5C25F9D2601FB703409A5C6011>>")
+
+
+    def test_add_post_processor_order(self):
+        """make sure adding some post processors work"""
+        scrubber = scrubadub.Scrubber()
+        scrubber.add_post_processor(scrubadub.post_processors.FilthTypeReplacer(name='one'))
+        scrubber.add_post_processor(scrubadub.post_processors.HashReplacer(name='two', salt='example_salt', include_type=False))
+        scrubber.add_post_processor(scrubadub.post_processors.PrefixSuffixReplacer(name='three', prefix='<<', suffix='>>'))
+
+        self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'one'][0], 0)
+        self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'two'][0], 1)
+        self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'three'][0], 2)
+
+        scrubber.add_post_processor(scrubadub.post_processors.FilthTypeReplacer(name='zero'), index=0)
+        print(scrubber._post_processors)
+
+        self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'zero'][0], 0)
+        self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'one'][0], 1)
+        self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'two'][0], 2)
+        self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'three'][0], 3)
