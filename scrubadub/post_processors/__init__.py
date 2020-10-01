@@ -1,4 +1,10 @@
-from typing import Dict, TypedDict, Type
+import sys
+from typing import Dict, Type
+
+if sys.version_info >= (3, 8):
+    from typing import TypedDict  # pylint: disable=no-name-in-module
+else:
+    from typing_extensions import TypedDict
 
 from .base import PostProcessor
 from .text_replacers.filth_type import FilthTypeReplacer
