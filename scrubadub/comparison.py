@@ -90,13 +90,13 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
                 'group_id': group_id,
                 'filth_id': filth_id,
                 'filth_type': sub_filth.type,
-                'detector_name': getattr(sub_filth, 'detector_name', pd.NA),
-                'document_name': getattr(sub_filth, 'document_name', pd.NA),
+                'detector_name': getattr(sub_filth, 'detector_name', float('nan')),
+                'document_name': getattr(sub_filth, 'document_name', float('nan')),
                 'text': sub_filth.text,
                 'beg': sub_filth.beg,
                 'end': sub_filth.end,
                 'known_filth': isinstance(sub_filth, filth.KnownFilth),
-                'comparison_type': getattr(sub_filth, 'comparison_type', pd.NA),
+                'comparison_type': getattr(sub_filth, 'comparison_type', float('nan')),
             })
 
     results_df = pd.DataFrame(results)
