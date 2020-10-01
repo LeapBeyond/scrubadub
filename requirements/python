@@ -3,3 +3,4 @@ argcomplete
 phonenumbers
 pandas
 sklearn
+typing_extensions
