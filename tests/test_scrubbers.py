@@ -66,9 +66,10 @@ class ScrubberTestCase(unittest.TestCase):
         filth = list(scrubber.iter_filth('hello jane@example.com'))
         self.assertEqual(len(filth), 1)
         self.assertEqual(len(filth[0].filths), 3)
-        self.assertEqual(filth[0].filths[0].detector_name, 'email')
-        self.assertEqual(filth[0].filths[1].detector_name, 'email_two')
-        self.assertEqual(filth[0].filths[2].detector_name, 'email_three')
+        self.assertEqual(
+            sorted([f.detector_name for f in filth[0].filths]),
+            sorted(['email', 'email_two', 'email_three'])
+        )
 
     def test_add_non_detector(self):
         """make sure you can't add a detector that is not a Detector"""
