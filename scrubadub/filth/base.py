@@ -1,6 +1,5 @@
-import re
 import warnings
-from typing import Optional, ClassVar, Pattern, List
+from typing import Optional, ClassVar, Pattern, List, Match
 
 from .. import exceptions
 from .. import utils
@@ -27,15 +26,15 @@ class Filth(object):
     regex = None  # type: Optional[Pattern[str]]
 
     def __init__(self, beg: Optional[int] = None, end: Optional[int] = None, text: Optional[str] = None,
-                 match: Optional[re.Match] = None, detector_name: Optional[str] = None,
+                 match: Optional[Match] = None, detector_name: Optional[str] = None,
                  document_name: Optional[str] = None, replacement_string: Optional[str] = None):
 
         self.beg = 0  # type: int
         self.end = 0  # type: int
         self.text = ''  # type: str
-        self.match = None  # type: Optional[re.Match]
+        self.match = None  # type: Optional[Match]
 
-        if match is not None and isinstance(match, re.Match):
+        if match is not None and isinstance(match, Match):
             self.beg = match.start()
             self.end = match.end()
             self.text = match.string[match.start():match.end()]
