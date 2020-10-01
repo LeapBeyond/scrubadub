@@ -152,3 +152,9 @@ class MergedFilth(Filth):
 
     def __repr__(self) -> str:
         return self._to_string(['filths'])
+
+
+class RegexFilth(Filth):
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Use of RegexFilth is depreciated, use Filth directly instead.", DeprecationWarning)
+        super(RegexFilth, self).__init__(*args, **kwargs)
