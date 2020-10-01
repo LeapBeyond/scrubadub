@@ -3,6 +3,7 @@
 from .scrubbers import Scrubber
 from . import filth
 from . import detectors
+from . import post_processors
 
 __version__ = VERSION = "1.2.2"
 
