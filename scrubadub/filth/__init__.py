@@ -1,6 +1,6 @@
 import os
 
-from .base import Filth, MergedFilth
+from .base import Filth, MergedFilth, RegexFilth
 from .address import AddressFilth
 from .credential import CredentialFilth
 from .email import EmailFilth

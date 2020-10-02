@@ -92,3 +92,13 @@ class OldAPITestCase(unittest.TestCase):
                 scrubadub.filth.base.Filth.prefix = prefix
                 scrubadub.filth.base.Filth.suffix = suffix
             self.assertTrue(sum(issubclass(w.category, DeprecationWarning) for w in warning_context) > 0)
+
+    def test_regex_filth(self):
+        """Test for a DeprecationWarning when using RegexFilth."""
+        with warnings.catch_warnings(record=True) as warning_context:
+            warnings.simplefilter("always")
+            try:
+                scrubadub.filth.RegexFilth(0, 2, 'ab')
+            finally:
+                warnings.simplefilter("default")
+            self.assertTrue(sum(issubclass(w.category, DeprecationWarning) for w in warning_context), 1)
