@@ -1,3 +1,4 @@
+import warnings
 from typing import Optional, Sequence, Generator, Dict, Type, Union, List
 
 from . import detectors
@@ -61,6 +62,15 @@ class Scrubber(object):
             else:
                 raise ValueError("Unknown Detector: {}".format(detector))
 
+    def remove_detector(self, detector: Union[Detector, Type[Detector], str]):
+        """Remove a ``Detector`` from scrubadub"""
+        if isinstance(detector, type):
+            self._detectors.pop(detector().name)
+        elif isinstance(detector, detectors.base.Detector):
+            self._detectors.pop(detector.name)
+        elif isinstance(detector, str):
+            self._detectors.pop(detector)
+
     def _check_and_add_detector(self, detector: Detector):
         """Check the types and add the detector to the scrubber"""
         if not isinstance(detector, Detector):
@@ -75,15 +85,6 @@ class Scrubber(object):
                 'Try removing it first.'
             ) % locals())
         self._detectors[name] = detector
-
-    def remove_detector(self, detector: Union[Detector, Type[Detector], str]):
-        """Remove a ``Detector`` from scrubadub"""
-        if isinstance(detector, type):
-            self._detectors.pop(detector().name)
-        elif isinstance(detector, detectors.base.Detector):
-            self._detectors.pop(detector.name)
-        elif isinstance(detector, str):
-            self._detectors.pop(detector)
 
     def add_post_processor(self, post_processor: Union[PostProcessor, Type[PostProcessor], str], index: int = None):
         """Add a ``Detector`` to scrubadub"""
@@ -103,6 +104,15 @@ class Scrubber(object):
             else:
                 raise ValueError("Unknown PostProcessor: {}".format(post_processor))
 
+    def remove_post_processor(self, post_processor: Union[PostProcessor, Type[PostProcessor], str]):
+        """Remove a ``Detector`` from scrubadub"""
+        if isinstance(post_processor, type):
+            self._post_processors = [x for x in self._post_processors if x.name != post_processor().name]
+        elif isinstance(post_processor, post_processors.base.PostProcessor):
+            self._post_processors = [x for x in self._post_processors if x.name != post_processor.name]
+        elif isinstance(post_processor, str):
+            self._post_processors = [x for x in self._post_processors if x.name != post_processor]
+
     def _check_and_add_post_processor(self, post_processor: PostProcessor, index: int = None):
         """Check the types and add the PostProcessor to the scrubber"""
         if not isinstance(post_processor, PostProcessor):
@@ -121,47 +131,71 @@ class Scrubber(object):
         else:
             self._post_processors.insert(index, post_processor)
 
-    def remove_post_processor(self, post_processor: Union[PostProcessor, Type[PostProcessor], str]):
-        """Remove a ``Detector`` from scrubadub"""
-        if isinstance(post_processor, type):
-            self._post_processors = [x for x in self._post_processors if x.name != post_processor().name]
-        elif isinstance(post_processor, post_processors.base.PostProcessor):
-            self._post_processors = [x for x in self._post_processors if x.name != post_processor.name]
-        elif isinstance(post_processor, str):
-            self._post_processors = [x for x in self._post_processors if x.name != post_processor]
-
-    def clean(self, document: Union[str, Sequence[str], Dict[str, str]], **kwargs) -> \
-            Union[str, Dict[str, str], Sequence[str]]:
+    def clean(self, text: str, **kwargs) -> str:
         """This is the master method that cleans all of the filth out of the
         dirty dirty ``text``. All keyword arguments to this function are passed
         through to the  ``Filth.replace_with`` method to fine-tune how the
         ``Filth`` is cleaned.
         """
+        if 'replace_with' in kwargs:
+            warnings.warn("Use of replace_with is depreciated in favour of using PostProcessors", DeprecationWarning)
 
         # We are collating all Filths so that they can all be passed to the post processing step together.
         # This is needed for some operations within the PostProcesssors.
         # It could be improved if we know which post processors need collated Filths.
-        filth_list = self.iter_filth(document)
+        filth_list = list(self.iter_filth(text))  # type: Sequence[Filth]
+        filth_list = self._post_process_filth_list(filth_list)
+        return self._replace_text(text=text, filth_list=filth_list, **kwargs)
+
+    def clean_documents(self, documents: Union[Sequence[str], Dict[str, str]], **kwargs) -> \
+            Union[Dict[str, str], Sequence[str]]:
+        """This is the master method that cleans all of the filth out of the
+        dirty dirty ``text``. All keyword arguments to this function are passed
+        through to the  ``Filth.replace_with`` method to fine-tune how the
+        ``Filth`` is cleaned.
+        """
+        if 'replace_with' in kwargs:
+            warnings.warn("Use of replace_with is depreciated in favour of using PostProcessors", DeprecationWarning)
+
+        # We are collating all Filths so that they can all be passed to the post processing step together.
+        # This is needed for some operations within the PostProcesssors.
+        # It could be improved if we know which post processors need collated Filths.
+        filth_list = []  # type: Sequence[Filth]
+        if isinstance(documents, list):
+            filth_list = [
+                filth
+                for name, document in enumerate(documents)
+                for filth in self.iter_filth(document, document_name=str(name))
+            ]
+        elif isinstance(documents, dict):
+            filth_list = [
+                filth
+                for name, document in documents.items()
+                for filth in self.iter_filth(document, document_name=name)
+            ]
+        else:
+            raise TypeError(
+                'documents type should be one of: list of strings or a dict of strings with the key as the '
+                'document title.'
+            )
+
         filth_list = self._post_process_filth_list(filth_list)
 
-        if isinstance(document, list) and isinstance(filth_list, list):
+        if isinstance(documents, list):
             return [
-                self._clean_text(text=text, filth_list=filth_list[name], document_name=str(name), **kwargs)
-                for name, text in enumerate(document)
+                self._replace_text(text=text, filth_list=filth_list, document_name=str(name), **kwargs)
+                for name, text in enumerate(documents)
             ]
-        elif isinstance(document, dict) and isinstance(filth_list, dict):
+        elif isinstance(documents, dict):
             return {
-                name: self._clean_text(text=text, filth_list=filth_list[name], document_name=name, **kwargs)
-                for name, text in document.items()
+                name: self._replace_text(text=text, filth_list=filth_list, document_name=name, **kwargs)
+                for name, text in documents.items()
             }
-        elif isinstance(document, str) and isinstance(filth_list, list):
-            return self._clean_text(text=document, filth_list=filth_list, **kwargs)
-        raise TypeError(
-            'text type should be one of: string, list of strings or a dict of strings with the key as the '
-            'document title.'
-        )
+        return []
 
-    def _clean_text(self, text: str, filth_list: Sequence[Filth], document_name: Optional[str] = None, **kwargs) -> str:
+    def _replace_text(
+            self, text: str, filth_list: Sequence[Filth], document_name: Optional[str] = None, **kwargs
+    ) -> str:
         if document_name is not None:
             filth_list = [filth for filth in filth_list if filth.document_name == document_name]
 
@@ -178,47 +212,20 @@ class Scrubber(object):
         clean_chunks.append(text[filth.end:])
         return u''.join(clean_chunks)
 
-    # TODO: rename filth_list to somethign more accurate, its a:
-    #  Union[Sequence[Filth], Dict[str, Sequence[Filth]], Sequence[Sequence[Filth]]]
-    def _post_process_filth_list(
-        self, filth_list: Union[Sequence[Filth], Dict[str, Sequence[Filth]], Sequence[Sequence[Filth]]]
-    ) -> Union[Sequence[Filth], Dict[str, Sequence[Filth]], Sequence[Sequence[Filth]]]:
+    def _post_process_filth_list(self, filth_list: Sequence[Filth]) -> Sequence[Filth]:
         # We are collating all Filths so that they can all be passed to the post processing step together.
         # This is needed for some operations within the PostProcesssors.
         # It could be improved if we know which post processors need collated Filths.
-        # TODO: this doesnt work as it doesnt process all filths together, it processes it per doc
         for post_processor in self._post_processors:
-            if isinstance(filth_list, list):
-                if all(isinstance(el, list) for el in filth_list):
-                    filth_list = [post_processor.process_filth(filths) for filths in filth_list]
-                else:
-                    filth_list = post_processor.process_filth(filth_list)
-            elif isinstance(filth_list, dict):
-                filth_list = {name: post_processor.process_filth(filths) for name, filths in filth_list.items()}
+            filth_list = post_processor.process_filth(filth_list)
 
         return filth_list
 
-    def iter_filth(self, document: Union[str, Sequence[str], Dict[str, str]]) -> \
-            Union[Sequence[Filth], Dict[str, Sequence[Filth]], Sequence[Sequence[Filth]]]:
+    def iter_filth(
+            self, text: str, document_name: Optional[str] = None, run_post_processors: bool = True
+    ) -> Generator[Filth, None, None]:
         """Iterate over the different types of filth that can exist.
         """
-        if isinstance(document, str):
-            return self._post_process_filth_list(
-                list(self._iter_document_filth(document))
-            )
-        elif isinstance(document, dict):
-            return self._post_process_filth_list({
-                name: list(self._iter_document_filth(text, document_name=name))
-                for name, text in document.items()
-            })
-        elif isinstance(document, list):
-            return self._post_process_filth_list([
-                list(self._iter_document_filth(text, document_name=str(name)))
-                for name, text in enumerate(document)
-            ])
-        raise TypeError('documents must be one of a string, list of strings or dict of strings.')
-
-    def _iter_document_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
         # currently doing this by aggregating all_filths and then sorting
         # inline instead of with a Filth.__cmp__ method, which is apparently
         # much slower http://stackoverflow.com/a/988728/564709
@@ -226,16 +233,64 @@ class Scrubber(object):
         # NOTE: we could probably do this in a more efficient way by iterating
         # over all detectors simultaneously. just trying to get something
         # working right now and we can worry about efficiency later
-
-        all_filths = []
+        all_filths = []  # type: List[Filth]
         for detector in self._detectors.values():
             for filth in detector.iter_filth(text, document_name=document_name):
                 if not isinstance(filth, Filth):
                     raise TypeError('iter_filth must always yield Filth')
                 all_filths.append(filth)
 
-        for filth in self._merge_filths(all_filths):
-            yield filth
+        # This is split up so that we only have to use lists if we have to post_process Filth
+        if run_post_processors:
+            all_filths = list(self._merge_filths(all_filths))
+            all_filths = list(self._post_process_filth_list(all_filths))
+
+            # Here we loop over a list of Filth...
+            for filth in all_filths:
+                yield filth
+        else:
+            # ... but here, we're using a generator. If we try to use the same variable it would have two types and
+            # fail static typing in mypy
+            for filth in self._merge_filths(all_filths):
+                yield filth
+
+    def iter_filth_documents(
+            self,
+            documents: Union[Sequence[str], Dict[str, str]],
+            run_post_processors: bool = True
+    ) -> Generator[Filth, None, None]:
+        """Iterate over the different types of filth that can exist."""
+        if isinstance(documents, (dict, list)):
+            raise TypeError('documents must be one of a string, list of strings or dict of strings.')
+
+        if run_post_processors:
+            # Only collect the filts into a list if we need to do post processing
+            filth_list = []  # type: List[Filth]
+            if isinstance(documents, dict):
+                filth_list = [
+                    filth
+                    for name, text in documents.items()
+                    for filth in self.iter_filth(text, document_name=name, run_post_processors=False)
+                ]
+            elif isinstance(documents, list):
+                filth_list = [
+                    filth
+                    for name, text in enumerate(documents)
+                    for filth in self.iter_filth(text, document_name=str(name), run_post_processors=False)
+                ]
+
+            for filth in self._post_process_filth_list(filth_list):
+                yield filth
+        else:
+            # Use generators when we dont post process the Filth
+            if isinstance(documents, dict):
+                for name, text in documents.items():
+                    for filth in self.iter_filth(text, document_name=name, run_post_processors=False):
+                        yield filth
+            elif isinstance(documents, list):
+                for name, text in enumerate(documents):
+                    for filth in self.iter_filth(text, document_name=str(name), run_post_processors=False):
+                        yield filth
 
     @staticmethod
     def _sort_filths(filth_list: Sequence[Filth]) -> List[Filth]:
