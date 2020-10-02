@@ -10,5 +10,5 @@ class PostProcessor(object):
         if name is not None:
             self.name = name
 
-    def process_filth(self, filth_list: Sequence[Filth]):
+    def process_filth(self, filth_list: Sequence[Filth]) -> Sequence[Filth]:
         raise NotImplementedError('must be overridden by base classes')
