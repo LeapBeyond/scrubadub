@@ -97,7 +97,7 @@ class Scrubber(object):
         elif isinstance(post_processor, PostProcessor):
             self._check_and_add_post_processor(post_processor, index=index)
         elif isinstance(post_processor, str):
-            if post_processor in detectors.detector_configuration:
+            if post_processor in post_processors.post_processor_configuration:
                 self._check_and_add_post_processor(
                     post_processors.post_processor_configuration[post_processor]['post_processor'](), index=index
                 )
