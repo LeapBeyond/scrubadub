@@ -44,7 +44,6 @@ resulting text in HTML, you might want to do this:
     >>> scrubadub.filth.base.Filth.prefix = u'<b>'
     >>> scrubadub.filth.base.Filth.suffix = u'</b>'
     >>> scrubber = scrubadub.Scrubber()
-    >>> scrubber.remove_detector('email')
     >>> text = u"contact Joe Duffy at joe@example.com"
     >>> scrubber.clean(text)
     u"contact <b>NAME</b> <b>NAME</b> at <b>EMAIL</b>"
@@ -61,16 +60,16 @@ you can always add your own ``Filth`` and ``Detectors`` like this:
 .. code:: pycon
 
     >>> import scrubadub
-    >>> class MyFilth(scrubadub.filth.base.Filth):
+    >>> class MyFilth(scrubadub.filth.Filth):
     >>>     type = 'mine'
-    >>> class MyDetector(scrubadub.Detector.base.Detector):
+    >>> class MyDetector(scrubadub.detectors.Detector):
     >>>     name = 'my_detector'
     >>>     def iter_filth(self, text, document_name=None):
     >>>        # do something here
     >>>        yield MyFilth(beg=0, end=5, text='hello', document_name=document_name, detector_name=self.name)
     >>> scrubber = scrubadub.Scrubber()
     >>> scrubber.add_detector(MyDetector)
-    >>> text = u"My stuff can be found there"
+    >>> text = u"My stuff can be found there."
     >>> scrubber.clean(text)
     u"{{MINE}} can be found there."
 
