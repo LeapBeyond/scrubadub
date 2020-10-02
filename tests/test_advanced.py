@@ -27,10 +27,13 @@ class AdvancedTestCase(unittest.TestCase, BaseTestCase):
         suffix = scrubadub.filth.base.Filth.suffix
         scrubadub.filth.base.Filth.prefix = u'<b>'
         scrubadub.filth.base.Filth.suffix = u'</b>'
-        scrubber = scrubadub.Scrubber()
-        self.check_equal(after, scrubber.clean(before))
-        scrubadub.filth.base.Filth.prefix = prefix
-        scrubadub.filth.base.Filth.suffix = suffix
+        try:
+            scrubber = scrubadub.Scrubber()
+            self.check_equal(after, scrubber.clean(before))
+        finally:
+            # Ensure that this is reset, no matter what happens above
+            scrubadub.filth.base.Filth.prefix = prefix
+            scrubadub.filth.base.Filth.suffix = suffix
 
     def test_identifier(self):
         """
