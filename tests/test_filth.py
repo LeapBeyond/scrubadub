@@ -1,6 +1,6 @@
 import unittest
 
-from scrubadub.filth import Filth
+from scrubadub.filth import Filth, MergedFilth
 from scrubadub.exceptions import InvalidReplaceWith, FilthMergeError
 
 class FilthTestCase(unittest.TestCase):
@@ -43,3 +43,37 @@ class FilthTestCase(unittest.TestCase):
         b_filth.end = 2
         with self.assertRaises(FilthMergeError):
             b_filth.merge(a_filth)
+
+    def test_filth_string(self):
+        """Test the Filth to string function"""
+
+        filth = Filth(beg=0, end=5)
+        self.assertEqual(str(filth), "<Filth text=''>")
+
+        filth = Filth(beg=0, end=5)
+        self.assertEqual(filth.__repr__(), "<Filth text=''>")
+
+        filth = Filth(beg=0, end=5)
+        self.assertEqual(filth._to_string(), "<Filth text=''>")
+
+        filth = Filth(beg=0, end=5, text='hello')
+        self.assertEqual(str(filth), "<Filth text='hello'>")
+
+        filth = Filth(beg=0, end=5, text='hello', document_name='hello.txt')
+        self.assertEqual(str(filth), "<Filth text='hello' document_name='hello.txt'>")
+
+        filth = Filth(beg=0, end=5, text='hello', document_name='hello.txt')
+        self.assertEqual(filth._to_string(attributes=['text']), "<Filth text='hello'>")
+        self.assertEqual(filth._to_string(attributes=['beg', 'end', 'text']), "<Filth beg=0 end=5 text='hello'>")
+        self.assertEqual(
+            filth._to_string(attributes=['text', 'document_name']),
+            "<Filth text='hello' document_name='hello.txt'>"
+        )
+
+    def test_merged_to_string(self):
+        """Test the MergedFilth to string"""
+        class TestFilth(Filth):
+            type = 'test_filth'
+
+        merged = MergedFilth(TestFilth(0, 2, 'ab'), Filth(1, 2, 'b'))
+        self.assertEqual(merged.__repr__(), "<MergedFilth filths=[<TestFilth text='ab'>, <Filth text='b'>]>")
