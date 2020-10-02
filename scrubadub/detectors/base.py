@@ -13,11 +13,16 @@ class Detector(object):
         if getattr(self, 'name', 'detector') == 'detector' and getattr(self, 'filth_cls', None) is not None:
             if getattr(self.filth_cls, 'type', None) is not None and type(self) != Detector:
                 self.name = self.filth_cls.type
+                warnings.warn(
+                    "Setting the detector name from the filth_cls.type is depreciated, please declare an explicit name"
+                    "attribute on the class.",
+                    DeprecationWarning
+                )
         if name is not None:
             self.name = name
 
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
-        raise NotImplementedError('must be overridden by base classes')
+        raise NotImplementedError('must be implemented in derived classes')
 
 
 class RegexDetector(Detector):
