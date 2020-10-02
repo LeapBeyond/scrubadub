@@ -82,17 +82,14 @@ class ScrubberTestCase(unittest.TestCase):
 
     def test_iter_not_return_filth(self):
         """make sure a detector cant return non filth"""
-        class FakeFilth(Filth):
-            name = 'fakerfilth'
-
         class BadDetector(scrubadub.detectors.Detector):
-            filth_cls = FakeFilth
-            def iter_filth(self, text):
+            name = 'bad_detector'
+            # TODO: investigate below
+            def iter_filth(self, text, **kwargs):
                 yield 'Non-filth'
 
-        scrubber = scrubadub.Scrubber()
-        scrubber._detectors = {'fakerfilth': BadDetector}
-        with self.assertRaises(TypeError):
+        scrubber = scrubadub.Scrubber(detector_list=[BadDetector()])
+        with self.assertRaises(TypeError) as err:
             list(scrubber.iter_filth('A fake document with no pii'))
 
     def test_dict_document(self):
@@ -102,7 +99,7 @@ class ScrubberTestCase(unittest.TestCase):
             'fish tales': 'the apple was not eaten by the fish',
         }
         scrubber = scrubadub.Scrubber()
-        self.assertEqual(scrubber.clean(text), text)
+        self.assertEqual(scrubber.clean_documents(text), text)
 
         text_dirty = {
             'shark tales': 'shark sent example@example.com a complaint',
@@ -113,7 +110,7 @@ class ScrubberTestCase(unittest.TestCase):
             'fish tales': 'the fish swam on by',
         }
         scrubber = scrubadub.Scrubber()
-        self.assertEqual(scrubber.clean(text_dirty), text_clean)
+        self.assertEqual(scrubber.clean_documents(text_dirty), text_clean)
 
     def test_list_document(self):
         """check we can clean a list of documents"""
@@ -122,7 +119,7 @@ class ScrubberTestCase(unittest.TestCase):
             'the apple was not eaten by the fish',
         ]
         scrubber = scrubadub.Scrubber()
-        self.assertEqual(scrubber.clean(text), text)
+        self.assertEqual(scrubber.clean_documents(text), text)
 
         text_dirty = [
             'shark sent example@example.com a complaint',
@@ -133,7 +130,7 @@ class ScrubberTestCase(unittest.TestCase):
             'the fish swam on by',
         ]
         scrubber = scrubadub.Scrubber()
-        self.assertEqual(scrubber.clean(text_dirty), text_clean)
+        self.assertEqual(scrubber.clean_documents(text_dirty), text_clean)
 
     def test_add_post_processor_instance(self):
         """make sure adding some post processors work"""
