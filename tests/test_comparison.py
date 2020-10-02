@@ -61,15 +61,13 @@ class ComparisonTestCase(unittest.TestCase):
         print(text)
         self.assertEquals(
             text,
-            """
-                 precision    recall  f1-score   support
-
-phone     phone       1.00      0.50      0.67         4
-
-      micro avg       1.00      0.50      0.67         4
-      macro avg       1.00      0.50      0.67         4
-   weighted avg       1.00      0.50      0.67         4
-            """.strip(),
+            "                 precision    recall  f1-score   support\n"
+            "\n"
+            "phone     phone       1.00      0.50      0.67         4\n"
+            "\n"
+            "      micro avg       1.00      0.50      0.67         4\n"
+            "      macro avg       1.00      0.50      0.67         4\n"
+            "   weighted avg       1.00      0.50      0.67         4\n".strip(),
         )
 
     def test_false_positive(self):
