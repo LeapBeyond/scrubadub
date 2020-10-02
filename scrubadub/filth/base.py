@@ -27,7 +27,7 @@ class Filth(object):
 
     def __init__(self, beg: Optional[int] = None, end: Optional[int] = None, text: Optional[str] = None,
                  match: Optional[Match] = None, detector_name: Optional[str] = None,
-                 document_name: Optional[str] = None, replacement_string: Optional[str] = None):
+                 document_name: Optional[str] = None, replacement_string: Optional[str] = None, **kwargs):
 
         self.beg = 0  # type: int
         self.end = 0  # type: int
@@ -68,6 +68,12 @@ class Filth(object):
             "Filth.replace_with() will be removed in favour of using the more general PostProcessors",
             DeprecationWarning
         )
+        if self.prefix != '{{' or self.suffix != '}}':
+            warnings.warn(
+                "Setting prefixes and suffixes with scrubadub.filth.Filth.prefix or scrubadub.filth.Filth.suffix "
+                "is depreciated in favour of using the PrefixSuffixReplacer",
+                DeprecationWarning
+            )
 
         if replace_with == 'placeholder':
             return self.prefix + self.placeholder + self.suffix
