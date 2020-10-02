@@ -20,8 +20,12 @@ class PredefinedTestCase(unittest.TestCase):
         """test a simple matching"""
 
         test_str = 'this is a test string'
-        detector = scrubadub.detectors.KnownFilthDetector([])
 
+        detector = scrubadub.detectors.KnownFilthDetector()
+        matches = list(detector.iter_filth(test_str))
+        self.assertEquals(len(matches), 0)
+
+        detector = scrubadub.detectors.KnownFilthDetector([])
         matches = list(detector.iter_filth(test_str))
         self.assertEquals(len(matches), 0)
 
