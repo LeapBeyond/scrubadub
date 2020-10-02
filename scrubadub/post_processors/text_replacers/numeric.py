@@ -6,6 +6,7 @@ from typing import Optional, Sequence, Type, List
 from ...filth import Filth
 from ... import utils
 from ..base import PostProcessor
+from .filth_type import FilthTypeReplacer
 
 
 class NumericReplacer(PostProcessor):
@@ -20,8 +21,11 @@ class NumericReplacer(PostProcessor):
 
         for filth_item in filth_list:
             filth_item.replacement_string = '{}-{:d}'.format(
-                filth_item.type.upper(),
+                FilthTypeReplacer.filth_label(filth_item),
                 self.lookup[(filth_item.type, filth_item.text.lower())]
             )
 
         return filth_list
+
+
+__all__ = ['NumericReplacer']

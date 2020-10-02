@@ -1,7 +1,4 @@
-import os
-import hashlib
-
-from typing import Optional, ClassVar, Sequence, List
+from typing import Optional, Sequence
 
 from ...filth import Filth
 from ..base import PostProcessor
@@ -29,3 +26,6 @@ class PrefixSuffixReplacer(PostProcessor):
                 filth_item.replacement_string = filth_item.replacement_string + self.suffix
 
         return filth_list
+
+
+__all__ = ['PrefixSuffixReplacer']

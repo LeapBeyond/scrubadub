@@ -6,17 +6,18 @@ from typing import Optional, ClassVar, Sequence, List
 
 from ...filth import Filth
 from ..base import PostProcessor
+from .filth_type import FilthTypeReplacer
 
 
 class HashReplacer(PostProcessor):
     name = 'hash_replacer'  # type: str
 
     def __init__(self, length: Optional[int] = None, salt: Optional[str] = None, name: Optional[str] = None,
-                 include_type: bool = True):
+                 include_filth_type: bool = True):
         super(HashReplacer, self).__init__(name=name)
 
         self.length = length or 16
-        self.include_type = include_type
+        self.include_type = include_filth_type
         if isinstance(salt, str):
             self.salt = salt.encode('utf8')
         else:
@@ -26,7 +27,7 @@ class HashReplacer(PostProcessor):
         for filth_item in filth_list:
             filth_item.replacement_string = ''
             if self.include_type:
-                filth_item.replacement_string += filth_item.type + '-'
+                filth_item.replacement_string += FilthTypeReplacer.filth_label(filth_item) + '-'
             filth_item.replacement_string += hashlib.pbkdf2_hmac(
                 hash_name='sha256',
                 password=filth_item.text.encode('utf8'),
@@ -36,3 +37,6 @@ class HashReplacer(PostProcessor):
             ).hex()[:self.length]
             filth_item.replacement_string = filth_item.replacement_string.upper()
         return filth_list
+
+
+__all__ = ['HashReplacer']
