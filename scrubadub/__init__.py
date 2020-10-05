@@ -44,12 +44,10 @@ def list_filth(text: str, cls: Type = None, **kwargs) -> List[Filth]:
     return list(scrubber.iter_filth(text, **kwargs))
 
 
-def list_filth_documents(
-        documents: Union[List[str], Dict[str, str]], cls: Type = None, **kwargs
-) -> Union[Sequence[str], Dict[str, str]]:
+def list_filth_documents(documents: Union[List[str], Dict[str, str]], cls: Type = None, **kwargs) -> List[Filth]:
     """Public facing function to clean ``documents`` using the scrubber ``cls`` by
     replacing all personal information with ``{{PLACEHOLDERS}}``.
     """
     cls = cls or Scrubber
     scrubber = cls()
-    return scrubber.clean_documents(documents, **kwargs)
+    return list(scrubber.iter_filth_documents(documents, **kwargs))
