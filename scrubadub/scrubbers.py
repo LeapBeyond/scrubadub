@@ -260,7 +260,7 @@ class Scrubber(object):
             run_post_processors: bool = True
     ) -> Generator[Filth, None, None]:
         """Iterate over the different types of filth that can exist."""
-        if isinstance(documents, (dict, list)):
+        if not isinstance(documents, (dict, list)):
             raise TypeError('documents must be one of a string, list of strings or dict of strings.')
 
         if run_post_processors:
@@ -275,8 +275,8 @@ class Scrubber(object):
             elif isinstance(documents, list):
                 filth_list = [
                     filth
-                    for name, text in enumerate(documents)
-                    for filth in self.iter_filth(text, document_name=str(name), run_post_processors=False)
+                    for i_name, text in enumerate(documents)
+                    for filth in self.iter_filth(text, document_name=str(i_name), run_post_processors=False)
                 ]
 
             for filth in self._post_process_filth_list(filth_list):
@@ -288,8 +288,8 @@ class Scrubber(object):
                     for filth in self.iter_filth(text, document_name=name, run_post_processors=False):
                         yield filth
             elif isinstance(documents, list):
-                for name, text in enumerate(documents):
-                    for filth in self.iter_filth(text, document_name=str(name), run_post_processors=False):
+                for i_name, text in enumerate(documents):
+                    for filth in self.iter_filth(text, document_name=str(i_name), run_post_processors=False):
                         yield filth
 
     @staticmethod
