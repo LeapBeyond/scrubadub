@@ -42,7 +42,6 @@ class APITestCase(unittest.TestCase):
                 "second.txt": "Hello Jane, I am Tom.",
             }
         )
-        print(filths)
         self.assertEqual(
             filths,
             [
