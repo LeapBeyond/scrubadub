@@ -39,15 +39,17 @@ class APITestCase(unittest.TestCase):
         filths = scrubadub.list_filth_documents(
             {
                 "first.txt": "This is a test message for example@example.com",
-                "second.txt": "Hello Jane I am Tom.",
+                "second.txt": "Hello Jane, I am Tom.",
             }
         )
         print(filths)
         self.assertEqual(
             filths,
             [
-                scrubadub.filth.EmailFilth(text='example@example.com', document_name='first.txt', detector_name='email', beg=27, end=46),
+                scrubadub.filth.EmailFilth(
+                    text='example@example.com', document_name='first.txt', detector_name='email', beg=27, end=46
+                ),
                 scrubadub.filth.NameFilth(text='Jane', document_name='second.txt', detector_name='name', beg=6, end=10),
-                scrubadub.filth.NameFilth(text='Tom', document_name='second.txt', detector_name='name', beg=16, end=19)
+                scrubadub.filth.NameFilth(text='Tom', document_name='second.txt', detector_name='name', beg=17, end=20),
             ]
         )
