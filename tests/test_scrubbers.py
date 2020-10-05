@@ -47,9 +47,19 @@ class ScrubberTestCase(unittest.TestCase):
 
     def test_add_detector_instance(self):
         """make sure adding an initialised detector works"""
-        scrubber = scrubadub.Scrubber()
+        scrubber = scrubadub.Scrubber(detector_list=[])
+
+        scrubber.add_detector(scrubadub.detectors.email.EmailDetector)
+        self.assertEqual(len(scrubber._detectors), 1)
+        self.assertEqual(list(scrubber._detectors.keys()), ['email'])
+
         scrubber.remove_detector('email')
-        scrubber.add_detector(scrubadub.detectors.email.EmailDetector())
+        self.assertEqual(len(scrubber._detectors), 0)
+
+        scrubber.add_detector('email')
+        self.assertEqual(len(scrubber._detectors), 1)
+        self.assertEqual(list(scrubber._detectors.keys()), ['email'])
+
 
     def test_add_duplicate_detector(self):
         """make sure adding a detector that already exists raises an error"""
@@ -64,6 +74,10 @@ class ScrubberTestCase(unittest.TestCase):
         ])
         scrubber.add_detector(scrubadub.detectors.email.EmailDetector(name='email_two'))
         scrubber.add_detector(scrubadub.detectors.email.EmailDetector(name='email_three'))
+
+        self.assertEqual(len(scrubber._detectors), 3)
+        self.assertEqual(list(scrubber._detectors.keys()), ['email', 'email_two', 'email_three'])
+
         filth = list(scrubber.iter_filth('hello jane@example.com'))
         self.assertEqual(len(filth), 1)
         self.assertEqual(len(filth[0].filths), 3)
@@ -80,6 +94,30 @@ class ScrubberTestCase(unittest.TestCase):
         scrubber = scrubadub.Scrubber()
         with self.assertRaises(TypeError):
             scrubber.add_detector(NotDetector)
+
+        with self.assertRaises(ValueError):
+            scrubber.add_detector('non_existant_detector')
+
+    def test_remove_detector(self):
+        """Test removing detectors"""
+        detector = scrubadub.detectors.EmailDetector(name='emailinator')
+        scrubber = scrubadub.Scrubber(detector_list=[detector])
+        scrubber.add_detector(scrubadub.detectors.EmailDetector)
+        scrubber.add_detector('name')
+
+        self.assertEqual(len(scrubber._detectors), 3)
+        self.assertEqual(sorted(scrubber._detectors.keys()), sorted(['emailinator', 'email', 'name']))
+
+        scrubber.remove_detector('name')
+        self.assertEqual(len(scrubber._detectors), 2)
+        self.assertEqual(sorted(scrubber._detectors.keys()), sorted(['emailinator', 'email']))
+
+        scrubber.remove_detector(scrubadub.detectors.EmailDetector)
+        self.assertEqual(len(scrubber._detectors), 1)
+        self.assertEqual(sorted(scrubber._detectors.keys()), sorted(['emailinator']))
+
+        scrubber.remove_detector(detector)
+        self.assertEqual(len(scrubber._detectors), 0)
 
     def test_iter_not_return_filth(self):
         """make sure a detector cant return non filth"""
@@ -216,3 +254,78 @@ class ScrubberTestCase(unittest.TestCase):
         scrubber.remove_post_processor(post_processor)
         self.assertEqual(len(scrubber._post_processors), 0)
         self.assertEqual([x.name for x in scrubber._post_processors], [])
+
+
+    def test_sorting(self):
+        """Ensure that filths are sorted correctly"""
+        filths = scrubadub.Scrubber._sort_filths([
+            Filth(beg=6, end=7),
+            Filth(beg=2, end=3),
+            Filth(beg=0, end=1),
+            Filth(beg=4, end=5),
+        ])
+        self.assertEqual(
+            [(f.beg, f.end) for f in filths],
+            [(0, 1), (2, 3), (4, 5), (6, 7)]
+        )
+
+        filths = scrubadub.Scrubber._sort_filths([
+            Filth(beg=7, end=8),
+            Filth(beg=0, end=1),
+            Filth(beg=4, end=5),
+            Filth(beg=0, end=3),
+            Filth(beg=5, end=8),
+        ])
+        self.assertEqual(
+            [(f.beg, f.end) for f in filths],
+            [(0, 3), (0, 1), (4, 5), (5, 8), (7, 8)]
+        )
+
+        filths = scrubadub.Scrubber._sort_filths([
+            Filth(beg=5, end=8, document_name='a'),
+            Filth(beg=0, end=3, document_name='b'),
+            Filth(beg=4, end=5, document_name='b'),
+            Filth(beg=7, end=8, document_name='a'),
+            Filth(beg=0, end=1, document_name='a'),
+        ])
+        self.assertEqual(
+            [(f.document_name, f.beg, f.end) for f in filths],
+            [('a', 0, 1), ('a', 5, 8), ('a', 7, 8), ('b', 0, 3), ('b', 4, 5)]
+        )
+
+    def test_merging(self):
+        """Ensure that filths are merged correctly"""
+        filths = scrubadub.Scrubber._merge_filths([
+            Filth(beg=6, end=7, text='a'),
+            Filth(beg=2, end=3, text='a'),
+            Filth(beg=0, end=1, text='a'),
+            Filth(beg=4, end=5, text='a'),
+        ])
+        self.assertEqual(
+            [(f.beg, f.end) for f in filths],
+            [(0, 1), (2, 3), (4, 5), (6, 7)]
+        )
+
+        filths = scrubadub.Scrubber._merge_filths([
+            Filth(beg=7, end=8, text='a'),
+            Filth(beg=0, end=1, text='a'),
+            Filth(beg=4, end=5, text='a'),
+            Filth(beg=0, end=3, text='aaa'),
+            Filth(beg=5, end=8, text='aaa'),
+        ])
+        self.assertEqual(
+            [(f.beg, f.end) for f in filths],
+            [(0, 3), (4, 8)]
+        )
+
+        filths = scrubadub.Scrubber._merge_filths([
+            Filth(beg=5, end=8, text='aaa', document_name='a'),
+            Filth(beg=0, end=3, text='aaa', document_name='b'),
+            Filth(beg=4, end=5, text='a', document_name='b'),
+            Filth(beg=7, end=8, text='a', document_name='a'),
+            Filth(beg=0, end=1, text='a', document_name='a'),
+        ])
+        self.assertEqual(
+            [(f.document_name, f.beg, f.end) for f in filths],
+            [('a', 0, 1), ('a', 5, 8), ('b', 0, 3), ('b', 4, 5)]
+        )
