@@ -43,12 +43,12 @@ class APITestCase(unittest.TestCase):
             }
         )
         self.assertEqual(
-            filths,
-            [
+            scrubadub.Scrubber._sort_filths(filths),
+            scrubadub.Scrubber._sort_filths([
                 scrubadub.filth.EmailFilth(
                     text='example@example.com', document_name='first.txt', detector_name='email', beg=27, end=46
                 ),
                 scrubadub.filth.NameFilth(text='Jane', document_name='second.txt', detector_name='name', beg=6, end=10),
                 scrubadub.filth.NameFilth(text='Tom', document_name='second.txt', detector_name='name', beg=17, end=20),
-            ]
+            ])
         )

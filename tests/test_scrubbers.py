@@ -76,7 +76,7 @@ class ScrubberTestCase(unittest.TestCase):
         scrubber.add_detector(scrubadub.detectors.email.EmailDetector(name='email_three'))
 
         self.assertEqual(len(scrubber._detectors), 3)
-        self.assertEqual(list(scrubber._detectors.keys()), ['email', 'email_two', 'email_three'])
+        self.assertEqual(sorted(list(scrubber._detectors.keys())), sorted(['email', 'email_two', 'email_three']))
 
         filth = list(scrubber.iter_filth('hello jane@example.com'))
         self.assertEqual(len(filth), 1)
@@ -341,14 +341,14 @@ class ScrubberTestCase(unittest.TestCase):
         filth_list_two = list(scrubber.iter_filth_documents(docs, run_post_processors=False))
         for filths in [filth_list_one, filth_list_two]:
             self.assertEqual(
-                filths,
-                [
+                scrubadub.Scrubber._sort_filths(filths),
+                scrubadub.Scrubber._sort_filths([
                     scrubadub.filth.EmailFilth(
                         text='example@example.com', document_name='first.txt', detector_name='email', beg=27, end=46
                     ),
                     scrubadub.filth.NameFilth(text='Jane', document_name='second.txt', detector_name='name', beg=6, end=10),
                     scrubadub.filth.NameFilth(text='Tom', document_name='second.txt', detector_name='name', beg=17, end=20),
-                ]
+                ])
             )
 
     def test_list_filth_documents_list(self):
