@@ -45,6 +45,17 @@ class FilthTestCase(unittest.TestCase):
         with self.assertRaises(FilthMergeError):
             b_filth.merge(a_filth)
 
+    def test_invalid_merge_documents(self):
+        """Ensure Filth in two different documents cant be merged"""
+        filth_a = Filth(0, 2, text='aa', document_name='one')
+        filth_b = Filth(1, 2, text='a', document_name='two')
+
+        with self.assertRaises(FilthMergeError):
+            filth_a.merge(filth_b)
+
+        with self.assertRaises(FilthMergeError):
+            filth_b.merge(filth_a)
+
     def test_filth_string(self):
         """Test the Filth to string function"""
 
