@@ -52,18 +52,18 @@ class Filth(object):
         self.replacement_string = replacement_string  # type: Optional[str]
 
     @property
-    def placeholder(self):
+    def placeholder(self) -> str:
         return self.type.upper()
 
     @property
-    def identifier(self):
+    def identifier(self) -> str:
         # NOTE: this is not an efficient way to store this in memory. could
         # alternatively hash the type and text and do away with the overhead
         # bits of storing the tuple in the lookup
         i = self.lookup[(self.type, self.text.lower())]
         return u'%s-%d' % (self.placeholder, i)
 
-    def replace_with(self, replace_with='placeholder', **kwargs):
+    def replace_with(self, replace_with: str = 'placeholder', **kwargs) -> str:
         warnings.warn(
             "Filth.replace_with() will be removed in favour of using the more general PostProcessors",
             DeprecationWarning
@@ -84,7 +84,7 @@ class Filth(object):
         else:
             raise exceptions.InvalidReplaceWith(replace_with)
 
-    def merge(self, other_filth):
+    def merge(self, other_filth: 'Filth') -> 'MergedFilth':
         return MergedFilth(self, other_filth)
 
     def __repr__(self) -> str:
@@ -101,17 +101,20 @@ class Filth(object):
         ]
         return "<{} {}>".format(self.__class__.__name__, " ".join(item_attributes))
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Only test equality on a subset of class attributes and some are optional"""
         match = True
+
+        if not hasattr(other, 'beg') or not hasattr(other, 'end') or not hasattr(other, 'text'):
+            raise TypeError("Unsupported comparison with a Filth and {}".format(type(other)))
 
         match &= (self.beg == other.beg)
         match &= (self.end == other.end)
         match &= (self.text == other.text)
 
-        if getattr(self, 'document_name', None) is not None or getattr(other, 'document_name', None) is not None:
+        if hasattr(self, 'document_name') or hasattr(other, 'document_name'):
             match &= (self.document_name == other.document_name)
-        if getattr(self, 'detector_name', None) is not None or getattr(other, 'detector_name', None) is not None:
+        if hasattr(self, 'detector_name') or hasattr(other, 'detector_name'):
             match &= (self.detector_name == other.detector_name)
 
         return match
@@ -120,16 +123,17 @@ class Filth(object):
 class MergedFilth(Filth):
     """This class takes care of merging different types of filth"""
 
-    def __init__(self, a_filth, b_filth):
+    def __init__(self, a_filth: Filth, b_filth: Filth):
         super(MergedFilth, self).__init__(
             beg=a_filth.beg,
             end=a_filth.end,
             text=a_filth.text,
+            document_name=a_filth.document_name,
         )
         self.filths = [a_filth]
         self._update_content(b_filth)
 
-    def _update_content(self, other_filth):
+    def _update_content(self, other_filth: Filth):
         """this updates the bounds, text and placeholder for the merged
         filth
         """
@@ -139,10 +143,16 @@ class MergedFilth(Filth):
                     self.beg, self.end, other_filth.beg, other_filth.end
                 ))
 
+        if self.document_name != other_filth.document_name:
+            raise exceptions.FilthMergeError(
+                "This MergedFilth is in document {}, but the Filth that is being merged is in another document {}"
+                "".format(self.document_name.__repr__(), other_filth.document_name.__repr__())
+            )
+
         # get the text over lap correct
         if self.beg < other_filth.beg:
-            first = self
-            second = other_filth
+            first = self  # type: Filth
+            second = other_filth  # type: Filth
         else:
             second = self
             first = other_filth
@@ -164,7 +174,7 @@ class MergedFilth(Filth):
     def placeholder(self):
         return self._placeholder.upper()
 
-    def merge(self, other_filth):
+    def merge(self, other_filth: Filth) -> 'MergedFilth':
         """Be smart about merging filth in this case to avoid nesting merged
         filths.
         """
