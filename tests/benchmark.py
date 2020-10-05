@@ -1,6 +1,7 @@
 import re
-import random
+import sys
 import faker
+import random
 import timeit
 
 
@@ -49,9 +50,11 @@ def main():
         time = timer.timeit(number=repeats)
     except Exception:
         timer.print_exc()
+        sys.exit(1)
     else:
         print("{: >8.4f}s total runtime".format(time))
         print("{: >8.4f}s per iteration".format(time/repeats))
+    sys.exit(0)
 
 
 if __name__ == "__main__":

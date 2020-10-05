@@ -8,6 +8,7 @@ python:
 install:
   - pip install -r requirements/python-dev
   - python -m textblob.download_corpora
+  - pip install .
 #  - apt-get install curl autoconf automake libtool pkg-config
 #  - git clone https://github.com/openvenues/libpostal && cd libpostal && ./bootstrap.sh && ./configure && \
 #    make -j4 && make install
