@@ -101,6 +101,21 @@ class Filth(object):
         ]
         return "<{} {}>".format(self.__class__.__name__, " ".join(item_attributes))
 
+    def __eq__(self, other):
+        """Only test equality on a subset of class attributes and some are optional"""
+        match = True
+
+        match &= (self.beg == other.beg)
+        match &= (self.end == other.end)
+        match &= (self.text == other.text)
+
+        if getattr(self, 'document_name', None) is not None or getattr(other, 'document_name', None) is not None:
+            match &= (self.document_name == other.document_name)
+        if getattr(self, 'detector_name', None) is not None or getattr(other, 'detector_name', None) is not None:
+            match &= (self.detector_name == other.detector_name)
+
+        return match
+
 
 class MergedFilth(Filth):
     """This class takes care of merging different types of filth"""

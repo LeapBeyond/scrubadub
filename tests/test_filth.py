@@ -1,3 +1,4 @@
+import re
 import unittest
 
 from scrubadub.filth import Filth, MergedFilth
@@ -77,3 +78,74 @@ class FilthTestCase(unittest.TestCase):
 
         merged = MergedFilth(TestFilth(0, 2, 'ab'), Filth(1, 2, 'b'))
         self.assertEqual(merged.__repr__(), "<MergedFilth filths=[<TestFilth text='ab'>, <Filth text='b'>]>")
+
+    def test_equality(self):
+        """Test the filth equality function"""
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello') ==
+            Filth(beg=0, end=5, text='hello')
+        )
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello') ==
+            Filth(beg=0, end=5, text='hello', match=re.match('123', '1234'))
+        )
+
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello') !=
+            Filth(beg=1, end=5, text='hello')
+        )
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello') !=
+            Filth(beg=0, end=6, text='hello')
+        )
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello') !=
+            Filth(beg=0, end=5, text='hellou')
+        )
+
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello', document_name='test') ==
+            Filth(beg=0, end=5, text='hello', document_name='test')
+        )
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello') !=
+            Filth(beg=0, end=5, text='hello', document_name='test')
+        )
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello', document_name='test') !=
+            Filth(beg=0, end=5, text='hello')
+        )
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello', document_name='test') !=
+            Filth(beg=0, end=5, text='hello', document_name='another_test')
+        )
+
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello', detector_name='tester') ==
+            Filth(beg=0, end=5, text='hello', detector_name='tester')
+        )
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello', detector_name='tester') !=
+            Filth(beg=0, end=5, text='hello', detector_name='another_tester')
+        )
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello', detector_name='tester') !=
+            Filth(beg=0, end=5, text='hello')
+        )
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello') !=
+            Filth(beg=0, end=5, text='hello', detector_name='tester')
+        )
+
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello', document_name='test', detector_name='tester') ==
+            Filth(beg=0, end=5, text='hello', document_name='test', detector_name='tester')
+        )
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello', document_name='test', detector_name='tester') !=
+            Filth(beg=0, end=5, text='hello', document_name='test', detector_name='another_tester')
+        )
+        self.assertTrue(
+            Filth(beg=0, end=5, text='hello', document_name='test', detector_name='tester') !=
+            Filth(beg=0, end=5, text='hello', document_name='another_test', detector_name='tester')
+        )
