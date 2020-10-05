@@ -298,27 +298,29 @@ class Scrubber(object):
         # Sort by start position. If two filths start in the same place then
         # return the longer one first
         filth_list = list(filth_list)
-        filth_list.sort(key=lambda f: (f.beg, -f.end))
+        filth_list.sort(key=lambda f: (
+            str(getattr(f, 'document_name', None) if hasattr(f, 'document_name') else ''), f.beg, -f.end
+        ))
         return filth_list
 
     @staticmethod
     def _merge_filths(filth_list: Sequence[Filth]) -> Generator[Filth, None, None]:
-        """Merge a list of filths if the filths overlap"""
-
-        # Sort by start position. If two filths start in the same place then
-        # return the longer one first
-        filth_list = Scrubber._sort_filths(filth_list)
-
-        # this is where the Scrubber does its hard work and merges any
-        # overlapping filths.
+        """This is where the Scrubber does its hard work and merges any
+        overlapping filths.
+        """
         if not filth_list:
             return
 
-        filth = filth_list[0]
-        for next_filth in filth_list[1:]:
-            if filth.end < next_filth.beg:
-                yield filth
-                filth = next_filth
-            else:
-                filth = filth.merge(next_filth)
-        yield filth
+        document_names = sorted({f.document_name for f in filth_list})
+
+        for document_name in document_names:
+            document_filth_list = Scrubber._sort_filths([f for f in filth_list if f.document_name == document_name])
+
+            filth = document_filth_list[0]
+            for next_filth in document_filth_list[1:]:
+                if filth.end < next_filth.beg:
+                    yield filth
+                    filth = next_filth
+                else:
+                    filth = filth.merge(next_filth)
+            yield filth
