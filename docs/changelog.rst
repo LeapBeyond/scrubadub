@@ -14,43 +14,46 @@ latest changes in development for next release
 2.0.0
 -----
 
-There have been some major API changes in scrubadub, including a few breaking API chages (noted below).
-These include:
+There have been some changes in the scrubadub API, but (almost) no breaking changes.
+The changes include:
 
-* Introduced the concept of a ``PostProcessor``.
-  This will allow more complex groupings of ``Filth``\ s and new types of tokenization.
-* Added ability to easily evaluate a ``Detector``\ 's performance.
+* Introduced the concept of a `PostProcessor`.
+  This will allow more complex groupings of `Filth`\ s and new types of tokenization.
+* Added ability to easily evaluate a `Detector`\ 's performance.
 * The the name of the detector has been separated from the type of filth found.
-  This means multiple instances of the same detector (configured differently) can be in the same ``Scrubber`` instance.
-* A default set of ``Detector``\ s are loaded instead of all ``Detector``\ s.
+  This means multiple instances of the same detector (configured differently) can be in the same `Scrubber` instance and one `Detector` can return multiple types of `Filth`.
+* A default set of `Detector`\ s are loaded instead of all `Detector`\ s.
   This is particularly useful for optional detectors with complex dependencies.
 
 
 Scrubber
 ^^^^^^^^
 
-* ``Detector``\ s can be added and removed using a string containing their default name, their class or an instance.
+* `Detector`\ s can be added and removed using a string containing their default name, their class or an instance.
+* You can clean multiple documents with one `Scrubber().clean_documents(docs)` call
 
 Detectors
 ^^^^^^^^^
 
-* Detectors now require a class instance variable called name, which should be unique within a ``Scrubber`` instance.
-* Regular expressions are now part of the the ``RegexDetector`` class (in the ``RegexDetector().regex`` variable) instead of the ``RegexFilth`` class
+* Detectors now require a class instance variable called name, which should be unique within a `Scrubber` instance.
+* Regular expressions used by the `RegexDetector` class have been moved from ``RegexFilth.regex`` to ``RegexDetector.regex``.
 
 Filth
 ^^^^^
 
-* When initialising ``Filth`` objects it is recommended to set the ``detector_name`` parameter in the to the
-  ``detector.name`` that initialised the ``Filth``.
+* Introduced two parameters in the constructor `detector_name` and `document_name`.
+  These keep track of the `Detector` that found the `Filth` and the document it came from.
+  This results in `Filth` objects being passed additional parameters on initialisation.
+  This is the one breaking change, `Filth.__init__` should accept `detector_name` and `document_name` keywords and call the base class constructor.
 
 PostProcessors
 ^^^^^^^^^^^^^^
 
-* Introduction of simple ``PostProcessors``:
-  * ``FilthTypeReplacer``: Replace the filth with the type of filth ``example@example.com -> EMAIL``
-  * ``HashReplacer``: Replace the filth with a configurable hash ``example@example.com -> 196aa39e9f8159ec``
-  * ``NumericReplacer``: Replace the filth with a monotonically increasing number for each unique piece of filth, optionally including the filth type ``example@example.com -> EMAIL-1``.
-  * ``PrefixSuffixReplacer``: Add a prefix and/or suffix onto the replacement ``EMAIL-1 -> {{EMAIL-1}}``
+* Introduction of simple `PostProcessors`:
+   * `FilthTypeReplacer`: Replace the filth with the type of filth ``example@example.com -> EMAIL``
+   * `HashReplacer`: Replace the filth with a configurable hash ``example@example.com -> 196aa39e9f8159ec``
+   * `NumericReplacer`: Replace the filth with a monotonically increasing number for each unique piece of filth, optionally including the filth type ``example@example.com -> EMAIL-1``.
+   * `PrefixSuffixReplacer`: Add a prefix and/or suffix onto the replacement ``EMAIL-1 -> {{EMAIL-1}}``
 * It is envisioned that other more complex operations can be done here too such as grouping filth (e.g. "John", "John Doe" and "Mr. Doe" could be grouped together).
 
 1.2.2

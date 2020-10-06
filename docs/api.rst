@@ -3,7 +3,7 @@
 API
 ===
 
-``scrubadub`` consists of three separate components:
+``scrubadub`` consists of four separate components:
 
 
 * ``Filth`` objects are used to identify specific parts of a piece of dirty
@@ -20,6 +20,24 @@ API
   It keeps track of the ``Detector``, ``PostProcessor`` and ``Filth`` objects.
   It also resolves conflicts that may arise between different ``Detector``
   objects.
+
+
+scrubadub
+---------
+
+There are several convenience functions to make using scrubadub quick and simple.
+These functions either remove the Filth from the text (such as ``scrubadub.clean``) or
+return a list of Filth objects that were found (such as ``scrubadub.list_filth``).
+These functions either work on a single document in a string (such as ``scrubadub.clean``) or
+work on a set of documents given in either a dictonary or list (such as ``scrubadub.clean_documents``).
+
+.. autofunction:: scrubadub.clean
+
+.. autofunction:: scrubadub.clean_documents
+
+.. autofunction:: scrubadub.list_filth
+
+.. autofunction:: scrubadub.list_filth_documents
 
 
 Scrubber

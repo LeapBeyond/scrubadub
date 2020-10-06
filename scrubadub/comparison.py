@@ -12,7 +12,38 @@ def get_filth_classification_report(
         filth_list: List[filth.Filth],
         output_dict: bool = False,
 ) -> Optional[Union[str, Dict[str, float]]]:
-    """Compares how much filth is detected by various detectors"""
+    """Evaluates the performance of detectors using KnownFilth.
+
+    An example of using this is shown below:
+
+    .. code:: pycon
+
+        >>> import scrubadub, scrubadub.comparison
+        >>> scrubber = scrubadub.Scrubber(detector_list=[
+        ...     scrubadub.detectors.NameDetector(name='name_detector'),
+        ...     scrubadub.detectors.KnownFilthDetector([
+        ...         {'match': 'Tom', 'comparison_type': 'name'},
+        ...         {'match': 'tom@example.com', 'comparison_type': 'email'},
+        ...     ]),
+        ... ])
+        >>> filth_list = list(scrubber.iter_filth("Hello I am Tom"))
+        >>> print(scrubadub.comparison.get_filth_classification_report(filth_list))
+                                precision    recall  f1-score   support
+
+        name     name_detector       1.00      1.00      1.00         1
+
+                      accuracy                           1.00         1
+                     macro avg       1.00      1.00      1.00         1
+                  weighted avg       1.00      1.00      1.00         1
+
+    :param filth_list: The list of detected filth
+    :type filth_list: A list of `Filth` objects
+    :param output_dict: Return the report in JSON format, defautls to False
+    :type output_dict: bool, optional
+    :return: The report in JSON (a `dict`) or in plain text
+    :rtype: `str` or `dict`
+
+    """
 
     results = []  # type: List[Dict[str, int]]
 
@@ -79,7 +110,35 @@ def get_filth_classification_report(
 
 
 def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
-    """Returns a dataframe with the """
+    """Produces a pandas `DataFrame` to allow debugging and improving detectors.
+
+    An example of using this is shown below:
+
+    .. code:: pycon
+
+        >>> import scrubadub, scrubadub.comparison
+        >>> scrubber = scrubadub.Scrubber(detector_list=[
+        ...     scrubadub.detectors.NameDetector(name='name_detector'),
+        ...     scrubadub.detectors.KnownFilthDetector([
+        ...         {'match': 'Tom', 'comparison_type': 'name'},
+        ...         {'match': 'tom@example.com', 'comparison_type': 'email'},
+        ...     ]),
+        ... ])
+        >>> filth_list = list(scrubber.iter_filth("Hello I am Tom"))
+        >>> print(scrubadub.comparison.get_filth_dataframe(filth_list))
+           group_id  filth_id filth_type  detector_name document_name text  beg  end \
+        0         0         1       name  name_detector          None  Tom   11   14 \
+           known_filth known_text  known_beg  known_end  known_comparison_type  exact_match \
+        0         True        Tom         11         14                   name         True \
+           partial_match  true_positive  false_positive  false_negative
+        0           True           True           False           False
+
+    :param filth_list: The list of detected filth
+    :type filth_list: A list of `Filth` objects
+    :return: A `pd.DataFrame` containing infomatoin about the detected `Filth`
+    :rtype: `pd.DataFrame`
+
+    """
     results = []
     for group_id, filth_item in enumerate(filth_list):
         sub_filths = [filth_item]
