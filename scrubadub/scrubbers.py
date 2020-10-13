@@ -97,3 +97,9 @@ class Scrubber(object):
             else:
                 filth = filth.merge(next_filth)
         yield filth
+
+    def persist_identifiers(self, path):
+        Filth.switch_to_persistent_lookup(path)
+
+    def save_identifiers(self):
+        Filth.lookup.save()

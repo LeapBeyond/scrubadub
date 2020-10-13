@@ -1,3 +1,5 @@
+import pickle
+
 from .. import exceptions
 from .. import utils
 
@@ -35,6 +37,14 @@ class Filth(object):
         # bits of storing the tuple in the lookup
         i = self.lookup[(self.type, self.text.lower())]
         return u'%s-%d' % (self.placeholder, i)
+
+    @classmethod
+    def switch_to_persistent_lookup(cls, path):
+        try:
+            with open(path, 'rb') as f:
+                cls.lookup = pickle.load(f)
+        except OSError:
+            cls.lookup = utils.PersistentLookup(path)
 
     def replace_with(self, replace_with='placeholder', **kwargs):
         if replace_with == 'placeholder':
