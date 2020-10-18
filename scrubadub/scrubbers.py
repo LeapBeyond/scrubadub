@@ -312,12 +312,13 @@ class Scrubber(object):
             return
 
         document_name_set = {f.document_name for f in filth_list}
+        document_names = []  # type: Sequence[Optional[str]]
         if None in document_name_set:
-            document_name_set.discard(None)
-            document_names = sorted(document_name_set)
-            document_names.insert(0, None)
+            list_with_none = [None]  # type: Sequence[Optional[str]]
+            list_with_others = sorted([x for x in document_name_set if x is not None])  # type: Sequence[Optional[str]]
+            document_names = list(list_with_none) + list(list_with_others)
         else:
-            document_names = sorted(document_name_set)
+            document_names = sorted([x for x in document_name_set if x is not None])
 
         for document_name in document_names:
             document_filth_list = Scrubber._sort_filths([f for f in filth_list if f.document_name == document_name])
