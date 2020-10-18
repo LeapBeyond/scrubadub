@@ -13,20 +13,14 @@ class PrefixSuffixReplacerTestCase(unittest.TestCase):
         filths = post_proc.process_filth(filths)
         self.assertEqual(filths[0].replacement_string, '{{EMAIL}}')
 
-        post_proc.prefix = None
-        post_proc.suffix = '>>'
-
+        post_proc = PrefixSuffixReplacer(prefix=None, suffix='>>')
         filths = post_proc.process_filth(filths)
         self.assertEqual(filths[0].replacement_string, '{{EMAIL}}>>')
 
-        post_proc.prefix = '<<'
-        post_proc.suffix = None
-
+        post_proc = PrefixSuffixReplacer(prefix='<<', suffix=None)
         filths = post_proc.process_filth(filths)
         self.assertEqual(filths[0].replacement_string, '<<{{EMAIL}}>>')
 
-        post_proc.prefix = '||'
-        post_proc.suffix = '||'
-
+        post_proc = PrefixSuffixReplacer(prefix='||', suffix='||')
         filths = post_proc.process_filth(filths)
         self.assertEqual(filths[0].replacement_string, '||<<{{EMAIL}}>>||')

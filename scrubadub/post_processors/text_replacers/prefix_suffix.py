@@ -7,11 +7,11 @@ from ..base import PostProcessor
 class PrefixSuffixReplacer(PostProcessor):
     name = 'prefix_suffix_replacer'  # type: str
 
-    def __init__(self, prefix: Optional[str] = None, suffix: Optional[str] = None, name: Optional[str] = None):
+    def __init__(self, prefix: Optional[str] = '{{', suffix: Optional[str] = '}}', name: Optional[str] = None):
         super(PrefixSuffixReplacer, self).__init__(name=name)
 
-        self.prefix = prefix or '{{'
-        self.suffix = suffix or '}}'
+        self.prefix = prefix
+        self.suffix = suffix
 
     def process_filth(self, filth_list: Sequence[Filth]) -> Sequence[Filth]:
         for filth_item in filth_list:
