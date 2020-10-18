@@ -34,7 +34,7 @@ class PredefinedTestCase(unittest.TestCase):
 
         test_str = 'hello this is a test string'
         detector = scrubadub.detectors.KnownFilthDetector([
-            {'start': 'this is', 'end': 'test'},
+            {'match': 'this is', 'match_end': 'test'},
         ])
 
         matches = list(detector.iter_filth(test_str))
@@ -46,7 +46,7 @@ class PredefinedTestCase(unittest.TestCase):
 
         test_str = 'hello this is a test string'
         detector = scrubadub.detectors.KnownFilthDetector([
-            {'start': 'this is', 'end': 'impossible to find'},
+            {'match': 'this is', 'match_end': 'impossible to find'},
         ])
 
         matches = list(detector.iter_filth(test_str))

@@ -12,7 +12,8 @@ from ..filth.known import KnownFilth
 
 KnownFilthItem = TypedDict(
     'KnownFilthItem',
-    {'start': str, 'end': str, 'limit': int, 'match': str, 'comparison_type': str}
+    {'match': str, 'match_end': Optional[str], 'limit': Optional[int], 'filth_type': Optional[str]},
+    total=False,
 )
 
 
@@ -105,22 +106,22 @@ class KnownFilthDetector(Detector):
         filth instances."""
         for pii_item in self._predefined_pii:
             # could also implement other types in here too
-            if 'match' in pii_item:
-                for found_item in self._find_all(
+            if 'match' in pii_item and 'match_end' in pii_item and pii_item['match_end'] is not None:
+                for found_item in self._find_all_between(
                         text,
                         pii_item['match'],
-                        comparison_type=pii_item.get('comparison_type', None),
+                        pii_item['match_end'],
+                        limit=int(pii_item.get('limit', 150) or 150),
+                        comparison_type=pii_item.get('filth_type', None),
                         document_name=document_name,
                 ):
                     yield found_item
-            elif 'start' in pii_item and 'end' in pii_item:
-                for found_item in self._find_all_between(
-                    text,
-                    pii_item['start'],
-                    pii_item['end'],
-                    limit=int(pii_item.get('limit', 150)),
-                    comparison_type=pii_item.get('comparison_type', None),
-                    document_name=document_name,
+            elif 'match' in pii_item:
+                for found_item in self._find_all(
+                        text,
+                        pii_item['match'],
+                        comparison_type=pii_item.get('filth_type', None),
+                        document_name=document_name,
                 ):
                     yield found_item
             else:
