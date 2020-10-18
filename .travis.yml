@@ -18,8 +18,9 @@ install:
 script:
   - mypy --config-file setup.cfg scrubadub/
   - nosetests --with-coverage --cover-package=scrubadub
-  - pycodestyle scrubadub/
-  - python3 ./tests/benchmark.py
+  - flake8  --config setup.cfg scrubadub/
+  - python3 ./tests/benchmark_accuracy.py
+  - python3 ./tests/benchmark_time.py
   - cd docs && make html && cd -
 
 # commands to run after the tests successfully complete

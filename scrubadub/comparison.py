@@ -1,9 +1,15 @@
+import re
+import copy
+import random
+import phonenumbers
+
+from faker import Faker
 
 from . import filth
 from .filth import Filth
-from . import detectors
+from .detectors.known import KnownFilthItem
 
-from typing import List, Dict, Union, Optional
+from typing import List, Dict, Union, Optional, Tuple
 import pandas as pd
 import sklearn.metrics
 
@@ -180,3 +186,62 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
             false_negative=lambda df: (~pd.isnull(df['known_text'])) & (pd.isnull(df['text'])),
         )
     )
+
+
+def make_fake_document(
+        paragraphs: int = 20, seed: int = 1234, faker: Optional[Faker] = None, filth_types: Optional[List[str]] = None
+) -> Tuple[str, List[KnownFilthItem]]:
+    if faker is None:
+        faker = Faker()
+
+    def fake_phone_number():
+        phone_number = ''
+        results = []  # type: List[phonenumbers.PhoneNumberMatch]
+        # Here I'm filtering for numbers that pass validation by the phonenumbers package
+        while len(results) < 1:
+            # Faker generates random numbers of the right format eg (###)###-####
+            phone_number = re.sub(r'x.*$', '', Faker(locale='en_US').phone_number())
+            # phonenumbers checks that they follow the rules around area codes and that they are possibly valid
+            results = list(phonenumbers.PhoneNumberMatcher(phone_number, 'US'))
+        return phone_number
+
+    fake_functions = [
+        (filth.address.GBAddressFilth.type, Faker(locale='en_GB').address),
+        (filth.address.USAddressFilth.type, Faker(locale='en_US').address),
+        (filth.EmailFilth.type, faker.email),
+        (filth.NameFilth.type, faker.name),
+        (filth.PhoneFilth.type, fake_phone_number),
+        (filth.PostalCodeFilth.type, Faker(locale='en_GB').postcode),
+        (filth.SSNFilth.type, faker.ssn),
+        (filth.TwitterFilth.type, lambda: '@' + re.sub(r'[^a-zA-Z0-9_]', '', faker.user_name()[:15])),
+        (filth.UrlFilth.type, faker.url),
+    ]
+
+    if filth_types is not None:
+        fake_functions = [x for x in fake_functions if x[0] in filth_types]
+
+    Faker.seed(seed)
+    random.seed(seed)
+
+    doc = ""
+    known_items = []  # type: List[KnownFilthItem]
+    for i_paragraph in range(paragraphs):
+        for i_sentance_group in range(random.randint(1, 10)):
+            text = faker.text()
+            matches = list(re.finditer(r'[\s.]', text))
+            position = random.choice(matches)
+            pii_type, pii_function = random.choice(fake_functions)
+            pii_text = pii_function()
+            known_items.append({
+                'match': copy.copy(pii_text),
+                'filth_type': copy.copy(pii_type),
+            })
+            doc += (
+                text[:position.start()] +
+                position.group() +
+                pii_text +
+                position.group() +
+                text[position.end():]
+            )
+        doc += "\n\n"
+    return (doc.strip(), known_items)

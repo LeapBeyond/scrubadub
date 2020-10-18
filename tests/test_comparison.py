@@ -226,3 +226,11 @@ class ComparisonTestCase(unittest.TestCase):
         self.assertEquals(dataframe['true_positive'].fillna('none').values.tolist(), [True, True, False, False])
         self.assertEquals(dataframe['false_positive'].fillna('none').values.tolist(), [False, False, False, False])
         self.assertEquals(dataframe['false_negative'].fillna('none').values.tolist(), [False, False, True, True])
+
+    def test_make_document(self):
+        document, known_filths = scrubadub.comparison.make_fake_document(paragraphs=1, seed=0)
+        total_len = 0
+        for filth_item in known_filths:
+            self.assertIn(filth_item['match'], document)
+            total_len += len(filth_item['match'])
+        self.assertTrue(len(document) > 2 * total_len)

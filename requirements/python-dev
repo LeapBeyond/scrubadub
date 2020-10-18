@@ -5,7 +5,7 @@
 PyYAML
 
 # needed to run the tests
-pycodestyle
+flake8
 coveralls
 nose
 
