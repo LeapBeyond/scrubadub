@@ -1,5 +1,5 @@
 
-from typing import Type, Union, List, Dict, Sequence
+from typing import Union, List, Dict, Sequence
 
 # convenient imports
 from .scrubbers import Scrubber

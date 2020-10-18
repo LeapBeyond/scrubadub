@@ -1,7 +1,6 @@
 import warnings
 from typing import Optional, ClassVar, Type, Generator, Pattern
 
-from .. import exceptions
 from ..filth import Filth
 
 

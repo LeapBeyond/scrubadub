@@ -1,4 +1,4 @@
-from typing import Optional, Sequence, Type, List
+from typing import Optional, Sequence
 
 from ..filth import Filth
 

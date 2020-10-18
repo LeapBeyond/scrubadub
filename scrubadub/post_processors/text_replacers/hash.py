@@ -2,7 +2,7 @@ import os
 import math
 import hashlib
 
-from typing import Optional, ClassVar, Sequence, List
+from typing import Optional, Sequence
 
 from ...filth import Filth
 from ..base import PostProcessor

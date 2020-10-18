@@ -1,6 +1,3 @@
-import os
-import hashlib
-
 from typing import Sequence, Optional
 
 from ...filth import Filth, MergedFilth

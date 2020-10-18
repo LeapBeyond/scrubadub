@@ -1,6 +1,6 @@
 import sys
 
-from typing import Optional, List, Union, Dict, Generator
+from typing import Optional, List, Generator
 
 if sys.version_info >= (3, 8):
     from typing import TypedDict  # pylint: disable=no-name-in-module
