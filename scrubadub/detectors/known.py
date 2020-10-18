@@ -28,11 +28,11 @@ class KnownFilthDetector(Detector):
     filth_cls = KnownFilth
     name = 'known'
 
-    def __init__(self, predefined_pii: Optional[List[KnownFilthItem]] = None, **kwargs):
+    def __init__(self, known_filth_items: Optional[List[KnownFilthItem]] = None, **kwargs):
         super().__init__(**kwargs)
-        if predefined_pii is None:
-            predefined_pii = []
-        self._predefined_pii = predefined_pii
+        if known_filth_items is None:
+            known_filth_items = []
+        self._known_filth_items = known_filth_items
 
     def _find_all(
             self,
@@ -104,7 +104,7 @@ class KnownFilthDetector(Detector):
     ) -> Generator[KnownFilth, None, None]:
         """Iterate over the predefined PII list and yield
         filth instances."""
-        for pii_item in self._predefined_pii:
+        for pii_item in self._known_filth_items:
             # could also implement other types in here too
             if 'match' in pii_item and 'match_end' in pii_item and pii_item['match_end'] is not None:
                 for found_item in self._find_all_between(

@@ -36,7 +36,7 @@ def main():
     scrubber_time = time.time()
     scrubber = scrubadub.Scrubber()
     # scrubber.add_detector(scrubadub.detectors.stanford_ner.StanfordNERDetector())
-    scrubber.add_detector(scrubadub.detectors.KnownFilthDetector(predefined_pii=known_general_pii))
+    scrubber.add_detector(scrubadub.detectors.KnownFilthDetector(known_filth_items=known_general_pii))
     filth_list = list(scrubber.iter_filth_documents(general_docs))
 
     # scrubber = scrubadub.Scrubber(detector_list=[
