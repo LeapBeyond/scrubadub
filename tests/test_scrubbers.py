@@ -330,6 +330,18 @@ class ScrubberTestCase(unittest.TestCase):
             [('a', 0, 1), ('a', 5, 8), ('b', 0, 3), ('b', 4, 5)]
         )
 
+        filths = scrubadub.Scrubber._merge_filths([
+            Filth(beg=5, end=8, text='aaa', document_name=None),
+            Filth(beg=0, end=3, text='aaa', document_name='b'),
+            Filth(beg=4, end=5, text='a', document_name='b'),
+            Filth(beg=7, end=8, text='a', document_name=None),
+            Filth(beg=0, end=1, text='a', document_name='a'),
+        ])
+        self.assertEqual(
+            [(f.document_name, f.beg, f.end) for f in filths],
+            [(None, 5, 8), ('a', 0, 1), ('b', 0, 3), ('b', 4, 5)]
+        )
+
     def test_list_filth_documents_dict(self):
         """Test the iter_filth_documents funtion with a dict"""
         scrubber = scrubadub.Scrubber(post_processor_list=[scrubadub.post_processors.FilthTypeReplacer()])

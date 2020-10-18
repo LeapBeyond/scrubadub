@@ -311,7 +311,13 @@ class Scrubber(object):
         if not filth_list:
             return
 
-        document_names = sorted({f.document_name for f in filth_list})
+        document_name_set = {f.document_name for f in filth_list}
+        if None in document_name_set:
+            document_name_set.discard(None)
+            document_names = sorted(document_name_set)
+            document_names.insert(0, None)
+        else:
+            document_names = sorted(document_name_set)
 
         for document_name in document_names:
             document_filth_list = Scrubber._sort_filths([f for f in filth_list if f.document_name == document_name])
