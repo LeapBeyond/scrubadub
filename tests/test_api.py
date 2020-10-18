@@ -12,7 +12,7 @@ class APITestCase(unittest.TestCase):
         )
 
     def test_clean_docuemnts(self):
-        """Test the top level clean_docuemnts api"""
+        """Test the top level clean_documents api"""
         self.assertEqual(
             scrubadub.clean_documents(
                 {
@@ -35,7 +35,7 @@ class APITestCase(unittest.TestCase):
         )
 
     def test_list_filth_docuemnts(self):
-        """Test the top level list_filth_docuemnts api"""
+        """Test the top level list_filth_documents api"""
         filths = scrubadub.list_filth_documents(
             {
                 "first.txt": "This is a test message for example@example.com",
