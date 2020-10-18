@@ -18,6 +18,7 @@ from .postalcode import PostalCodeDetector
 from .known import KnownFilthDetector
 from .skype import SkypeDetector
 from .ssn import SSNDetector
+from .twitter import TwitterDetector
 from .url import UrlDetector
 
 DetectorConfigurationItem = TypedDict(
@@ -35,6 +36,7 @@ detector_configuration = {
     PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': True},
     SkypeDetector.name: {'detector': SkypeDetector, 'autoload': True},
     SSNDetector.name: {'detector': SSNDetector, 'autoload': True},
+    TwitterDetector.name: {'detector': TwitterDetector, 'autoload': True},
     UrlDetector.name: {'detector': UrlDetector, 'autoload': True},
     # Detectors that are not automatically loaded by scrubadub
     KnownFilthDetector.name: {'detector': KnownFilthDetector, 'autoload': False},
