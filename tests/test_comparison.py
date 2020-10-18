@@ -234,3 +234,11 @@ class ComparisonTestCase(unittest.TestCase):
             self.assertIn(filth_item['match'], document)
             total_len += len(filth_item['match'])
         self.assertTrue(len(document) > 2 * total_len)
+
+        document, known_filths = scrubadub.comparison.make_fake_document(paragraphs=1, seed=0, filth_types=['email'])
+        total_len = 0
+        for filth_item in known_filths:
+            self.assertIn(filth_item['match'], document)
+            total_len += len(filth_item['match'])
+            self.assertEquals(filth_item['filth_type'], 'email')
+        self.assertTrue(len(document) > 2 * total_len)
