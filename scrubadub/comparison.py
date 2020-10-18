@@ -191,6 +191,39 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
 def make_fake_document(
         paragraphs: int = 20, seed: int = 1234, faker: Optional[Faker] = None, filth_types: Optional[List[str]] = None
 ) -> Tuple[str, List[KnownFilthItem]]:
+    """Creates a fake document containing `Filth` that needs to be removed. Also returns the list of known filth
+    items that are needed byt the `KnownFilthDetector`\\ .
+
+    An example of using this is shown below:
+
+    .. code:: pycon
+
+        >>> import scrubadub, scrubadub.comparison
+        >>> document, known_filth_items = scrubadub.comparison.make_fake_document(paragraphs=1, seed=1)
+        >>> scrubber = scrubadub.Scrubber()
+        >>> scrubber.add_detector(scrubadub.detectors.KnownFilthDetector(known_filth_items=known_filth_items))
+        >>> filth_list = list(scrubber.iter_filth(document))
+        >>> print(scrubadub.comparison.get_filth_classification_report(filth_list))
+                             precision    recall  f1-score   support
+
+        twitter     twitter       1.00      1.00      1.00         1
+
+                  micro avg       1.00      1.00      1.00         1
+                  macro avg       1.00      1.00      1.00         1
+               weighted avg       1.00      1.00      1.00         1
+
+    :param paragraphs: The list of detected filth
+    :type paragraphs: int
+    :param seed: The random seed used to generate the document
+    :type seed: int
+    :param faker: A Faker object that is used to generate the text
+    :type faker: int
+    :param filth_types: A list of the ``Filth.type`` to generate
+    :type filth_types: List[str]
+    :return: The document and a list of `KnownFilthItem`\\ s
+    :rtype: Tuple[str, List[KnownFilthItem]]
+
+    """
     if faker is None:
         faker = Faker()
 
