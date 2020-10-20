@@ -4,6 +4,7 @@ from .credential import CredentialFilth
 from .email import EmailFilth
 from .known import KnownFilth
 from .name import NameFilth
+from .ner import NERFilth
 from .organization import OrganizationFilth
 from .phone import PhoneFilth
 from .postalcode import PostalCodeFilth
