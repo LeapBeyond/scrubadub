@@ -3,18 +3,41 @@
 API
 ===
 
-``scrubadub`` consists of three separate components:
+``scrubadub`` consists of four separate components:
 
-* The ``Scrubber`` is responsible for managing all of the ``Detector`` objects
-  and resolving any conflicts that may arise between different ``Detector``
-  objects.
-
-* ``Detector`` objects are used to detect specific types of ``Filth``.
 
 * ``Filth`` objects are used to identify specific parts of a piece of dirty
   dirty text that contain sensitive information and they are responsible for
   deciding how the resulting information should be replaced in the cleaned
   text.
+
+* ``Detector`` objects are used to detect specific types of ``Filth``.
+
+* ``PostProcessor`` objects are used to alter the found ``Filth``.
+  This could be to replace the ``Filth`` with a hash or token.
+
+* The ``Scrubber`` is responsible for managing the cleaning process.
+  It keeps track of the ``Detector``, ``PostProcessor`` and ``Filth`` objects.
+  It also resolves conflicts that may arise between different ``Detector``
+  objects.
+
+
+scrubadub
+---------
+
+There are several convenience functions to make using scrubadub quick and simple.
+These functions either remove the Filth from the text (such as ``scrubadub.clean``) or
+return a list of Filth objects that were found (such as ``scrubadub.list_filth``).
+These functions either work on a single document in a string (such as ``scrubadub.clean``) or
+work on a set of documents given in either a dictonary or list (such as ``scrubadub.clean_documents``).
+
+.. autofunction:: scrubadub.clean
+
+.. autofunction:: scrubadub.clean_documents
+
+.. autofunction:: scrubadub.list_filth
+
+.. autofunction:: scrubadub.list_filth_documents
 
 
 Scrubber
@@ -105,11 +128,36 @@ be cleaned. Every type of ``Filth`` inherits from `scrubadub.filth.base.Filth`.
     :undoc-members:
     :show-inheritance:
 
-There is also a convenience class for ``RegexFilth``, which makes it easy to
-quickly remove new types of filth that can be identified from regular
-expressions:
+PostProcessors
+--------------
 
-.. autoclass:: scrubadub.filth.base.RegexFilth
+``PostProcessor``\ s generally can be used to process the detected ``Filth``
+objects and make changes to them.
+
+These are a new addition to scrubadub and at the moment only simple ones
+exist that alter the replacement string.
+
+.. autoclass:: scrubadub.post_processors.base.PostProcessor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: scrubadub.post_processors.text_replacers.filth_type.FilthTypeReplacer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: scrubadub.post_processors.text_replacers.hash.HashReplacer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: scrubadub.post_processors.text_replacers.numeric.NumericReplacer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: scrubadub.post_processors.text_replacers.prefix_suffix.PrefixSuffixReplacer
     :members:
     :undoc-members:
     :show-inheritance:

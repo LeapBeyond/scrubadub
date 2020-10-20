@@ -60,5 +60,14 @@ class CanonicalStringSetTestCase(unittest.TestCase):
         s.discard('Tktk')
         self.assertFalse('tktk' in s)
 
+    def test_non_string(self):
+        """ensure error is thrown when non string is added"""
+        s = CanonicalStringSet(['tktk'])
+        s.add('123')
+        with self.assertRaises(TypeError):
+            s.add(123)
+        with self.assertRaises(TypeError):
+            s.add(None)
+
     # TODO: add more tests for all of the other set operations to make sure
     # people get what they expect

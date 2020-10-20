@@ -5,7 +5,7 @@
 PyYAML
 
 # needed to run the tests
-pycodestyle
+flake8
 coveralls
 nose
 
@@ -19,3 +19,4 @@ ipython==5.4
 ipdb==0.10.2
 
 mypy
+faker

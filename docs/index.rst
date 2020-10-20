@@ -50,20 +50,12 @@ incorporating it into your python scripts like this:
     # John may be a cat, but he doesn't want other people to know it.
     >>> text = u"John is a cat"
 
-    # Replace names with {{NAME}} placeholder. This is the scrubadub default
-    # because it maximally omits any information about people.
-    >>> scrubadub.clean(text)
-    u"{{NAME}} is a cat"
-
     # Replace names with {{NAME-ID}} anonymous, but consistent IDs.
-    >>> scrubadub.clean(text, replace_with='identifier')
+    >>> scrubadub.clean(text)
     u"{{NAME-0}} is a cat"
-    >>> scrubadub.clean("John spoke with Doug.", replace_with='identifier')
-    u"{{NAME-0}} spoke with {{NAME-1}}."
 
-..    # Replace names with random, gender-consistent names
-    >>> scrubadub.clean(text, replace_with='surrogate')
-    u"Billy is a cat"
+    >>> scrubadub.clean("John spoke with Doug.")
+    u"{{NAME-0}} spoke with {{NAME-1}}."
 
 
 There are many ways to tailor the behavior of ``scrubadub`` using
@@ -71,6 +63,22 @@ There are many ways to tailor the behavior of ``scrubadub`` using
 :ref:`advanced techniques <advanced_usage>` allow users to fine-tune the manner
 in which ``scrubadub`` cleans dirty dirty text.
 
+
+Installation
+------------
+
+To install scrubadub using pip, simply type::
+
+    pip install scrubadub
+
+This package requires at least python 3.5.
+For python 2.7 support see v1.2.2 which is the last version with python 2.7 support.
+
+There are a few python dependencies, which can be seen in the
+`requirements file <https://github.com/LeapBeyond/scrubadub/blob/master/requirements/python>`__,
+but these should be installed automatically when installing the package via pip.
+
+.. TODO: talk about the fact that extra detectors can be installed here with pip install scrubadub[stanford_ner] in the future.
 
 Related work
 ------------
@@ -103,8 +111,9 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   advanced_usage
+   usage
    api
+   accuracy
    contributing
    changelog
 

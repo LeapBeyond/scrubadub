@@ -1,5 +1,5 @@
-from .base import RegexFilth
+from .base import Filth
 
 
-class NameFilth(RegexFilth):
+class NameFilth(Filth):
     type = 'name'

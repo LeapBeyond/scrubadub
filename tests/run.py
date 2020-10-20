@@ -4,6 +4,7 @@
 """
 
 import os
+import sys
 import subprocess
 
 import yaml
@@ -43,3 +44,5 @@ if returncode == 0:
     print(green("ALL TESTS PASSED"))
 else:
     print(red("SOME TESTS FAILED, SEE ABOVE"))
+
+sys.exit(returncode)

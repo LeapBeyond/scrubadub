@@ -4,6 +4,7 @@ import scrubadub
 
 from base import BaseTestCase
 
+import scrubadub
 
 class NameTestCase(unittest.TestCase, BaseTestCase):
 
@@ -28,3 +29,9 @@ class NameTestCase(unittest.TestCase, BaseTestCase):
         AFTER: {{NAME}} is a friendly person
         """
         self.compare_before_after()
+
+    def test_disallowed_nouns(self):
+        detector = scrubadub.detectors.NameDetector()
+        detector.disallowed_nouns = set()
+        with self.assertRaises(TypeError):
+            list(detector.iter_filth('John is a cat'))

@@ -1,5 +1,5 @@
 try:
-    unicode
+    unicode  # type: ignore  # tell mypy to ignore the fact that this doesnt exist in python3
 except NameError:
     basestring = str  # Compatibility for Python 2 and 3
 
