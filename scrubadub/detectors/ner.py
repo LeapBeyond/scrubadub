@@ -1,6 +1,6 @@
 import spacy
 
-from typing import Dict, Generator, List, Optional, Set, Sequence, Tuple, Union
+from typing import Dict, Generator, List, Optional, Set, Sequence, Union
 
 from .base import Detector
 from ..filth import NERFilth, Filth
@@ -49,6 +49,3 @@ class SpacyDetector(Detector):
 
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
         pass
-
-
-
