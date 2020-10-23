@@ -3,7 +3,7 @@ import spacy
 from typing import Dict, Generator, Iterable, Optional, Sequence, Union
 
 from .base import Detector
-from ..filth import NERFilth, Filth
+from ..filth import NamedEntityFilth, Filth
 from ..utils import CanonicalStringSet
 
 
@@ -12,7 +12,7 @@ class SpacyDetector(Detector):
      List specific entities to include passing ``named_entities``, e.g.
      (PERSON)
     """
-    filth_cls = NERFilth
+    filth_cls = NamedEntityFilth
     name = 'spacy_ner'
 
     disallowed_nouns = CanonicalStringSet(["skype"])
