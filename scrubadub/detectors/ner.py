@@ -1,6 +1,6 @@
 import spacy
 
-from typing import Dict, Generator, List, Optional, Set, Sequence, Union
+from typing import Dict, Generator, Iterable, Optional, Sequence, Union
 
 from .base import Detector
 from ..filth import NERFilth, Filth
@@ -17,7 +17,7 @@ class SpacyDetector(Detector):
 
     disallowed_nouns = CanonicalStringSet(["skype"])
 
-    def __init__(self, named_entities: Union[List[str], Set[str]] = {'PERSON'},
+    def __init__(self, named_entities: Iterable[str] = {'PERSON'},
                  model: str = "en_core_web_trf", **kwargs):
         # Spacy NER are all upper cased
         self.named_entities = {entity.upper() for entity in named_entities}
