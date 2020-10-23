@@ -22,9 +22,9 @@ class SpacyDetector(Detector):
         # Spacy NER are all upper cased
         self.named_entities = {entity.upper() for entity in named_entities}
         if model not in spacy.info()['pipelines']:
-            raise OSError(f"Can't find model '{model}'. If it is a valid Spacy model, "
-                          f"download it (e.g. with the CLI command "
-                          f"`python -m spacy download {model}`).")
+            raise OSError("Can't find model '{}'. If it is a valid Spacy model, "
+                          "download it (e.g. with the CLI command "
+                          "`python -m spacy download {}`).".format(model, model))
         self.nlp = spacy.load(model)
         # Only enable necessary pipes
         self.nlp.select_pipes(enable=["transformer", "tagger", "parser", "ner"])
