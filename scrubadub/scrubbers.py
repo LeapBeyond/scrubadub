@@ -263,6 +263,16 @@ class Scrubber(object):
         if not isinstance(documents, (dict, list)):
             raise TypeError('documents must be one of a string, list of strings or dict of strings.')
 
+        # Figures out which detectors can run on a list of documents
+
+        batch_detector_names = [name for name, detector in self._detectors
+                                if callable(hasattr(detector, 'iter_filth_documents', None))]
+
+        filth_list = []
+        for name in batch_detector_names:
+            for filth in self._detectors[name].iter_filth_documents(documents):
+                filth_list.append(filth)
+
         if run_post_processors:
             # Only collect the filts into a list if we need to do post processing
             filth_list = []  # type: List[Filth]
