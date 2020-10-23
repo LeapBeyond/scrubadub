@@ -222,7 +222,8 @@ class Scrubber(object):
         return filth_list
 
     def iter_filth(
-            self, text: str, document_name: Optional[str] = None, run_post_processors: bool = True
+            self, text: str, document_name: Optional[str] = None, run_post_processors: bool = True,
+            exclude_detectors: Optional[List[str]] = None
     ) -> Generator[Filth, None, None]:
         """Iterate over the different types of filth that can exist.
         """
@@ -234,11 +235,12 @@ class Scrubber(object):
         # over all detectors simultaneously. just trying to get something
         # working right now and we can worry about efficiency later
         all_filths = []  # type: List[Filth]
-        for detector in self._detectors.values():
-            for filth in detector.iter_filth(text, document_name=document_name):
-                if not isinstance(filth, Filth):
-                    raise TypeError('iter_filth must always yield Filth')
-                all_filths.append(filth)
+        for name, detector in self._detectors.items():
+            if exclude_detectors is None or name not in exclude_detectors:
+                for filth in detector.iter_filth(text, document_name=document_name):
+                    if not isinstance(filth, Filth):
+                        raise TypeError('iter_filth must always yield Filth')
+                    all_filths.append(filth)
 
         # This is split up so that we only have to use lists if we have to post_process Filth
         if run_post_processors:
@@ -280,7 +282,7 @@ class Scrubber(object):
                 filth_list = [
                     filth
                     for name, text in documents.items()
-                    for filth in self.iter_filth(text, document_name=name, run_post_processors=False)
+                    for filth in self.iter_filth(text, document_name=name, run_post_processors=False, exclude_detectors=[])
                 ]
             elif isinstance(documents, list):
                 filth_list = [
