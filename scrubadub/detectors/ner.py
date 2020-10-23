@@ -30,6 +30,16 @@ class SpacyDetector(Detector):
         self.nlp.select_pipes(enable=["transformer", "tagger", "parser", "ner"])
         super(SpacyDetector, self).__init__(**kwargs)
 
+    def _iter_spacy_pipeline(self, doc_names: Sequence[Optional[str]], doc_list: Sequence[str]):
+        for doc_name, doc in zip(doc_names, self.nlp.pipe(doc_list)):
+            for ent in doc.ents:
+                if ent.label_ in self.named_entities:
+                    yield self.filth_cls(beg=ent.start_char,
+                                         end=ent.end_char,
+                                         text=ent.text,
+                                         document_name=(str(doc_name) if doc_name else None),
+                                         detector_name=self.name)
+
     def iter_filth_documents(self, documents: Union[Sequence[str], Dict[str, str]]) -> Generator[Filth, None, None]:
         if isinstance(documents, list):
             doc_names, doc_list = zip(*enumerate(documents))
@@ -38,14 +48,7 @@ class SpacyDetector(Detector):
         else:
             raise TypeError('documents must be one of a string, list of strings or dict of strings.')
 
-        for doc_name, doc in zip(doc_names, self.nlp.pipe(doc_list)):
-            for ent in doc.ents:
-                if ent.label_ in self.named_entities:
-                    yield self.filth_cls(beg=ent.start_char,
-                                         end=ent.end_char,
-                                         text=ent.text,
-                                         document_name=str(doc_name),
-                                         detector_name=self.name)
+        yield from self._iter_spacy_pipeline(doc_names, doc_list)
 
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
-        pass
+        yield from self._iter_spacy_pipeline([document_name], [text])
