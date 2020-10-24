@@ -9,4 +9,4 @@ class NamedEntityFilth(Filth):
 
     def __init__(self, *args, label: str, **kwargs):
         super(NamedEntityFilth, self).__init__(*args, **kwargs)
-        self.type = "{}_{}".format(self.type, label).lower()
+        self.label = label.lower()
