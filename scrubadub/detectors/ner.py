@@ -37,7 +37,7 @@ class SpacyDetector(Detector):
                     yield self.filth_cls(beg=ent.start_char,
                                          end=ent.end_char,
                                          text=ent.text,
-                                         document_name=(str(doc_name) if doc_name else None),
+                                         document_name=None or str(doc_name),  # None if no doc_name provid
                                          detector_name=self.name)
 
     def iter_filth_documents(self, documents: Union[Sequence[str], Dict[str, str]]) -> Generator[Filth, None, None]:

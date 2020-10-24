@@ -223,7 +223,7 @@ class Scrubber(object):
 
     def iter_filth(
             self, text: str, document_name: Optional[str] = None, run_post_processors: bool = True,
-            exclude_detectors: Optional[List[str]] = None
+            run_merge: bool = True, exclude_detectors: Optional[List[str]] = None
     ) -> Generator[Filth, None, None]:
         """Iterate over the different types of filth that can exist.
         """
@@ -244,7 +244,9 @@ class Scrubber(object):
 
         # This is split up so that we only have to use lists if we have to post_process Filth
         if run_post_processors:
-            all_filths = list(self._merge_filths(all_filths))
+            if run_merge:
+                all_filths = list(self._merge_filths(all_filths))
+
             all_filths = list(self._post_process_filth_list(all_filths))
 
             # Here we loop over a list of Filth...
@@ -253,8 +255,12 @@ class Scrubber(object):
         else:
             # ... but here, we're using a generator. If we try to use the same variable it would have two types and
             # fail static typing in mypy
-            for filth in self._merge_filths(all_filths):
-                yield filth
+            if run_merge:
+                for filth in self._merge_filths(all_filths):
+                    yield filth
+            else:
+                for filth in all_filths:
+                    yield filth
 
     def iter_filth_documents(
             self,
@@ -284,15 +290,17 @@ class Scrubber(object):
                     filth
                     for name, text in documents.items()
                     for filth in self.iter_filth(text, document_name=name, run_post_processors=False,
-                                                 exclude_detectors=document_detectors_names)
+                                                 run_merge=False, exclude_detectors=document_detectors_names)
                 ]
             elif isinstance(documents, list):
                 filth_list += [
                     filth
                     for i_name, text in enumerate(documents)
                     for filth in self.iter_filth(text, document_name=str(i_name), run_post_processors=False,
-                                                 exclude_detectors=document_detectors_names)
+                                                 run_merge=False, exclude_detectors=document_detectors_names)
                 ]
+
+            filth_list = list(self._merge_filths(filth_list))
 
             for filth in self._post_process_filth_list(filth_list):
                 yield filth
@@ -301,12 +309,12 @@ class Scrubber(object):
             if isinstance(documents, dict):
                 for name, text in documents.items():
                     for filth in self.iter_filth(text, document_name=name, run_post_processors=False,
-                                                 exclude_detectors=document_detectors_names):
+                                                 run_merge=False, exclude_detectors=document_detectors_names):
                         yield filth
             elif isinstance(documents, list):
                 for i_name, text in enumerate(documents):
                     for filth in self.iter_filth(text, document_name=str(i_name), run_post_processors=False,
-                                                 exclude_detectors=document_detectors_names):
+                                                 run_merge=False, exclude_detectors=document_detectors_names):
                         yield filth
 
     @staticmethod
