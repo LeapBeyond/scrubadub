@@ -3,4 +3,5 @@ argcomplete
 phonenumbers
 pandas
 sklearn
+spacy-nightly[transformers]
 typing_extensions
