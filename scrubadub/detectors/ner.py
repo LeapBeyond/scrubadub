@@ -7,13 +7,13 @@ from ..filth import NamedEntityFilth, Filth
 from ..utils import CanonicalStringSet
 
 
-class SpacyDetector(Detector):
+class NamedEntityDetector(Detector):
     """Use spacy's named entity recognition to clean named entities.
      List specific entities to include passing ``named_entities``, e.g.
      (PERSON)
     """
     filth_cls = NamedEntityFilth
-    name = 'spacy_ner'
+    name = 'named_entity'
 
     disallowed_nouns = CanonicalStringSet(["skype"])
 
@@ -28,7 +28,7 @@ class SpacyDetector(Detector):
         self.nlp = spacy.load(model)
         # Only enable necessary pipes
         self.nlp.select_pipes(enable=["transformer", "tagger", "parser", "ner"])
-        super(SpacyDetector, self).__init__(**kwargs)
+        super(NamedEntityDetector, self).__init__(**kwargs)
 
     def _iter_spacy_pipeline(self, doc_names: Sequence[Optional[str]], doc_list: Sequence[str]):
         for doc_name, doc in zip(doc_names, self.nlp.pipe(doc_list)):
