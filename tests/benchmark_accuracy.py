@@ -67,14 +67,14 @@ def main():
     print("Scrubbed documents in  {:.2f}s".format(end_time-scrubber_time))
     print(get_filth_classification_report(filth_list))
 
-    scrubber_time = time.time()
-    scrubber = scrubadub.Scrubber(detector_list=[scrubadub.detectors.NamedEntityDetector(),
-                                                 scrubadub.detectors.KnownFilthDetector(known_filth_items=known_named_entity_pii)])
-    filth_list = list(scrubber.iter_filth_documents(named_entity_docs))
-    end_time = time.time()
-    print("Documents generated in {:.2f}s".format(scrubber_time-start_time))
-    print("Scrubbed documents in  {:.2f}s".format(end_time-scrubber_time))
-    print(get_filth_classification_report(filth_list))
+    # scrubber_time = time.time()
+    # scrubber = scrubadub.Scrubber(detector_list=[scrubadub.detectors.NamedEntityDetector(),
+    #                                              scrubadub.detectors.KnownFilthDetector(known_filth_items=known_named_entity_pii)])
+    # filth_list = list(scrubber.iter_filth_documents(named_entity_docs))
+    # end_time = time.time()
+    # print("Documents generated in {:.2f}s".format(scrubber_time-start_time))
+    # print("Scrubbed documents in  {:.2f}s".format(end_time-scrubber_time))
+    # print(get_filth_classification_report(filth_list))
 
     sys.exit(0)
 
