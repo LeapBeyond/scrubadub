@@ -9,7 +9,4 @@ class NamedEntityFilth(Filth):
 
     def __init__(self, *args, label: str, **kwargs):
         super(NamedEntityFilth, self).__init__(*args, **kwargs)
-        self.label = label
-
-    def __repr__(self) -> str:
-        return self._to_string(['text', 'document_name', 'label'])
+        self.type = "{}_{}".format(self.type, label).lower()

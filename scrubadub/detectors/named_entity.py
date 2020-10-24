@@ -1,6 +1,6 @@
-import spacy
-
 from typing import Dict, Generator, Iterable, Optional, Sequence, Union
+
+import spacy
 
 from .base import Detector
 from ..filth import NamedEntityFilth, Filth
