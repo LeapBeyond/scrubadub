@@ -265,30 +265,33 @@ class Scrubber(object):
         if not isinstance(documents, (dict, list)):
             raise TypeError('documents must be one of a string, list of strings or dict of strings.')
 
-        # Figures out which detectors can run on a list of documents
+        # Figures out which detectors have iter_filth_documents and applies to them
 
-        batch_detector_names = [name for name, detector in self._detectors
-                                if callable(hasattr(detector, 'iter_filth_documents', None))]
-
+        document_detectors_names = []
         filth_list = []
-        for name in batch_detector_names:
-            for filth in self._detectors[name].iter_filth_documents(documents):
-                filth_list.append(filth)
+
+        for name, detector in self._detectors.items():
+            document_iterator = getattr(detector, 'iter_filth_documents', None)
+            if callable(document_iterator):
+                document_detectors_names.append(name)
+                for filth in document_iterator(documents):
+                    filth_list.append(filth)
 
         if run_post_processors:
             # Only collect the filts into a list if we need to do post processing
-            filth_list = []  # type: List[Filth]
             if isinstance(documents, dict):
-                filth_list = [
+                filth_list += [
                     filth
                     for name, text in documents.items()
-                    for filth in self.iter_filth(text, document_name=name, run_post_processors=False, exclude_detectors=[])
+                    for filth in self.iter_filth(text, document_name=name, run_post_processors=False,
+                                                 exclude_detectors=document_detectors_names)
                 ]
             elif isinstance(documents, list):
-                filth_list = [
+                filth_list += [
                     filth
                     for i_name, text in enumerate(documents)
-                    for filth in self.iter_filth(text, document_name=str(i_name), run_post_processors=False)
+                    for filth in self.iter_filth(text, document_name=str(i_name), run_post_processors=False,
+                                                 exclude_detectors=document_detectors_names)
                 ]
 
             for filth in self._post_process_filth_list(filth_list):
@@ -297,11 +300,13 @@ class Scrubber(object):
             # Use generators when we dont post process the Filth
             if isinstance(documents, dict):
                 for name, text in documents.items():
-                    for filth in self.iter_filth(text, document_name=name, run_post_processors=False):
+                    for filth in self.iter_filth(text, document_name=name, run_post_processors=False,
+                                                 exclude_detectors=document_detectors_names):
                         yield filth
             elif isinstance(documents, list):
                 for i_name, text in enumerate(documents):
-                    for filth in self.iter_filth(text, document_name=str(i_name), run_post_processors=False):
+                    for filth in self.iter_filth(text, document_name=str(i_name), run_post_processors=False,
+                                                 exclude_detectors=document_detectors_names):
                         yield filth
 
     @staticmethod
