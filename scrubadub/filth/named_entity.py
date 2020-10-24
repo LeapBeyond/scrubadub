@@ -10,3 +10,4 @@ class NamedEntityFilth(Filth):
     def __init__(self, *args, label: str, **kwargs):
         super(NamedEntityFilth, self).__init__(*args, **kwargs)
         self.label = label.lower()
+        self.replacement_string = "{}_{}".format(self.type, self.label)
