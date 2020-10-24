@@ -1,7 +1,5 @@
-from collections import defaultdict
-
 import warnings
-from typing import Optional, Sequence, Generator, DefaultDict, Dict, Type, Union, List
+from typing import Optional, Sequence, Generator, Dict, Type, Union, List
 
 from . import detectors
 from . import post_processors
