@@ -1,5 +1,7 @@
+from collections import defaultdict
+
 import warnings
-from typing import Optional, Sequence, Generator, Dict, Type, Union, List
+from typing import Optional, Sequence, Generator, DefaultDict, Dict, Type, Union, List
 
 from . import detectors
 from . import post_processors
@@ -283,8 +285,10 @@ class Scrubber(object):
                 for filth in document_iterator(documents):
                     filth_list.append(filth)
 
-        if run_post_processors:
-            # Only collect the filts into a list if we need to do post processing
+        # We have to now merge with the other processors. To do this we need to collect filth into a list
+        # Also need this if we need to do post processing
+
+        if run_post_processors or document_detectors_names:
             if isinstance(documents, dict):
                 filth_list += [
                     filth
@@ -302,8 +306,11 @@ class Scrubber(object):
 
             filth_list = list(self._merge_filths(filth_list))
 
-            for filth in self._post_process_filth_list(filth_list):
-                yield filth
+            if run_post_processors:
+                yield from self._post_process_filth_list(filth_list)
+            else:
+                for filth in filth_list:
+                    yield filth
         else:
             # Use generators when we dont post process the Filth
             if isinstance(documents, dict):
