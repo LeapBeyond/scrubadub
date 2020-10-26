@@ -3,7 +3,7 @@ from typing import Dict, Generator, Iterable, Optional, Sequence, Union
 import spacy
 
 from .base import Detector
-from ..filth import NamedEntityFilth, Filth
+from ..filth import NamedEntityFilth, Filth, NameFilth, OrganizationFilth
 from ..utils import CanonicalStringSet
 
 
@@ -12,7 +12,10 @@ class NamedEntityDetector(Detector):
      List specific entities to include passing ``named_entities``, e.g.
      (PERSON)
     """
-    filth_cls = NamedEntityFilth
+    filth_cls_map = {
+        'PERSON': NameFilth,
+        'ORG': OrganizationFilth
+    }
     name = 'named_entity'
 
     disallowed_nouns = CanonicalStringSet(["skype"])
@@ -32,14 +35,17 @@ class NamedEntityDetector(Detector):
 
     def _iter_spacy_pipeline(self, doc_names: Sequence[Optional[str]], doc_list: Sequence[str]):
         for doc_name, doc in zip(doc_names, self.nlp.pipe(doc_list)):
+            print(doc_name)
             for ent in doc.ents:
                 if ent.label_ in self.named_entities:
-                    yield self.filth_cls(beg=ent.start_char,
-                                         end=ent.end_char,
-                                         text=ent.text,
-                                         document_name=None or str(doc_name),  # None if no doc_name provided
-                                         detector_name=self.name,
-                                         label=ent.label_)
+                    # If there is no standard 'filth', returns a NamedEntity filth
+                    filth_cls = self.filth_cls_map.get(ent.label_, NamedEntityFilth)
+                    yield filth_cls(beg=ent.start_char,
+                                    end=ent.end_char,
+                                    text=ent.text,
+                                    document_name=(str(doc_name) if doc_name else None),  # None if no doc_name provided
+                                    detector_name=self.name,
+                                    label=ent.label_)
 
     def iter_filth_documents(self, documents: Union[Sequence[str], Dict[str, str]]) -> Generator[Filth, None, None]:
         if isinstance(documents, list):
