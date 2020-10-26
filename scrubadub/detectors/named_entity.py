@@ -35,7 +35,6 @@ class NamedEntityDetector(Detector):
 
     def _iter_spacy_pipeline(self, doc_names: Sequence[Optional[str]], doc_list: Sequence[str]):
         for doc_name, doc in zip(doc_names, self.nlp.pipe(doc_list)):
-            print(doc_name)
             for ent in doc.ents:
                 if ent.label_ in self.named_entities:
                     # If there is no standard 'filth', returns a NamedEntity filth
