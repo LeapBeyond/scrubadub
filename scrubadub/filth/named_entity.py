@@ -3,7 +3,8 @@ from .base import Filth
 
 class NamedEntityFilth(Filth):
     """
-    Named entity filth. Upon initialisation provide a label for named entity (e.g. name, org)
+    Default filth type, for named entities (e.g. the ones in https://nightly.spacy.io/models/en#en_core_web_lg-labels),
+    except the ones represented in any other filth.
     """
     type = 'named_entity'
 
