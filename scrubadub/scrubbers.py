@@ -246,11 +246,11 @@ class Scrubber(object):
         # Figures out which detectors have iter_filth_documents and applies to them
 
         if isinstance(documents, dict):
-            document_names, document_texts = zip(*documents.items())
+            document_names = list(documents.keys())
+            document_texts = list(documents.values())
         elif isinstance(documents, (tuple, list)):
             document_texts = documents
             document_names = [str(x) for x in range(len(documents))]
-
 
         # currently doing this by aggregating all_filths and then sorting
         # inline instead of with a Filth.__cmp__ method, which is apparently
