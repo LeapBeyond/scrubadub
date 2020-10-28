@@ -1,4 +1,4 @@
-from typing import Dict, Generator, Iterable, Optional, Sequence, Union
+from typing import Generator, Iterable, Optional, Sequence
 
 import spacy
 from wasabi import msg
@@ -34,7 +34,8 @@ class NamedEntityDetector(Detector):
         self.nlp.select_pipes(enable=["transformer", "tagger", "parser", "ner"])
         super(NamedEntityDetector, self).__init__(**kwargs)
 
-    def _iter_spacy_pipeline(self, doc_names: Sequence[Optional[str]], doc_list: Sequence[str]):
+    def iter_filth_documents(self, doc_names: Sequence[Optional[str]],
+                             doc_list: Sequence[str]) -> Generator[Filth, None, None]:
         for doc_name, doc in zip(doc_names, self.nlp.pipe(doc_list)):
             for ent in doc.ents:
                 if ent.label_ in self.named_entities:
@@ -47,15 +48,5 @@ class NamedEntityDetector(Detector):
                                     detector_name=self.name,
                                     label=ent.label_)
 
-    def iter_filth_documents(self, documents: Union[Sequence[str], Dict[str, str]]) -> Generator[Filth, None, None]:
-        if isinstance(documents, list):
-            doc_names, doc_list = zip(*enumerate(documents))
-        elif isinstance(documents, dict):
-            doc_names, doc_list = zip(*documents.items())
-        else:
-            raise TypeError('documents must be one of a string, list of strings or dict of strings.')
-
-        yield from self._iter_spacy_pipeline(doc_names, doc_list)
-
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
-        yield from self._iter_spacy_pipeline([document_name], [text])
+        yield from self.iter_filth_documents([document_name], [text])
