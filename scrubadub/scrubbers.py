@@ -229,14 +229,12 @@ class Scrubber(object):
         # Iterates using iter_filth documents.
         # If a name is not provided, passes a list with one element, [text]
 
-        yield from self.iter_filth_documents(
-            documents=({document_name: text} if document_name else [text]),
-            run_post_processors=run_post_processors
-        )
+        yield from self.iter_filth_documents(documents={document_name: text},
+                                             run_post_processors=run_post_processors)
 
     def iter_filth_documents(
             self,
-            documents: Union[Sequence[str], Dict[str, str]],
+            documents: Union[Sequence[str], Dict[Optional[str], str]],
             run_post_processors: bool = True
     ) -> Generator[Filth, None, None]:
         """Iterate over the different types of filth that can exist."""
