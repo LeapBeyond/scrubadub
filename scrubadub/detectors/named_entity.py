@@ -1,6 +1,7 @@
 from typing import Dict, Generator, Iterable, Optional, Sequence, Union
 
 import spacy
+from wasabi import msg
 
 from .base import Detector
 from ..filth import NamedEntityFilth, Filth, NameFilth, OrganizationFilth
@@ -25,9 +26,9 @@ class NamedEntityDetector(Detector):
         # Spacy NER are all upper cased
         self.named_entities = {entity.upper() for entity in named_entities}
         if model not in spacy.info()['pipelines']:
-            raise OSError("Can't find model '{}'. If it is a valid Spacy model, "
-                          "download it (e.g. with the CLI command "
-                          "`python -m spacy download {}`).".format(model, model))
+            msg.warn("Downloading spacy model {}".format(model))
+            spacy.cli.download(model)
+
         self.nlp = spacy.load(model)
         # Only enable necessary pipes
         self.nlp.select_pipes(enable=["transformer", "tagger", "parser", "ner"])
