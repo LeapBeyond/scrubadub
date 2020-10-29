@@ -25,14 +25,14 @@ def main():
         general_docs.append(new_doc)
         known_general_pii += new_known_pii
 
-        new_doc, new_known_pii = make_fake_document(paragraphs=4, seed=i_doc, filth_types=['name'])
+        #new_doc, new_known_pii = make_fake_document(paragraphs=4, seed=i_doc, filth_types=['name'])
         # Change the filth name to allow for comparison with NamedEntityDetector. Probably there is a better way to do it
 
-        for pii in new_known_pii:
-            pii['filth_type'] = 'named_entity'
+        #for pii in new_known_pii:
+       #     pii['filth_type'] = 'named_entity'
 
-        named_entity_docs.append(new_doc)
-        known_named_entity_pii += new_known_pii
+        #named_entity_docs.append(new_doc)
+        #known_named_entity_pii += new_known_pii
 
         # new_doc, new_known_pii = make_fake_document(paragraphs=4, seed=i_doc, filth_types=['gb_address', 'us_address'])
         # address_docs.append(new_doc)
