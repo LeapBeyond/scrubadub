@@ -58,4 +58,5 @@ target/
 
 /data
 .mypy_cache
-.idea
+
+.idea/
