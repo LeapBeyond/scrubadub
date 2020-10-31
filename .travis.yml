@@ -7,6 +7,7 @@ python:
 # virtualenv
 install:
   - pip install -r requirements/python-dev
+  - pip install -r requirements/python-extras
   - python -m textblob.download_corpora
   - pip install .
 #  - apt-get install curl autoconf automake libtool pkg-config
@@ -22,11 +23,6 @@ script:
   - python3 ./tests/benchmark_accuracy.py
   - python3 ./tests/benchmark_time.py
   - cd docs && make html && cd -
-
-jobs:
-  include:
-    - python: "3.8"
-      before_script: pip install -r requirements/python-extras
 
 # commands to run after the tests successfully complete
 after_success:
