@@ -191,7 +191,6 @@ class Scrubber(object):
                 name: self._replace_text(text=text, filth_list=filth_list, document_name=name, **kwargs)
                 for name, text in documents.items()
             }
-        return []
 
     def _replace_text(
             self, text: str, filth_list: Sequence[Filth], document_name: Optional[str] = None, **kwargs
