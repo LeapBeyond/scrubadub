@@ -181,16 +181,20 @@ class Scrubber(object):
 
         filth_list = self._post_process_filth_list(filth_list)
 
+        clean_documents: Union[Dict[str, str], Sequence[str]]
+        
         if isinstance(documents, list):
-            return [
+            clean_documents = [
                 self._replace_text(text=text, filth_list=filth_list, document_name=str(name), **kwargs)
                 for name, text in enumerate(documents)
             ]
         elif isinstance(documents, dict):
-            return {
+            clean_documents = {
                 name: self._replace_text(text=text, filth_list=filth_list, document_name=name, **kwargs)
                 for name, text in documents.items()
             }
+
+        return clean_documents
 
     def _replace_text(
             self, text: str, filth_list: Sequence[Filth], document_name: Optional[str] = None, **kwargs
