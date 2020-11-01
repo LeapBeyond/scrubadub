@@ -182,7 +182,6 @@ class Scrubber(object):
         filth_list = self._post_process_filth_list(filth_list)
 
         clean_documents: Union[Dict[str, str], Sequence[str]]
-        
         if isinstance(documents, list):
             clean_documents = [
                 self._replace_text(text=text, filth_list=filth_list, document_name=str(name), **kwargs)
