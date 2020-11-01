@@ -4,7 +4,7 @@ from typing import Generator, Iterable, Optional, Sequence
 try:
     import spacy
     from wasabi import msg
-except ModuleNotFoundError as e:
+except ImportError as e:
     if getattr(e, 'name', None) == 'spacy':
         warnings.warn("Could not find module 'spacy'. If you want to use extras,"
                       " make sure you install scrubadub with 'pip install scrubadub[spacy]'")
