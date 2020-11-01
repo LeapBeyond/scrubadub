@@ -1,7 +1,14 @@
+import warnings
 from typing import Generator, Iterable, Optional, Sequence
 
-import spacy
-from wasabi import msg
+try:
+    import spacy
+    from wasabi import msg
+except ModuleNotFoundError as e:
+    if getattr(e, 'name', None) == 'spacy':
+        warnings.warn("Could not find module 'spacy'. If you want to use extras,"
+                      " make sure you install scrubadub with 'pip install scrubadub[spacy]'")
+
 
 from .base import Detector
 from ..filth import NamedEntityFilth, Filth, NameFilth, OrganizationFilth
@@ -26,7 +33,7 @@ class NamedEntityDetector(Detector):
         # Spacy NER are all upper cased
         self.named_entities = {entity.upper() for entity in named_entities}
         if model not in spacy.info()['pipelines']:
-            msg.warn("Downloading spacy model {}".format(model))
+            msg.info("Downloading spacy model {}".format(model))
             spacy.cli.download(model)
 
         self.nlp = spacy.load(model)
