@@ -14,11 +14,13 @@ class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
 
     def setUp(self):
         unsupported_version = (sys.version_info.major, sys.version_info.minor) < (3, 6)
-        unittest.TestCase.skipTest(
-            unsupported_version,
-            "Named entity detector not supported for python<3.6"
-        )
-        if not unsupported_version:
+
+        if unsupported_version:
+            unittest.TestCase.skipTest(
+                unsupported_version,
+                "Named entity detector not supported for python<3.6"
+            )
+        else:
             self.detector = NamedEntityDetector()
 
     def _assert_filth_type_and_pos(self, doc_list, beg_end_list, filth_class):
