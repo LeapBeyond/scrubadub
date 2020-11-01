@@ -1,6 +1,7 @@
 import sys
 import unittest
 
+from scrubadub import Scrubber
 from scrubadub.detectors import NamedEntityDetector
 from scrubadub.filth import NameFilth, OrganizationFilth, NamedEntityFilth
 from base import BaseTestCase
@@ -72,3 +73,13 @@ class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
         output_iter = list(self.detector.iter_filth(text=doc, document_name="0"))
 
         self.assertListEqual(output_iter, output_iter_docs)
+
+    def test_compatibility_with_scrubber(self):
+        doc_list = ["John is a cat",
+                    "When was Maria born?"]
+        result = ["{{NAME}} is a cat",
+                  "When was {{NAME}} born?"]
+
+        s = Scrubber(detector_list=[self.detector])
+
+        self.assertListEqual(result, s.clean_documents(doc_list))
