@@ -3,8 +3,6 @@ import unittest
 
 from scrubadub.detectors import NamedEntityDetector
 from scrubadub.filth import NameFilth, OrganizationFilth, NamedEntityFilth
-import scrubadub
-
 from base import BaseTestCase
 
 
@@ -15,11 +13,13 @@ class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
     """
 
     def setUp(self):
-        self.detector = NamedEntityDetector()
+        unsupported_version = (sys.version_info.major, sys.version_info.minor) < (3, 6)
         unittest.TestCase.skipTest(
-            (sys.version_info.major, sys.version_info.minor) < (3, 6),
+            unsupported_version,
             "Named entity detector not supported for python<3.6"
         )
+        if not unsupported_version:
+            self.detector = NamedEntityDetector()
 
     def _assert_filth_type_and_pos(self, doc_list, beg_end_list, filth_class):
         doc_names = [str(x) for x in range(len(doc_list))]
