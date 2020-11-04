@@ -1,11 +1,17 @@
 import re
 import textblob
 
+from textblob.blob import BaseBlob
+from textblob.en.taggers import PatternTagger
+
 from typing import Optional, Generator
 
 from .base import RegexDetector
 from ..filth import NameFilth, Filth
 from ..utils import CanonicalStringSet
+
+# BaseBlob uses NLTKTagger as a pos_tagger, but it works wrong
+BaseBlob.pos_tagger = PatternTagger()
 
 
 class NameDetector(RegexDetector):

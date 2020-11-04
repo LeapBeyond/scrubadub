@@ -47,15 +47,12 @@ incorporating it into your python scripts like this:
 
     >>> import scrubadub
 
-    # John may be a cat, but he doesn't want other people to know it.
-    >>> text = u"John is a cat"
+    # My cat may be more tech-savvy than most, but he doesn't want other people to know it.
+    >>> text = "My cat can be contacted on example@example.com, or 1800 555-5555"
 
-    # Replace names with {{NAME-ID}} anonymous, but consistent IDs.
+    # Replaces the phone number and email addresse with anonymous IDs.
     >>> scrubadub.clean(text)
-    u"{{NAME-0}} is a cat"
-
-    >>> scrubadub.clean("John spoke with Doug.")
-    u"{{NAME-0}} spoke with {{NAME-1}}."
+    'My cat can be contacted on {{EMAIL}}, or {{PHONE}}'
 
 
 There are many ways to tailor the behavior of ``scrubadub`` using
