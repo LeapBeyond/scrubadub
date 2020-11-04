@@ -57,3 +57,5 @@ docs/build/
 target/
 
 /data
+.mypy_cache
+.idea
