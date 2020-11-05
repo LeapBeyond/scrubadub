@@ -2,8 +2,13 @@ import unittest
 
 from base import BaseTestCase
 
+import scrubadub
 
 class SkypeTestCase(unittest.TestCase, BaseTestCase):
+
+    def setUp(self):
+        from scrubadub.detectors.skype import SkypeDetector
+        scrubadub.detectors.register_detector(SkypeDetector, autoload=True)
 
     def test_inline_skype_name(self):
         """
@@ -61,3 +66,7 @@ class SkypeTestCase(unittest.TestCase, BaseTestCase):
         AFTER:  SCREAM to get my attention on Skype ({{SKYPE}})
         """
         self.compare_before_after()
+
+    def tearDown(self) -> None:
+        from scrubadub.detectors.skype import SkypeDetector
+        del scrubadub.detectors.detector_configuration[SkypeDetector.name]
