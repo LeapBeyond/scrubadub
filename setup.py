@@ -8,14 +8,21 @@ with open("README.rst") as stream:
 
 github_url = 'https://github.com/LeapBeyond/scrubadub'
 
+
+def read_packages_from_file(filename):
+    with open(filename, 'r') as stream:
+        for line in stream:
+            package = line.strip().split('#')[0]
+            if package:
+                yield package
+
 # read in the dependencies from the virtualenv requirements file
-dependencies = []
 filename = os.path.join("requirements", "python")
-with open(filename, 'r') as stream:
-    for line in stream:
-        package = line.strip().split('#')[0]
-        if package:
-            dependencies.append(package)
+dependencies = list(read_packages_from_file(filename))
+
+# read extra spacy dependencies from python-extras requirements file
+filename = os.path.join("requirements", "python-extras")
+extras = list(read_packages_from_file(filename))
 
 # get the version
 version = None
@@ -60,5 +67,6 @@ setup(
         'Topic :: Utilities',
     ],
     install_requires=dependencies,
+    extras_require={"spacy": extras},
     zip_safe=False,
 )

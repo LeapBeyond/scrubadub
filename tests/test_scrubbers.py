@@ -383,3 +383,22 @@ class ScrubberTestCase(unittest.TestCase):
                     scrubadub.filth.NameFilth(text='Tom', document_name='1', detector_name='name', beg=17, end=20),
                 ]
             )
+
+    def test_clean_documents_wrong_type(self):
+        """Tests that is throws an error if document args are not a list of strings or dict"""
+        doc_list_of_numbers = [0, 1, 2, '3']
+        doc_string = 'String'
+
+        scrubber = scrubadub.Scrubber()
+
+        with self.assertRaises(TypeError):
+            scrubber.clean_documents(documents=doc_list_of_numbers)
+
+        with self.assertRaises(TypeError):
+            scrubber.clean_documents(documents=doc_string)
+
+        with self.assertRaises(TypeError):
+            list(scrubber.iter_filth_documents(documents=doc_list_of_numbers))
+
+        with self.assertRaises(TypeError):
+            list(scrubber.iter_filth_documents(documents=doc_string))

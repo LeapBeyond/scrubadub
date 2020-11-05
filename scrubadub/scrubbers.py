@@ -182,16 +182,17 @@ class Scrubber(object):
         filth_list = self._post_process_filth_list(filth_list)
 
         if isinstance(documents, list):
-            return [
+            clean_documents = [
                 self._replace_text(text=text, filth_list=filth_list, document_name=str(name), **kwargs)
                 for name, text in enumerate(documents)
-            ]
+            ]  # type: Union[Dict[str, str], Sequence[str]]
         elif isinstance(documents, dict):
-            return {
+            clean_documents = {
                 name: self._replace_text(text=text, filth_list=filth_list, document_name=name, **kwargs)
                 for name, text in documents.items()
             }
-        return []
+
+        return clean_documents
 
     def _replace_text(
             self, text: str, filth_list: Sequence[Filth], document_name: Optional[str] = None, **kwargs
@@ -226,6 +227,30 @@ class Scrubber(object):
     ) -> Generator[Filth, None, None]:
         """Iterate over the different types of filth that can exist.
         """
+        # Iterates using iter_filth documents.
+        # If a name is not provided, passes a list with one element, [text]
+
+        yield from self.iter_filth_documents(documents={document_name: text},
+                                             run_post_processors=run_post_processors)
+
+    def iter_filth_documents(
+            self,
+            documents: Union[Sequence[str], Dict[Optional[str], str]],
+            run_post_processors: bool = True
+    ) -> Generator[Filth, None, None]:
+        """Iterate over the different types of filth that can exist."""
+        if not isinstance(documents, (dict, list)):
+            raise TypeError('documents must be one of a string, list of strings or dict of strings.')
+
+        # Figures out which detectors have iter_filth_documents and applies to them
+
+        if isinstance(documents, dict):
+            document_names = list(documents.keys())
+            document_texts = list(documents.values())
+        elif isinstance(documents, (tuple, list)):
+            document_texts = documents
+            document_names = [str(x) for x in range(len(documents))]
+
         # currently doing this by aggregating all_filths and then sorting
         # inline instead of with a Filth.__cmp__ method, which is apparently
         # much slower http://stackoverflow.com/a/988728/564709
@@ -233,16 +258,24 @@ class Scrubber(object):
         # NOTE: we could probably do this in a more efficient way by iterating
         # over all detectors simultaneously. just trying to get something
         # working right now and we can worry about efficiency later
-        all_filths = []  # type: List[Filth]
-        for detector in self._detectors.values():
-            for filth in detector.iter_filth(text, document_name=document_name):
-                if not isinstance(filth, Filth):
-                    raise TypeError('iter_filth must always yield Filth')
-                all_filths.append(filth)
+        filth_list = []  # type: List[Filth]
+        for name, detector in self._detectors.items():
+            document_iterator = getattr(detector, 'iter_filth_documents', None)
+            if callable(document_iterator):
+                for filth in document_iterator(document_names, document_texts):
+                    if not isinstance(filth, Filth):
+                        raise TypeError('iter_filth must always yield Filth')
+                    filth_list.append(filth)
+            else:
+                for document_name, text in zip(document_names, document_texts):
+                    for filth in detector.iter_filth(text, document_name=document_name):
+                        if not isinstance(filth, Filth):
+                            raise TypeError('iter_filth must always yield Filth')
+                        filth_list.append(filth)
 
         # This is split up so that we only have to use lists if we have to post_process Filth
         if run_post_processors:
-            all_filths = list(self._merge_filths(all_filths))
+            all_filths = list(self._merge_filths(filth_list))
             all_filths = list(self._post_process_filth_list(all_filths))
 
             # Here we loop over a list of Filth...
@@ -251,46 +284,8 @@ class Scrubber(object):
         else:
             # ... but here, we're using a generator. If we try to use the same variable it would have two types and
             # fail static typing in mypy
-            for filth in self._merge_filths(all_filths):
+            for filth in self._merge_filths(filth_list):
                 yield filth
-
-    def iter_filth_documents(
-            self,
-            documents: Union[Sequence[str], Dict[str, str]],
-            run_post_processors: bool = True
-    ) -> Generator[Filth, None, None]:
-        """Iterate over the different types of filth that can exist."""
-        if not isinstance(documents, (dict, list)):
-            raise TypeError('documents must be one of a string, list of strings or dict of strings.')
-
-        if run_post_processors:
-            # Only collect the filts into a list if we need to do post processing
-            filth_list = []  # type: List[Filth]
-            if isinstance(documents, dict):
-                filth_list = [
-                    filth
-                    for name, text in documents.items()
-                    for filth in self.iter_filth(text, document_name=name, run_post_processors=False)
-                ]
-            elif isinstance(documents, list):
-                filth_list = [
-                    filth
-                    for i_name, text in enumerate(documents)
-                    for filth in self.iter_filth(text, document_name=str(i_name), run_post_processors=False)
-                ]
-
-            for filth in self._post_process_filth_list(filth_list):
-                yield filth
-        else:
-            # Use generators when we dont post process the Filth
-            if isinstance(documents, dict):
-                for name, text in documents.items():
-                    for filth in self.iter_filth(text, document_name=name, run_post_processors=False):
-                        yield filth
-            elif isinstance(documents, list):
-                for i_name, text in enumerate(documents):
-                    for filth in self.iter_filth(text, document_name=str(i_name), run_post_processors=False):
-                        yield filth
 
     @staticmethod
     def _sort_filths(filth_list: Sequence[Filth]) -> List[Filth]:

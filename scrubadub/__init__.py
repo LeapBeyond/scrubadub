@@ -1,5 +1,5 @@
 
-from typing import Union, List, Dict, Sequence
+from typing import Union, List, Dict, Sequence, Optional
 
 # convenient imports
 from .scrubbers import Scrubber
@@ -82,7 +82,7 @@ def list_filth(text: str, **kwargs) -> List[Filth]:
     return list(scrubber.iter_filth(text, **kwargs))
 
 
-def list_filth_documents(documents: Union[List[str], Dict[str, str]], **kwargs) -> List[Filth]:
+def list_filth_documents(documents: Union[List[str], Dict[Optional[str], str]], **kwargs) -> List[Filth]:
     """Return a list of `Filth` that was detected in the string `text`.
 
     `documents` can be in a dict, in the format of ``{'document_name': 'document'}``, or as a list of strings

@@ -7,6 +7,7 @@ python:
 # virtualenv
 install:
   - pip install -r requirements/python-dev
+  - pip install -r requirements/python-extras
   - python -m textblob.download_corpora
   - pip install .
 #  - apt-get install curl autoconf automake libtool pkg-config

@@ -10,6 +10,7 @@ from .base import Detector
 from .credential import CredentialDetector
 from .email import EmailDetector
 # from .name import NameDetector
+from .named_entity import NamedEntityDetector
 from .phone import PhoneDetector
 from .postalcode import PostalCodeDetector
 from .known import KnownFilthDetector
