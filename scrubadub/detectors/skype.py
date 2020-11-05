@@ -5,13 +5,14 @@ import textblob
 from textblob.blob import BaseBlob
 from textblob.en.taggers import PatternTagger
 
-# BaseBlob uses NLTKTagger as a pos_tagger, but it works wrong
-BaseBlob.pos_tagger = PatternTagger()
-
 from typing import Optional
 
+from . import register_detector
 from .base import RegexDetector
 from ..filth import SkypeFilth
+
+# BaseBlob uses NLTKTagger as a pos_tagger, but it works wrong
+BaseBlob.pos_tagger = PatternTagger()
 
 
 class SkypeDetector(RegexDetector):
@@ -86,3 +87,6 @@ class SkypeDetector(RegexDetector):
             return super(SkypeDetector, self).iter_filth(text, document_name=document_name)
 
         return []
+
+
+register_detector(SkypeDetector, autoload=False)
