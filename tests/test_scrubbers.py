@@ -100,15 +100,16 @@ class ScrubberTestCase(unittest.TestCase):
 
     def test_remove_detector(self):
         """Test removing detectors"""
+        import scrubadub.detectors.text_blob
         detector = scrubadub.detectors.EmailDetector(name='emailinator')
         scrubber = scrubadub.Scrubber(detector_list=[detector])
         scrubber.add_detector(scrubadub.detectors.EmailDetector)
-        scrubber.add_detector('name')
+        scrubber.add_detector('twitter')
 
         self.assertEqual(len(scrubber._detectors), 3)
-        self.assertEqual(sorted(scrubber._detectors.keys()), sorted(['emailinator', 'email', 'name']))
+        self.assertEqual(sorted(scrubber._detectors.keys()), sorted(['emailinator', 'email', 'twitter']))
 
-        scrubber.remove_detector('name')
+        scrubber.remove_detector('twitter')
         self.assertEqual(len(scrubber._detectors), 2)
         self.assertEqual(sorted(scrubber._detectors.keys()), sorted(['emailinator', 'email']))
 
@@ -347,7 +348,7 @@ class ScrubberTestCase(unittest.TestCase):
         scrubber = scrubadub.Scrubber(post_processor_list=[scrubadub.post_processors.FilthTypeReplacer()])
         docs = {
             "first.txt": "This is a test message for example@example.com",
-            "second.txt": "Hello Jane, I am Tom.",
+            "second.txt": "Hello @Jane call me on +33 6 39 88 11 67.",
         }
         filth_list_one = list(scrubber.iter_filth_documents(docs, run_post_processors=True))
         filth_list_two = list(scrubber.iter_filth_documents(docs, run_post_processors=False))
@@ -358,8 +359,12 @@ class ScrubberTestCase(unittest.TestCase):
                     scrubadub.filth.EmailFilth(
                         text='example@example.com', document_name='first.txt', detector_name='email', beg=27, end=46
                     ),
-                    scrubadub.filth.NameFilth(text='Jane', document_name='second.txt', detector_name='name', beg=6, end=10),
-                    scrubadub.filth.NameFilth(text='Tom', document_name='second.txt', detector_name='name', beg=17, end=20),
+                    scrubadub.filth.TwitterFilth(
+                        text='@Jane', document_name='second.txt', detector_name='twitter', beg=6, end=11
+                    ),
+                    scrubadub.filth.PhoneFilth(
+                        text='+33 6 39 88 11 67', document_name='second.txt', detector_name='phone', beg=23, end=40
+                    ),
                 ])
             )
 
@@ -368,7 +373,7 @@ class ScrubberTestCase(unittest.TestCase):
         scrubber = scrubadub.Scrubber(post_processor_list=[scrubadub.post_processors.FilthTypeReplacer()])
         docs = [
             "This is a test message for example@example.com",
-            "Hello Jane, I am Tom.",
+            "Hello @Jane call me on +33 6 39 88 11 67.",
         ]
         filth_list_one = list(scrubber.iter_filth_documents(docs, run_post_processors=True))
         filth_list_two = list(scrubber.iter_filth_documents(docs, run_post_processors=False))
@@ -379,8 +384,12 @@ class ScrubberTestCase(unittest.TestCase):
                     scrubadub.filth.EmailFilth(
                         text='example@example.com', document_name='0', detector_name='email', beg=27, end=46
                     ),
-                    scrubadub.filth.NameFilth(text='Jane', document_name='1', detector_name='name', beg=6, end=10),
-                    scrubadub.filth.NameFilth(text='Tom', document_name='1', detector_name='name', beg=17, end=20),
+                    scrubadub.filth.TwitterFilth(
+                        text='@Jane', document_name='1', detector_name='twitter', beg=6, end=11
+                    ),
+                    scrubadub.filth.PhoneFilth(
+                        text='+33 6 39 88 11 67', document_name='1', detector_name='phone', beg=23, end=40
+                    ),
                 ]
             )
 
