@@ -8,8 +8,7 @@ import sys
 import subprocess
 
 import yaml
-from colors import green, red
-
+from wasabi import msg
 
 def run_test(command, directory):
     """Execute a command that runs a test"""
@@ -19,9 +18,9 @@ def run_test(command, directory):
     )
     pipe.wait()
     if pipe.returncode == 0:
-        print(green("TEST PASSED"))
+        msg.good("TEST PASSED")
     else:
-        print(red("TEST FAILED"))
+        msg.fail("TEST FAILED")
     return pipe.returncode
 
 
@@ -41,8 +40,8 @@ elif isinstance(tests, (list, tuple)):
         returncode += run_test(test, root_dir)
 
 if returncode == 0:
-    print(green("ALL TESTS PASSED"))
+    msg.good("ALL TESTS PASSED")
 else:
-    print(red("SOME TESTS FAILED, SEE ABOVE"))
+    msg.fail("SOME TESTS FAILED, SEE ABOVE")
 
 sys.exit(returncode)
