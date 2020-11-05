@@ -7,8 +7,8 @@ class AdvancedTestCase(unittest.TestCase, BaseTestCase):
 
     def test_disable_email(self):
         """
-        BEFORE: contact Joe Duffy at joe@example.com
-        AFTER:  contact {{NAME}} {{NAME}} at joe@example.com
+        BEFORE: contact me at joe@example.com
+        AFTER:  contact me at joe@example.com
         """
         before, after = self.get_before_after()
         import scrubadub
@@ -18,8 +18,8 @@ class AdvancedTestCase(unittest.TestCase, BaseTestCase):
 
     def test_customize_filth_identification(self):
         """
-        BEFORE: contact Joe Duffy at joe@example.com
-        AFTER:  contact <b>NAME</b> <b>NAME</b> at <b>EMAIL</b>
+        BEFORE: contact me at joe@example.com
+        AFTER:  contact me at <b>EMAIL</b>
         """
         before, after = self.get_before_after()
         import scrubadub
@@ -37,14 +37,14 @@ class AdvancedTestCase(unittest.TestCase, BaseTestCase):
 
     def test_identifier(self):
         """
-        BEFORE: i'm on skype (dean.malmgren) or can be reached at +1.800.346.1819
-        AFTER:  i'm on skype ({{SKYPE-0}}) or can be reached at {{PHONE-1}}
+        BEFORE: i'm on twitter (@john_smith) or can be reached at +1.800.346.1819
+        AFTER:  i'm on twitter ({{TWITTER-0}}) or can be reached at {{PHONE-1}}
         """
         self.compare_before_after(replace_with='identifier')
 
     def test_identifier_repeat(self):
         """
-        BEFORE: my name is Dean Malmgren. Did I mention my name is Dean?
-        AFTER:  my name is {{NAME-0}} {{NAME-1}}. Did I mention my name is {{NAME-0}}?
+        BEFORE: i'm on twitter (@john_smith), but tweet @john instead, don't tweet me @john_smith.
+        AFTER:  i'm on twitter ({{TWITTER-0}}), but tweet {{TWITTER-1}} instead, don't tweet me {{TWITTER-0}}.
         """
         self.compare_before_after(replace_with='identifier')
