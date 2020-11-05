@@ -14,7 +14,7 @@ from ..utils import CanonicalStringSet
 BaseBlob.pos_tagger = PatternTagger()
 
 
-class NameDetector(RegexDetector):
+class TextBlobNameDetector(RegexDetector):
     """Use part of speech tagging to clean proper nouns out of the dirty dirty
     ``text``. Disallow particular nouns by adding them to the
     ``NameDetector.disallowed_nouns`` set.
@@ -47,6 +47,6 @@ class NameDetector(RegexDetector):
             for proper_noun in proper_nouns:
                 re_list.append(r'\b' + re.escape(str(proper_noun)) + r'\b')
             self.regex = re.compile('|'.join(re_list))
-            for filth in super(NameDetector, self).iter_filth(text, document_name=document_name):
+            for filth in super(TextBlobNameDetector, self).iter_filth(text, document_name=document_name):
                 yield filth
         return

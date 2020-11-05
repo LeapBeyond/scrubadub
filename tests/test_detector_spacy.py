@@ -2,7 +2,6 @@ import sys
 import unittest
 
 from scrubadub import Scrubber
-from scrubadub.detectors import NamedEntityDetector
 from scrubadub.filth import NameFilth, OrganizationFilth, NamedEntityFilth
 from base import BaseTestCase
 
@@ -14,15 +13,26 @@ class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
     """
 
     def setUp(self):
-        unsupported_version = (sys.version_info.major, sys.version_info.minor) < (3, 6)
+        unsupported_python_version = (sys.version_info.major, sys.version_info.minor) < (3, 6)
 
-        if unsupported_version:
-            unittest.TestCase.skipTest(
-                unsupported_version,
+        unsupported_spacy_version = False
+        try:
+            from scrubadub.detectors.spacy import SpacyEntityDetector
+            SpacyEntityDetector.check_spacy_version()
+        except ImportError:
+            unsupported_spacy_version = True
+
+        if unsupported_python_version:
+            self.skipTest(
                 "Named entity detector not supported for python<3.6"
             )
+        elif unsupported_spacy_version:
+            self.skipTest(
+                "Need spacy version >= 3"
+            )
         else:
-            self.detector = NamedEntityDetector()
+            from scrubadub.detectors.spacy import SpacyEntityDetector
+            self.detector = SpacyEntityDetector(model='en_core_web_sm')
 
     def _assert_filth_type_and_pos(self, doc_list, beg_end_list, filth_class):
         doc_names = [str(x) for x in range(len(doc_list))]
@@ -63,8 +73,9 @@ class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
 
     def test_wrong_model(self):
         """Test that it raises an error if user inputs invalid spacy model"""
+        from scrubadub.detectors.spacy import SpacyEntityDetector
         with self.assertRaises(SystemExit):
-            NamedEntityDetector(model='not_a_valid_spacy_model')
+            SpacyEntityDetector(model='not_a_valid_spacy_model')
 
     def test_iter_filth(self):
         doc = "John is a cat"
@@ -82,4 +93,6 @@ class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
 
         s = Scrubber(detector_list=[self.detector])
 
-        self.assertListEqual(result, s.clean_documents(doc_list))
+        clean_docs = s.clean_documents(documents=doc_list)
+        self.assertIsInstance(clean_docs, list)
+        self.assertListEqual(result, clean_docs)

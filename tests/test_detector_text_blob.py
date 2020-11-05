@@ -31,7 +31,7 @@ class NameTestCase(unittest.TestCase, BaseTestCase):
         self.compare_before_after()
 
     def test_disallowed_nouns(self):
-        detector = scrubadub.detectors.NameDetector()
+        detector = scrubadub.detectors.TextBlobNameDetector()
         detector.disallowed_nouns = set()
         with self.assertRaises(TypeError):
             list(detector.iter_filth('John is a cat'))
