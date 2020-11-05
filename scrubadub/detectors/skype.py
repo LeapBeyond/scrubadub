@@ -2,6 +2,12 @@ import re
 import nltk
 import textblob
 
+from textblob.blob import BaseBlob
+from textblob.en.taggers import PatternTagger
+
+# BaseBlob uses NLTKTagger as a pos_tagger, but it works wrong
+BaseBlob.pos_tagger = PatternTagger()
+
 from typing import Optional
 
 from .base import RegexDetector

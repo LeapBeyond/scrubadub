@@ -30,13 +30,13 @@ class EmailDetector(RegexDetector):
     ), re.VERBOSE | re.IGNORECASE)
 
 
-class NewEmailDetector(RegexDetector):
-    """Detects email addresses with a wider regex"""
-    filth_cls = EmailFilth
-    name = 'email_v2'
-    regex = re.compile(r'''
-        \w[a-zA-Z0-9!#$%&\'*+‐‑‒–—―/=?^_`{|}~\.]+
-        @
-        \w[a-zA-Z0-9!#$%&\'*+‐‑‒–—―/=?^_`{|}~]+
-        (\.\w[a-zA-Z0-9!#$%&\'*+‐‑‒–—―/=?^_`{|}~]*\w)+
-    ''', re.VERBOSE)
+# class NewEmailDetector(RegexDetector):
+#     """Detects email addresses with a wider regex"""
+#     filth_cls = EmailFilth
+#     name = 'email_v2'
+#     regex = re.compile(r'''
+#         \w[a-zA-Z0-9!#$%&\'*+‐‑‒–—―/=?^_`{|}~\.]+
+#         @
+#         \w[a-zA-Z0-9!#$%&\'*+‐‑‒–—―/=?^_`{|}~]+
+#         (\.\w[a-zA-Z0-9!#$%&\'*+‐‑‒–—―/=?^_`{|}~]*\w)+
+#     ''', re.VERBOSE)

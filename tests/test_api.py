@@ -52,3 +52,11 @@ class APITestCase(unittest.TestCase):
                 scrubadub.filth.NameFilth(text='Tom', document_name='second.txt', detector_name='name', beg=17, end=20),
             ])
         )
+
+    def test_quickstart(self):
+        """Test the example given in the quick start docs"""
+        text = "My cat can be contacted on example@example.com, or 1800 555-5555"
+        self.assertEqual(
+            scrubadub.clean(text),
+            'My cat can be contacted on {{EMAIL}}, or {{PHONE}}'
+        )
