@@ -6,6 +6,7 @@ from textblob.en.taggers import PatternTagger
 
 from typing import Optional, Generator
 
+from . import register_detector
 from .base import RegexDetector
 from ..filth import NameFilth, Filth
 from ..utils import CanonicalStringSet
@@ -20,7 +21,7 @@ class TextBlobNameDetector(RegexDetector):
     ``NameDetector.disallowed_nouns`` set.
     """
     filth_cls = NameFilth
-    name = 'name'
+    name = 'text_blob_name'
 
     disallowed_nouns = CanonicalStringSet(["skype"])
 
@@ -50,3 +51,6 @@ class TextBlobNameDetector(RegexDetector):
             for filth in super(TextBlobNameDetector, self).iter_filth(text, document_name=document_name):
                 yield filth
         return
+
+
+register_detector(TextBlobNameDetector, autoload=False)
