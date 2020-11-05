@@ -27,7 +27,7 @@ class SpacyEntityDetector(Detector):
         'PERSON': NameFilth,
         'ORG': OrganizationFilth
     }
-    name = 'named_entity'
+    name = 'spacy'
 
     disallowed_nouns = CanonicalStringSet(["skype"])
 
