@@ -16,13 +16,11 @@ def read_packages_from_file(filename):
             if package:
                 yield package
 
-# read in the dependencies from the virtualenv requirements file
-filename = os.path.join("requirements", "python")
-dependencies = list(read_packages_from_file(filename))
 
-# read extra spacy dependencies from python-extras requirements file
-filename = os.path.join("requirements", "python-extras")
-extras = list(read_packages_from_file(filename))
+def get_package_list(location):
+    location = os.path.join('requirements', location)
+    return list(read_packages_from_file(location))
+
 
 # get the version
 version = None
@@ -66,7 +64,9 @@ setup(
         'Topic :: Text Processing',
         'Topic :: Utilities',
     ],
-    install_requires=dependencies,
-    extras_require={"spacy": extras},
+    install_requires=get_package_list('python'),
+    extras_require={
+        "spacy": get_package_list('python-extras-spacy'),
+    },
     zip_safe=False,
 )
