@@ -1,21 +1,24 @@
-import warnings
+import os
+
+from wasabi import msg
 from typing import Generator, Iterable, Optional, Sequence
 
 try:
     import spacy
-    from wasabi import msg
 except ImportError as e:
-    if getattr(e, 'name', None) == 'spacy':
-        warnings.warn("Could not find module 'spacy'. If you want to use extras,"
-                      " make sure you install scrubadub with 'pip install scrubadub[spacy]'")
+    if e.name == "spacy":
+        raise ImportError(
+            "Could not find module 'spacy'. If you want to use extras,"
+            " make sure you install scrubadub with 'pip install scrubadub[spacy]'"
+        )
 
-
+from . import register_detector
 from .base import Detector
 from ..filth import NamedEntityFilth, Filth, NameFilth, OrganizationFilth
 from ..utils import CanonicalStringSet
 
 
-class NamedEntityDetector(Detector):
+class SpacyEntityDetector(Detector):
     """Use spacy's named entity recognition to clean named entities.
      List specific entities to include passing ``named_entities``, e.g.
      (PERSON)
@@ -24,7 +27,7 @@ class NamedEntityDetector(Detector):
         'PERSON': NameFilth,
         'ORG': OrganizationFilth
     }
-    name = 'named_entity'
+    name = 'spacy'
 
     disallowed_nouns = CanonicalStringSet(["skype"])
 
@@ -32,14 +35,48 @@ class NamedEntityDetector(Detector):
                  model: str = "en_core_web_trf", **kwargs):
         # Spacy NER are all upper cased
         self.named_entities = {entity.upper() for entity in named_entities}
-        if model not in spacy.info()['pipelines']:
-            msg.info("Downloading spacy model {}".format(model))
-            spacy.cli.download(model)
 
+        # Fixes a warning message from transformers that is pulled in via spacy
+        os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+        self.check_spacy_version()
+
+        self.check_spacy_model(model)
         self.nlp = spacy.load(model)
         # Only enable necessary pipes
         self.nlp.select_pipes(enable=["transformer", "tagger", "parser", "ner"])
-        super(NamedEntityDetector, self).__init__(**kwargs)
+        super(SpacyEntityDetector, self).__init__(**kwargs)
+
+    @staticmethod
+    def check_spacy_version() -> bool:
+        # spacy_info = spacy.info()
+        spacy_version = spacy.__version__  # spacy_info.get('spaCy version', spacy_info.get('spacy_version', None))
+        spacy_major = 0
+
+        if spacy_version is None:
+            raise ImportError('Spacy v3 needs to be installed. Unable to detect spacy version.')
+        try:
+            spacy_major = int(spacy_version.split('.')[0])
+        except Exception:
+            raise ImportError('Spacy v3 needs to be installed. Spacy version {} is unknown.'.format(spacy_version))
+        if spacy_major != 3:
+            raise ImportError('Spacy v3 needs to be installed. Detected version {}.'.format(spacy_version))
+
+        return True
+
+    @staticmethod
+    def check_spacy_model(model) -> bool:
+        spacy_info = spacy.info()
+        models = spacy_info.get('pipelines', spacy_info.get('models', None))
+        if models is None:
+            raise ValueError('Unable to detect spacy models.')
+
+        if model not in models:
+            msg.info("Downloading spacy model {}".format(model))
+            spacy.cli.download(model)
+            spacy_info = spacy.info()
+            models = spacy_info.get('pipelines', spacy_info.get('models', None))
+
+        return model in models
 
     def iter_filth_documents(self, doc_names: Sequence[Optional[str]],
                              doc_list: Sequence[str]) -> Generator[Filth, None, None]:
@@ -57,3 +94,6 @@ class NamedEntityDetector(Detector):
 
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
         yield from self.iter_filth_documents([document_name], [text])
+
+
+register_detector(SpacyEntityDetector, autoload=False)

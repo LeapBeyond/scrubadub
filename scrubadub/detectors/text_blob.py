@@ -6,6 +6,7 @@ from textblob.en.taggers import PatternTagger
 
 from typing import Optional, Generator
 
+from . import register_detector
 from .base import RegexDetector
 from ..filth import NameFilth, Filth
 from ..utils import CanonicalStringSet
@@ -14,13 +15,13 @@ from ..utils import CanonicalStringSet
 BaseBlob.pos_tagger = PatternTagger()
 
 
-class NameDetector(RegexDetector):
+class TextBlobNameDetector(RegexDetector):
     """Use part of speech tagging to clean proper nouns out of the dirty dirty
     ``text``. Disallow particular nouns by adding them to the
     ``NameDetector.disallowed_nouns`` set.
     """
     filth_cls = NameFilth
-    name = 'name'
+    name = 'text_blob_name'
 
     disallowed_nouns = CanonicalStringSet(["skype"])
 
@@ -47,6 +48,9 @@ class NameDetector(RegexDetector):
             for proper_noun in proper_nouns:
                 re_list.append(r'\b' + re.escape(str(proper_noun)) + r'\b')
             self.regex = re.compile('|'.join(re_list))
-            for filth in super(NameDetector, self).iter_filth(text, document_name=document_name):
+            for filth in super(TextBlobNameDetector, self).iter_filth(text, document_name=document_name):
                 yield filth
         return
+
+
+register_detector(TextBlobNameDetector, autoload=False)

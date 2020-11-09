@@ -6,6 +6,10 @@ import scrubadub.utils
 
 class OldAPITestCase(unittest.TestCase):
 
+    def setUp(self):
+        from scrubadub.detectors.text_blob import TextBlobNameDetector
+        scrubadub.detectors.register_detector(TextBlobNameDetector, autoload=True)
+
     def test_scrubadub_clean(self):
         """test old scrubadub API"""
         text = u"John is a cat"
@@ -102,3 +106,7 @@ class OldAPITestCase(unittest.TestCase):
             finally:
                 warnings.simplefilter("default")
             self.assertTrue(sum(issubclass(w.category, DeprecationWarning) for w in warning_context), 1)
+
+    def tearDown(self) -> None:
+        from scrubadub.detectors.text_blob import TextBlobNameDetector
+        del scrubadub.detectors.detector_configuration[TextBlobNameDetector.name]

@@ -1,12 +1,14 @@
 import unittest
 
-import scrubadub
-
 from base import BaseTestCase
 
 import scrubadub
 
-class NameTestCase(unittest.TestCase, BaseTestCase):
+class TextBlobNameTestCase(unittest.TestCase, BaseTestCase):
+
+    def setUp(self):
+        from scrubadub.detectors.text_blob import TextBlobNameDetector
+        scrubadub.detectors.register_detector(TextBlobNameDetector, autoload=True)
 
     def test_john(self):
         """
@@ -31,7 +33,12 @@ class NameTestCase(unittest.TestCase, BaseTestCase):
         self.compare_before_after()
 
     def test_disallowed_nouns(self):
-        detector = scrubadub.detectors.NameDetector()
+        import scrubadub.detectors.text_blob
+        detector = scrubadub.detectors.text_blob.TextBlobNameDetector()
         detector.disallowed_nouns = set()
         with self.assertRaises(TypeError):
             list(detector.iter_filth('John is a cat'))
+
+    def tearDown(self) -> None:
+        from scrubadub.detectors.text_blob import TextBlobNameDetector
+        del scrubadub.detectors.detector_configuration[TextBlobNameDetector.name]

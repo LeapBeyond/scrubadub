@@ -9,12 +9,9 @@ else:
 from .base import Detector
 from .credential import CredentialDetector
 from .email import EmailDetector
-# from .name import NameDetector
-from .named_entity import NamedEntityDetector
 from .phone import PhoneDetector
 from .postalcode import PostalCodeDetector
 from .known import KnownFilthDetector
-# from .skype import SkypeDetector
 from .ssn import SSNDetector
 from .twitter import TwitterDetector
 from .url import UrlDetector
@@ -28,10 +25,8 @@ detector_configuration = {
     # Detectors that are automatically loaded by scrubadub
     CredentialDetector.name: {'detector': CredentialDetector, 'autoload': True},
     EmailDetector.name: {'detector': EmailDetector, 'autoload': True},
-    # NameDetector.name: {'detector': NameDetector, 'autoload': True},
     PhoneDetector.name: {'detector': PhoneDetector, 'autoload': True},
     PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': True},
-    # SkypeDetector.name: {'detector': SkypeDetector, 'autoload': True},
     SSNDetector.name: {'detector': SSNDetector, 'autoload': True},
     TwitterDetector.name: {'detector': TwitterDetector, 'autoload': True},
     UrlDetector.name: {'detector': UrlDetector, 'autoload': True},

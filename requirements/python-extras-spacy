@@ -1,2 +1,2 @@
 spacy-nightly[transformers]>=3.0.0rc1; python_version >= '3.6'
-
+# spacy-transformers>=1.0.0rc0
