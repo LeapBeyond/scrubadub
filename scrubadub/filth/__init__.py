@@ -12,4 +12,4 @@ from .skype import SkypeFilth
 from .ssn import SSNFilth
 from .twitter import TwitterFilth
 from .url import UrlFilth
-from .uknino import UKNinoFilth
+from .gbnino import GBNinoFilth
