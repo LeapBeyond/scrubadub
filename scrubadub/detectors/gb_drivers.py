@@ -11,6 +11,5 @@ class GBDriversDetector(RegexDetector):
 
     name = 'gbdrivers'
     filth_cls = GBDriversFilth
-    # this regex is looking for NINO that does not begin with certain letters
-    regex = re.compile(r"([a-z,A-Z,9]{5} *)\d{6}[a-z,A-Z,9]{2}\w{3}\s?(\d{2})?",
-                       re.IGNORECASE | re.VERBOSE)
+    # this regex is looking for UK driving licence numbers that follow a pattern, no checksum
+    regex = re.compile(r'''([a-z,A-Z,9]{5}\s?)((?:\s*\d\s*){6}[a-z,A-Z,9]{2}\w{3})\s?(\d{2})''', re.IGNORECASE)
