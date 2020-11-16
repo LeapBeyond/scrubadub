@@ -16,6 +16,7 @@ from .ssn import SSNDetector
 from .twitter import TwitterDetector
 from .url import UrlDetector
 from .gbnino import GBNINODetector
+from .gb_drivers import GBDriversDetector
 
 
 DetectorConfigurationItem = TypedDict(
@@ -33,6 +34,7 @@ detector_configuration = {
     TwitterDetector.name: {'detector': TwitterDetector, 'autoload': True},
     UrlDetector.name: {'detector': UrlDetector, 'autoload': True},
     GBNINODetector.name: {'detector': GBNINODetector, 'autoload': True},
+    GBDriversDetector.name: {'detector': GBDriversDetector, 'autoload': True},
     # Detectors that are not automatically loaded by scrubadub
     KnownFilthDetector.name: {'detector': KnownFilthDetector, 'autoload': False},
 }  # type: Dict[str, DetectorConfigurationItem]

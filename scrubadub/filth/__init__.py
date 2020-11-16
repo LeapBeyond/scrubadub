@@ -13,3 +13,4 @@ from .ssn import SSNFilth
 from .twitter import TwitterFilth
 from .url import UrlFilth
 from .gbnino import GBNinoFilth
+from .gb_drivers import GBDriversFilth

@@ -13,5 +13,5 @@ class GBNINODetector(RegexDetector):
     filth_cls = GBNinoFilth
     # this regex is looking for NINO that does not begin with certain letters
     regex = re.compile(r'''
-    (?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)(?:[A-CEGHJ-PR-TW-Z][A-CEGHJ-NPR-TW-Z])(?:\s*\d\s*){6}([A-D]|\s)''',
+    (?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)(?:[A-CEGHJ-PR-TW-Z][A-CEGHJ-NPR-TW-Z])(?:\s*\d\s*){6}[A-D]''',
                        re.IGNORECASE | re.VERBOSE)
