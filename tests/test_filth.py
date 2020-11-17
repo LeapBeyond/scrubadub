@@ -60,19 +60,19 @@ class FilthTestCase(unittest.TestCase):
         """Test the Filth to string function"""
 
         filth = Filth(beg=0, end=5)
-        self.assertEqual(str(filth), "<Filth text=''>")
+        self.assertEqual(str(filth), "<Filth text='' beg=0 end=5>")
 
         filth = Filth(beg=0, end=5)
-        self.assertEqual(filth.__repr__(), "<Filth text=''>")
+        self.assertEqual(filth.__repr__(), "<Filth text='' beg=0 end=5>")
 
         filth = Filth(beg=0, end=5)
-        self.assertEqual(filth._to_string(), "<Filth text=''>")
+        self.assertEqual(filth._to_string(), "<Filth text='' beg=0 end=5>")
 
         filth = Filth(beg=0, end=5, text='hello')
-        self.assertEqual(str(filth), "<Filth text='hello'>")
+        self.assertEqual(str(filth), "<Filth text='hello' beg=0 end=5>")
 
         filth = Filth(beg=0, end=5, text='hello', document_name='hello.txt')
-        self.assertEqual(str(filth), "<Filth text='hello' document_name='hello.txt'>")
+        self.assertEqual(str(filth), "<Filth text='hello' document_name='hello.txt' beg=0 end=5>")
 
         filth = Filth(beg=0, end=5, text='hello', document_name='hello.txt')
         self.assertEqual(filth._to_string(attributes=['text']), "<Filth text='hello'>")
@@ -88,7 +88,7 @@ class FilthTestCase(unittest.TestCase):
             type = 'test_filth'
 
         merged = MergedFilth(TestFilth(0, 2, 'ab'), Filth(1, 2, 'b'))
-        self.assertEqual(merged.__repr__(), "<MergedFilth filths=[<TestFilth text='ab'>, <Filth text='b'>]>")
+        self.assertEqual(merged.__repr__(), "<MergedFilth filths=[<TestFilth text='ab' beg=0 end=2>, <Filth text='b' beg=1 end=2>]>")
 
     def test_equality(self):
         """Test the filth equality function"""
