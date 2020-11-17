@@ -223,43 +223,6 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
     )
 
 
-def fake_phone_number_factory(locale: str = 'US') -> Callable:
-    """Create a phone number that follows valid local rules.
-
-    Faker generates random numbers of the right format eg (###)###-####, but phonenumbers checks that they follow
-    the rules around area codes and that they are possibly valid. We generate numbers with faker then cross check
-    them with phonenumbers to ensure they're valid.
-
-    .. code:: pycon
-
-        >>> import scrubadub, scrubadub.comparison
-        >>> generate_phone_number = scrubadub.comparison.fake_phone_number_factory(locale='fr_FR')
-        >>> generate_phone_number()
-        '02 20 39 90 89'
-        >>> generate_phone_number()
-        '+33 6 39 88 11 67'
-
-    :param locale: The locale that the phone number should adhere to
-    :type locale: str
-    :return: A function that generates phonenumbers using the given locale
-    :rtype: Callable
-
-    """
-    def make_fake_phone_number() -> str:
-        nonlocal locale
-        phone_number = ''
-        country = locale.split('_')[-1].upper()
-        results = []  # type: List[phonenumbers.PhoneNumberMatch]
-        # Here I'm filtering for numbers that pass validation by the phonenumbers package
-        while len(results) < 1:
-            # Faker generates random numbers of the right format eg (###)###-####
-            phone_number = re.sub(r'x.*$', '', Faker(locale=locale).phone_number())
-            # phonenumbers checks that they follow the rules around area codes and that they are possibly valid
-            results = list(phonenumbers.PhoneNumberMatcher(phone_number, country))
-        return phone_number
-    return make_fake_phone_number
-
-
 def make_fake_document(
         paragraphs: int = 20, locale: str = 'en_US', seed: Optional[int] = None, faker: Optional[Faker] = None,
         filth_types: Optional[List[str]] = None
