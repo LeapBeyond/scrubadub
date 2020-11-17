@@ -1,15 +1,15 @@
 import re
 
-from .base import RegexDetector
+from .base import RegionLocalisedRegexDetector
 from ..filth.postalcode import PostalCodeFilth
 
 
-class PostalCodeDetector(RegexDetector):
-    """Detects British postcodes"""
+class PostalCodeDetector(RegionLocalisedRegexDetector):
+    """Detects british postcodes."""
     filth_cls = PostalCodeFilth
     name = 'postalcode'
-    postal_code_regexs = {
-        'gb': re.compile(r"""
+    region_regex = {
+        'GB': re.compile(r"""
             (
                 (?:[gG][iI][rR] {0,}0[aA]{2})|
                 (?:
@@ -39,13 +39,3 @@ class PostalCodeDetector(RegexDetector):
             )
         """, re.VERBOSE),
     }
-
-    def __init__(self, region='gb'):
-        if region not in self.postal_code_regexs:
-            raise NotImplementedError(
-                'Postal code for region "{}" is not yet implemented, please choose one of: {}'.format(
-                    region, list(self.postal_code_regexs.keys())
-                )
-            )
-        self.regex = self.postal_code_regexs[region]
-        super(PostalCodeDetector, self).__init__()
