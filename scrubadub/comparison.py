@@ -24,23 +24,24 @@ def get_filth_classification_report(
 
     .. code:: pycon
 
-        >>> import scrubadub, scrubadub.comparison
+        >>> import scrubadub, scrubadub.comparison, scrubadub.detectors.text_blob
         >>> scrubber = scrubadub.Scrubber(detector_list=[
         ...     scrubadub.detectors.TextBlobNameDetector(name='name_detector'),
         ...     scrubadub.detectors.KnownFilthDetector([
-        ...         {'match': 'Tom', 'comparison_type': 'name'},
-        ...         {'match': 'tom@example.com', 'comparison_type': 'email'},
+        ...         {'match': 'Tom', 'filth_type': 'name'},
+        ...         {'match': 'tom@example.com', 'filth_type': 'email'},
         ...     ]),
         ... ])
         >>> filth_list = list(scrubber.iter_filth("Hello I am Tom"))
         >>> print(scrubadub.comparison.get_filth_classification_report(filth_list))
-                                precision    recall  f1-score   support
-
-        name     name_detector       1.00      1.00      1.00         1
-
-                      accuracy                           1.00         1
-                     macro avg       1.00      1.00      1.00         1
-                  weighted avg       1.00      1.00      1.00         1
+        filth          detector     locale    precision    recall  f1-score   support
+        <BLANKLINE>
+         name     name_detector      en_US         1.00      1.00      1.00         1
+        <BLANKLINE>
+                                    accuracy                           1.00         1
+                                   macro avg       1.00      1.00      1.00         1
+                                weighted avg       1.00      1.00      1.00         1
+        <BLANKLINE>
 
     :param filth_list: The list of detected filth
     :type filth_list: A list of `Filth` objects
@@ -122,22 +123,28 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
 
     .. code:: pycon
 
-        >>> import scrubadub, scrubadub.comparison
+        >>> import scrubadub, scrubadub.comparison, scrubadub.detectors.text_blob
         >>> scrubber = scrubadub.Scrubber(detector_list=[
         ...     scrubadub.detectors.TextBlobNameDetector(name='name_detector'),
         ...     scrubadub.detectors.KnownFilthDetector([
-        ...         {'match': 'Tom', 'comparison_type': 'name'},
-        ...         {'match': 'tom@example.com', 'comparison_type': 'email'},
+        ...         {'match': 'Tom', 'filth_type': 'name'},
+        ...         {'match': 'tom@example.com', 'filth_type': 'email'},
         ...     ]),
         ... ])
         >>> filth_list = list(scrubber.iter_filth("Hello I am Tom"))
-        >>> print(scrubadub.comparison.get_filth_dataframe(filth_list))
-           group_id  filth_id filth_type  detector_name document_name text  beg  end \
-        0         0         1       name  name_detector          None  Tom   11   14 \
-           known_filth known_text  known_beg  known_end  known_comparison_type  exact_match \
-        0         True        Tom         11         14                   name         True \
-           partial_match  true_positive  false_positive  false_negative
-        0           True           True           False           False
+        >>> with pd.option_context("display.max_columns", 20):
+        ...     print(scrubadub.comparison.get_filth_dataframe(filth_list))  # doctest: +NORMALIZE_WHITESPACE
+           group_id  filth_id filth_type  detector_name document_name text  beg  end  \\
+        0         0         0       name  name_detector          None  Tom   11   14
+        <BLANKLINE>
+          locale  known_filth comparison_type known_text  known_beg  known_end  \\
+        0  en_US         True             NaN        Tom         11         14
+        <BLANKLINE>
+          known_comparison_type  exact_match  partial_match  true_positive  \\
+        0                  name         True           True           True
+        <BLANKLINE>
+           false_positive  false_negative
+        0           False           False
 
     :param filth_list: The list of detected filth
     :type filth_list: A list of `Filth` objects
@@ -241,18 +248,24 @@ def make_fake_document(
         >>> scrubber.add_detector(scrubadub.detectors.KnownFilthDetector(known_filth_items=known_filth_items))
         >>> filth_list = list(scrubber.iter_filth(document))
         >>> print(scrubadub.comparison.get_filth_classification_report(filth_list))
-                             precision    recall  f1-score   support
-
-        twitter     twitter       1.00      1.00      1.00         1
-
-                  micro avg       1.00      1.00      1.00         1
-                  macro avg       1.00      1.00      1.00         1
-               weighted avg       1.00      1.00      1.00         1
+        filth     detector     locale    precision    recall  f1-score   support
+        <BLANKLINE>
+          url          url      en_US         1.00      1.00      1.00         1
+        email        email      en_US         1.00      1.00      1.00         2
+        <BLANKLINE>
+                              micro avg       1.00      1.00      1.00         3
+                              macro avg       1.00      1.00      1.00         3
+                           weighted avg       1.00      1.00      1.00         3
+                            samples avg       1.00      1.00      1.00         3
+        <BLANKLINE>
 
     :param paragraphs: The list of detected filth
     :type paragraphs: int
+    :param locale: The locale of the documents in the format: 2 letter lower-case language code followed by an
+                   underscore and the two letter upper-case country code, eg "en_GB" or "de_CH"
+    :type locale: str
     :param seed: The random seed used to generate the document
-    :type seed: int
+    :type seed: int, optional
     :param faker: A Faker object that is used to generate the text
     :type faker: int
     :param filth_types: A list of the ``Filth.type`` to generate
