@@ -52,5 +52,21 @@ class TextBlobNameDetector(RegexDetector):
                 yield filth
         return
 
+    @classmethod
+    def supported_locale(cls, locale: str) -> bool:
+        """Returns true if this ``Detector`` supports the given locale.
+
+        :param locale: The locale of the documents in the format: 2 letter lower-case language code followed by an
+                       underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
+        :type locale: str
+        :return: ``True`` if the locale is supported, otherwise ``False``
+        :rtype: bool
+        """
+        language, region = cls.locale_split(locale)
+
+        # fr and de are possible through plugins, but need to be implemented on this end
+        # https://github.com/sloria/textblob-fr and https://github.com/markuskiller/textblob-de
+        return language in ['en', ]
+
 
 register_detector(TextBlobNameDetector, autoload=False)
