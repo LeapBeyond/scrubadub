@@ -10,5 +10,5 @@ class KnownFilth(Filth):
         super(KnownFilth, self).__init__(*args, **kwargs)
         self.comparison_type = comparison_type
 
-    def __repr__(self) -> str:
-        return self._to_string(['text', 'document_name', 'comparison_type'])
+    # def __repr__(self) -> str:
+    #     return self._to_string(['text', 'document_name', 'beg', 'end', 'comparison_type', 'detector_name', 'locale'])
