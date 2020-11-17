@@ -66,7 +66,9 @@ setup(
     ],
     install_requires=get_package_list('python'),
     extras_require={
+        "address": get_package_list('python-extras-address'),
         "spacy": get_package_list('python-extras-spacy'),
+        "stanford": get_package_list('python-extras-stanford'),
     },
     zip_safe=False,
 )
