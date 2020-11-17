@@ -28,15 +28,3 @@ class EmailDetector(RegexDetector):
         r")+"                                      # repeat as necessary
         r"[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"         # end of domain
     ), re.VERBOSE | re.IGNORECASE)
-
-
-# class NewEmailDetector(RegexDetector):
-#     """Detects email addresses with a wider regex"""
-#     filth_cls = EmailFilth
-#     name = 'email_v2'
-#     regex = re.compile(r'''
-#         \w[a-zA-Z0-9!#$%&\'*+‐‑‒–—―/=?^_`{|}~\.]+
-#         @
-#         \w[a-zA-Z0-9!#$%&\'*+‐‑‒–—―/=?^_`{|}~]+
-#         (\.\w[a-zA-Z0-9!#$%&\'*+‐‑‒–—―/=?^_`{|}~]*\w)+
-#     ''', re.VERBOSE)
