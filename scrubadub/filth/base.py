@@ -1,4 +1,5 @@
 import warnings
+from faker import Faker
 from typing import Optional, ClassVar, Pattern, List, Match
 
 from .. import exceptions
@@ -27,7 +28,8 @@ class Filth(object):
 
     def __init__(self, beg: Optional[int] = None, end: Optional[int] = None, text: Optional[str] = None,
                  match: Optional[Match] = None, detector_name: Optional[str] = None,
-                 document_name: Optional[str] = None, replacement_string: Optional[str] = None, **kwargs):
+                 document_name: Optional[str] = None, replacement_string: Optional[str] = None,
+                 locale: Optional[str] = None, **kwargs):
 
         self.beg = 0  # type: int
         self.end = 0  # type: int
@@ -50,6 +52,7 @@ class Filth(object):
         self.detector_name = detector_name  # type: Optional[str]
         self.document_name = document_name  # type: Optional[str]
         self.replacement_string = replacement_string  # type: Optional[str]
+        self.locale = locale  # type: Optional[str]
 
     @property
     def placeholder(self) -> str:
@@ -92,7 +95,7 @@ class Filth(object):
 
     def _to_string(self, attributes: Optional[List[str]] = None) -> str:
         if attributes is None:
-            attributes = ['text', 'document_name', 'detector_name']
+            attributes = ['text', 'document_name', 'beg', 'end', 'comparison_type', 'detector_name', 'locale']
 
         item_attributes = [
             "{}={}".format(item, getattr(self, item, None).__repr__())
@@ -118,6 +121,17 @@ class Filth(object):
             match &= (self.detector_name == other.detector_name)
 
         return match
+
+    @staticmethod
+    def generate(faker: Faker) -> str:
+        """Generates an example of this ``Filth`` type, usually using the faker python library.
+
+        :param faker: The ``Faker`` class from the ``faker`` library
+        :type faker: Faker
+        :return: An example of this ``Filth``
+        :rtype: str
+        """
+        raise NotImplementedError("A generate() function has not been implemented for this Filth")
 
 
 class MergedFilth(Filth):
