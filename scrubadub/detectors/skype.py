@@ -40,7 +40,7 @@ class SkypeDetector(RegexDetector):
     # but with the 6-32 character limit imposed on the username. adapted from
     # http://bit.ly/1FQs1hD
     _SKYPE = r'[a-zA-Z][a-zA-Z0-9_\-\,\.]'
-    SKYPE_TOKEN = re.compile(_SKYPE+'+')
+    SKYPE_TOKEN = _SKYPE + '+'
     SKYPE_USERNAME = re.compile(_SKYPE+'{5,31}')
 
     def iter_filth(self, text, document_name: Optional[str] = None):
