@@ -1,3 +1,8 @@
+import re
+import locale as locale_module
+
+from typing import Optional, Tuple
+
 try:
     unicode  # type: ignore  # tell mypy to ignore the fact that this doesnt exist in python3
 except NameError:
@@ -58,3 +63,37 @@ class Lookup(object):
         except KeyError:
             self.table[key] = len(self.table)
             return self.table[key]
+
+
+def locale_transform(locale: str) -> str:
+    """Normalise the locale string, e.g. 'fr' -> 'fr_FR'.
+
+    :param locale: The locale of the documents in the format: 2 letter lower-case language code followed by an
+                   underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
+    :type locale: str
+    :return: The normalised locale string
+    :rtype: str
+    """
+    return locale_module.normalize(locale.lower())
+
+
+def locale_split(locale: str) -> Tuple[Optional[str], Optional[str]]:
+    """Split the locale string into the language and region.
+
+    :param locale: The locale of the documents in the format: 2 letter lower-case language code followed by an
+                   underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
+    :type locale: str
+    :return: The two-letter language code and the two-letter region code in a tuple.
+    :rtype: tuple, (str, str)
+    """
+    locale = locale_transform(locale)
+    if locale not in locale_module.locale_alias.values():
+        raise ValueError("Unknown locale '{}', not in locale.locale_alias".format(locale))
+
+    regex = r'(?P<language>[0-9a-zA-Z]+)(_(?P<region>[0-9a-zA-Z]+))?' \
+            r'(\.(?P<charset>[0-9a-zA-Z-]+)(@(?P<charset2>[0-9a-zA-Z]+))?)?'
+    match = re.match(regex, locale)
+    if match is None:
+        raise ValueError('Locale does not match expected format.')
+
+    return match.group('language').lower(), match.group('region').upper()
