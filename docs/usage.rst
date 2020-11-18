@@ -4,12 +4,39 @@
 Usage
 =====
 
-By default, `scrubadub` aggressively removes content from text that may
+By default, `scrubadub` removes content from text that may
 reveal personal identity, but there are certainly circumstances where you may
 want to customize the behavior of `scrubadub`. This section outlines a few of
 these use cases. If you don't see your particular use case here, please take a
 look :ref:`under the hood <api>` and :ref:`contribute
 <contributing>` it back to the documentation!
+
+Anatomy of scrubadub
+--------------------
+
+``scrubadub`` consists of four separate components:
+
+* ``Filth`` objects are used to identify specific parts of the dirty
+  dirty text that contains sensitive information.
+
+* ``Detector`` objects are used to detect specific types of ``Filth``.
+
+* ``PostProcessor`` objects are used to alter the found ``Filth``.
+  This could be to replace the ``Filth`` with a hash or token.
+
+* The ``Scrubber`` is responsible for managing the cleaning process.
+  It keeps track of the ``Detector``, ``PostProcessor`` and ``Filth`` objects.
+  It also resolves conflicts that may arise between different ``Detector``
+  objects.
+
+Adding an optional detector
+---------------------------
+
+
+
+Setting the locale
+------------------
+
 
 
 Suppressing a detector
@@ -36,6 +63,8 @@ It is sometimes important to configure detectors before using them.
 One example is the `PhoneDetector` which takes a `region` argument.
 This is used to detect phone numbers fitting that regions format.
 To detect French phone numbers you would do the following:
+
+TODO: update this to look at spacy
 
 .. code:: pycon
 
@@ -129,6 +158,8 @@ For example, to display a hash of the Filth in bold HTML, you could to do this:
     >>> scrubber.clean(text)
     'contact <b>NAME-C6347</b> <b>NAME-01E6A</b> at <b>EMAIL-028CC</b>'
 
+
+.. _create-detector:
 
 Adding a new type of filth detector
 -----------------------------------
