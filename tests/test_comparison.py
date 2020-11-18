@@ -1,5 +1,4 @@
 import unittest
-import pandas as pd
 
 import scrubadub
 import scrubadub.comparison
@@ -7,10 +6,11 @@ from scrubadub.filth.base import MergedFilth, Filth
 from scrubadub.filth.phone import PhoneFilth
 from scrubadub.filth.known import KnownFilth
 from scrubadub.detectors.base import Detector
-from scrubadub.detectors.phone import PhoneDetector
-from scrubadub.detectors.known import KnownFilthDetector
 
 class ComparisonTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.maxDiff = None
 
     def test_comparison(self):
         """test basic comparison"""
@@ -35,7 +35,7 @@ class ComparisonTestCase(unittest.TestCase):
             {
                 'macro avg': {'f1-score': 0.6666666666666666, 'precision': 1.0,'recall': 0.5, 'support': 4},
                 'micro avg': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 4},
-                'phone:phone': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 4},
+                'phone:phone:None': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 4},
                 'weighted avg': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 4}
             },
         )
@@ -61,13 +61,13 @@ class ComparisonTestCase(unittest.TestCase):
         print(text)
         self.assertEquals(
             text,
-            "                 precision    recall  f1-score   support\n"
+            "filth     detector     locale    precision    recall  f1-score   support\n"
             "\n"
-            "phone     phone       1.00      0.50      0.67         4\n"
+            "phone        phone       None         1.00      0.50      0.67         4\n"
             "\n"
-            "      micro avg       1.00      0.50      0.67         4\n"
-            "      macro avg       1.00      0.50      0.67         4\n"
-            "   weighted avg       1.00      0.50      0.67         4\n".strip(),
+            "                      micro avg       1.00      0.50      0.67         4\n"
+            "                      macro avg       1.00      0.50      0.67         4\n"
+            "                   weighted avg       1.00      0.50      0.67         4\n".strip(),
         )
 
     def test_false_positive(self):
@@ -89,7 +89,7 @@ class ComparisonTestCase(unittest.TestCase):
                 output_dict=True,
             ),
             {
-                'phone:phone_v1': {'precision': 0.5, 'recall': 0.3333333333333333, 'f1-score': 0.4, 'support': 3},
+                'phone:phone_v1:None': {'precision': 0.5, 'recall': 0.3333333333333333, 'f1-score': 0.4, 'support': 3},
                 'micro avg': {'precision': 0.5, 'recall': 0.3333333333333333, 'f1-score': 0.4, 'support': 3},
                 'macro avg': {'precision': 0.5, 'recall': 0.3333333333333333, 'f1-score': 0.4, 'support': 3},
                 'weighted avg': {'precision': 0.5, 'recall': 0.3333333333333333, 'f1-score': 0.4000000000000001, 'support': 3}
@@ -124,8 +124,8 @@ class ComparisonTestCase(unittest.TestCase):
                 output_dict=True,
             ),
             {
-                'phone:phone': {'precision': 1.0, 'recall': 0.5, 'f1-score': 0.6666666666666666, 'support': 2},
-                'temp:temp': {'precision': 1.0, 'recall': 0.5, 'f1-score': 0.6666666666666666, 'support': 2},
+                'phone:phone:None': {'precision': 1.0, 'recall': 0.5, 'f1-score': 0.6666666666666666, 'support': 2},
+                'temp:temp:None': {'precision': 1.0, 'recall': 0.5, 'f1-score': 0.6666666666666666, 'support': 2},
                 'micro avg': {'precision': 1.0, 'recall': 0.5, 'f1-score': 0.6666666666666666, 'support': 4},
                 'macro avg': {'precision': 1.0, 'recall': 0.5, 'f1-score': 0.6666666666666666, 'support': 4},
                 'weighted avg': {'precision': 1.0, 'recall': 0.5, 'f1-score': 0.6666666666666666, 'support': 4},
@@ -150,12 +150,43 @@ class ComparisonTestCase(unittest.TestCase):
                 output_dict=True,
             ),
             {
-                'phone:phone': {'precision': 1.0, 'recall': 1.0, 'f1-score': 1.0, 'support': 1},
+                'phone:phone:None': {'precision': 1.0, 'recall': 1.0, 'f1-score': 1.0, 'support': 1},
                 'micro avg': {'precision': 1.0, 'recall': 1.0, 'f1-score': 1.0, 'support': 1},
                 'macro avg': {'precision': 1.0, 'recall': 1.0, 'f1-score': 1.0, 'support': 1},
                 'weighted avg': {'precision': 1.0, 'recall': 1.0, 'f1-score': 1.0, 'support': 1}
             },
 
+        )
+
+    def test_locales(self):
+        """test comparison with other predefined filth types"""
+
+        filths = [
+            MergedFilth(
+                PhoneFilth(beg=0, end=4, text='1234', detector_name='phone', locale='en_GB'),
+                KnownFilth(beg=0, end=4, text='1234', comparison_type='phone', locale='en_GB'),
+            ),
+            KnownFilth(beg=5, end=10, text='12345', comparison_type='phone', locale='en_GB'),
+            MergedFilth(
+                PhoneFilth(beg=5, end=9, text='1234', detector_name='phone', locale='en_US'),
+                KnownFilth(beg=5, end=9, text='1234', comparison_type='phone', locale='en_US'),
+            ),
+            KnownFilth(beg=15, end=20, text='12345', comparison_type='phone', locale='en_US'),
+        ]
+
+        self.assertEquals(
+            scrubadub.comparison.get_filth_classification_report(
+                filths,
+                output_dict=True,
+            ),
+            {
+                'macro avg': {'f1-score': 0.6666666666666666, 'precision': 1.0,'recall': 0.5, 'support': 4},
+                'micro avg': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 4},
+                'phone:phone:en_GB': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 2},
+                'phone:phone:en_US': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 2},
+                'samples avg': {'f1-score': 0.5, 'precision': 0.5, 'recall': 0.5, 'support': 4},
+                'weighted avg': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 4}
+            },
         )
 
     def test_with_irrelevant_filth(self):
@@ -181,7 +212,7 @@ class ComparisonTestCase(unittest.TestCase):
                 output_dict=True,
             ),
             {
-                'phone:phone': {'precision': 1.0, 'recall': 1.0, 'f1-score': 1.0, 'support': 1},
+                'phone:phone:None': {'precision': 1.0, 'recall': 1.0, 'f1-score': 1.0, 'support': 1},
                 'micro avg': {'precision': 1.0, 'recall': 1.0, 'f1-score': 1.0, 'support': 1},
                 'macro avg': {'precision': 1.0, 'recall': 1.0, 'f1-score': 1.0, 'support': 1},
                 'weighted avg': {'precision': 1.0, 'recall': 1.0, 'f1-score': 1.0, 'support': 1}
