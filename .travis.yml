@@ -13,7 +13,7 @@ addons:
       - automake
       - libtool
       - pkg-config
-      - pkg-default-jre
+      - default-jre
 
 before_install:
   - git clone https://github.com/openvenues/libpostal && cd libpostal && ./bootstrap.sh && ./configure && \
