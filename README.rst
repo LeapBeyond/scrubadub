@@ -9,26 +9,78 @@
 ..      * ReadTheDocs.io should see any changes and also rebuild the docs
 
 
+*********
 scrubadub
-=========
+*********
 
-Clean personally identifiable information from dirty dirty text.
+Remove personally identifiable information from free text. Sometimes we have
+additional metadata about the people we wish to anonymize. Other times we don't.
+This package makes it easy to seamlessly scrub personal information from free
+text, without compromising the privacy of the people we are trying to protect.
 
-`Full documentation is available on readthedocs <http://scrubadub.readthedocs.org>`__.
+``scrubadub`` currently supports removing:
 
-|Build Status| |Version| |Downloads| |Test Coverage| |Documentation Status|
+* Names
+* Email addresses
+* Addresses/Postal codes (US, GB, CA)
+* URLs
+* Phone numbers
+* Username and password combinations
+* Skype/twiter usernames
+* Social security numbers (US, GB)
+* Tax numbers (GB)
+* Driving licence numbers (GB)
 
-.. |Build Status| image:: https://travis-ci.org/LeapBeyond/scrubadub.svg?branch=master
+.. image:: https://travis-ci.org/LeapBeyond/scrubadub.svg?branch=master
    :target: https://travis-ci.org/LeapBeyond/scrubadub
-.. |Version| image:: https://img.shields.io/pypi/v/scrubadub.svg
+   :alt:  Build Status
+.. image:: https://img.shields.io/pypi/v/scrubadub.svg
    :target: https://pypi.org/project/scrubadub/
-.. |Downloads| image:: https://img.shields.io/pypi/dm/scrubadub.svg
+   :alt:  Version
+.. image:: https://img.shields.io/pypi/dm/scrubadub.svg
    :target: https://pypi.org/project/scrubadub/
-.. |Test Coverage| image:: https://coveralls.io/repos/github/LeapBeyond/scrubadub/badge.svg?branch=master
-   :target: https://coveralls.io/github/LeapBeyond/scrubadub?branch=master
-.. |Documentation Status| image:: https://readthedocs.org/projects/scrubadub/badge/?version=latest
+   :alt:  Downloads
+.. image:: https://coveralls.io/repos/github/LeapBeyond/scrubadub/badge.svg?branch=master
+   :target: https://coveralls.io/r/LeapBeyond/scrubadub
+   :alt:  Test Coverage
+.. image:: https://readthedocs.org/projects/scrubadub/badge/?version=latest
    :target: https://readthedocs.org/projects/scrubadub/?badge=latest
+   :alt:  Documentation Status
 
+
+Quick start
+-----------
+
+Getting started with ``scrubadub`` is as easy as ``pip install scrubadub`` and
+incorporating it into your python scripts like this:
+
+.. code:: pycon
+
+    >>> import scrubadub
+
+    # My cat may be more tech-savvy than most, but he doesn't want other people to know it.
+    >>> text = "My cat can be contacted on example@example.com, or 1800 555-5555"
+
+    # Replaces the phone number and email addresse with anonymous IDs.
+    >>> scrubadub.clean(text)
+    'My cat can be contacted on {{EMAIL}}, or {{PHONE}}'
+
+
+There are many ways to tailor the behavior of ``scrubadub`` using
+`different Detectors and PostProcessors <https://scrubadub.readthedocs.io/en/stable/usage.html>`_.
+Scrubadub is highly configurable and supports localisation for different languages and regions.
+
+Installation
+------------
+
+To install scrubadub using pip, simply type::
+
+    pip install scrubadub
+
+This package requires at least python 3.5.
+For python 2.7 support see v1.2.2 which is the last version with python 2.7 support.
+
+Some detectors need extra dependencies, see `our documentation <http://scrubadub.readthedocs.io/>`_ for more details on these.
 
 New maintainers
 ---------------
