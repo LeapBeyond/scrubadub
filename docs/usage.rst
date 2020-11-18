@@ -8,7 +8,7 @@ By default, `scrubadub` removes content from text that may
 reveal personal identity, but there are certainly circumstances where you may
 want to customize the behavior of `scrubadub`. This section outlines a few of
 these use cases. If you don't see your particular use case here, please take a
-look :ref:`under the hood <api>` and :ref:`contribute
+look :ref:`under the hood <api_scrubadub>` and :ref:`contribute
 <contributing>` it back to the documentation!
 
 Anatomy of scrubadub
@@ -32,12 +32,45 @@ Anatomy of scrubadub
 Adding an optional detector
 ---------------------------
 
+To add an optional detector, first ensure the detector has been imported, then create a scrubber, add the detector and then scrub away.
+This is shown below:
 
+.. code:: pycon
 
-Setting the locale
-------------------
+    >>> import scrubadub, scrubadub.detectors.spacy
+    >>> scrubber = scrubadub.Scrubber()
+    >>> scrubber.add_detector(scrubadub.detectors.spacy.SpacyEntityDetector)
+    >>> scrubber.clean("My name is John")
+    'My name is {{NAME}}'
 
+In the table below you can see which detectors are included by default and which ones arent.
+For more infomation about these detectors checkout :ref:`the detector documentation <api_scrubadub_detectors>`
 
++---------------------------+----------------------------+
+| Default detectors         | Optional detectors         |
++===========================+============================+
+| | ``CredentialDetector``  | | ``AddressDetector``      |
+| | ``EmailDetector``       | | ``KnownFilthDetector``   |
+| | ``PhoneDetector``       | | ``PostalCodeDetector``   |
+| | ``SSNDetector``         | | ``SkypeDetector``        |
+| | ``TwitterDetector``     | | ``StanfordNERDetector``  |
+| | ``UrlDetector``         | | ``TextBlobNameDetector`` |
++---------------------------+----------------------------+
+
+Localisation
+------------
+
+If you don't happen to speak english or live in the US, you will find the localisation super useful.
+You can tell the scrubber which locale to use.
+
+.. code:: pycon
+
+    >>> import scrubadub, scrubadub.detectors.spacy
+    >>> scrubber = scrubadub.Scrubber(locale='de_DE')
+    >>> scrubber.clean('Meine Telefonnummer ist 05086 63680')
+    'Meine Telefonnummer ist {{PHONE}}'
+
+If you're not sure about the format of the locale code, if you want more examples or if you want to build a localised detector, checkout :ref:`our documentation on localisation <localization>`.
 
 Suppressing a detector
 ----------------------
@@ -60,69 +93,20 @@ Configuring a detector
 ----------------------
 
 It is sometimes important to configure detectors before using them.
-One example is the `PhoneDetector` which takes a `region` argument.
-This is used to detect phone numbers fitting that regions format.
-To detect French phone numbers you would do the following:
-
-TODO: update this to look at spacy
+One example is the ``SpacyEntityDetector`` which takes a `model` argument.
+In the `model` argument you can say which model spacy should use to identify named entites.
+If the `model` argument is not given, it uses a model based on your locale.
+To detect named entities in french you would do the following:
 
 .. code:: pycon
 
-    >>> import scrubadub
-    >>> scrubber = scrubadub.Scrubber()
+    >>> import scrubadub, scrubadub.detectors.spacy
+    >>> scrubber = scrubadub.Scrubber(locale='fr_FR')
+    >>> detector = scrubadub.detectors.spacy.SpacyEntityDetector(model='fr_core_news_lg')
+    >>> scrubber.add_detector(detector)
     >>> text = "contacter Emmanuel Pereira au 01 81 36 78 86"
-    >>> # Phone number not detected as the region is set to US by default
     >>> scrubber.clean(text)
-    'contacter {{NAME}} {{NAME}} au 01 81 36 78 86'
-
-    >>> scrubber.remove_detector(scrubadub.detectors.PhoneDetector)
-    >>> scrubber.add_detector(scrubadub.detectors.PhoneDetector(region='FR'))
-    'contacter {{NAME}} {{NAME}} au {{PHONE}}'
-
-
-Adding and removing detectors
------------------------------
-
-The `Detector`\ s included in the `Scrubber` can be set when initialising the `Scrubber` using the `detector_list` parameter.
-Detectors can also be added or removed from the scrubber at any time by calling ``Scrubber.remove_detector`` and ``Scrubber.add_detector``.
-These functions can be passed one of:
-
-* a string -- the detector name
-* a `Detector` object -- an instance of a `Detector` class, `Detector.name` is used is used to find the detector name
-* a `Detector` class -- a `Detector` class, `Detector.name` is used is used to find the detector name
-
-It is important to note that two `Detector`\ s cant be added to the same `Scrubber` with the same name.
-If you want to add two copies of the same `Detector` to a `Scrubber`, you can set a `name` in the constructor.
-
-Examples of this are given below:
-
-.. code:: pycon
-
-    >>> import scrubadub
-    >>> # Create a detector with a name 'example_email'
-    >>> detector = scrubadub.detectors.EmailDetector(name='example_email')
-
-    >>> # Detectors can be added on Scrubber initialisation
-    >>> scrubber = scrubadub.Scrubber(detector_list=[detector, ])
-
-    >>> # add/remove a detector with a Detector instance
-    >>> scrubber.remove_detector(detector)
-
-    >>> # adds/removes detector with the default name 'email' using the class
-    >>> scrubber.add_detector(scrubadub.detectors.EmailDetector)
-    >>> scrubber.remove_detector(scrubadub.detectors.EmailDetector)
-
-    >>> # Adds the scrubadub.detectors.EmailDetector detector
-    >>> scrubber.add_detector('email')
-    >>> scrubber.remove_detector('email')
-
-    >>> # Add back the original instance
-    >>> scrubber.add_detector(detector)
-
-    >>> # KeyError is thrown if two detectors have the same name
-    >>> scrubber.add_detector(detector)
-        ...
-    KeyError: 'can not add Detector "example_email" to this Scrubber, this name is already in use. Try removing it first.'
+    'contacter {{NAME}} au {{PHONE}}'
 
 
 Customizing filth markers
@@ -157,6 +141,51 @@ For example, to display a hash of the Filth in bold HTML, you could to do this:
     ... ])
     >>> scrubber.clean(text)
     'contact <b>NAME-C6347</b> <b>NAME-01E6A</b> at <b>EMAIL-028CC</b>'
+
+
+Adding and removing detectors
+-----------------------------
+
+The ``Detector``\ s included in the ``Scrubber`` can be set when initialising the ``Scrubber`` using the `detector_list` parameter.
+Detectors can also be added or removed from the scrubber at any time by calling ``Scrubber.remove_detector`` and ``Scrubber.add_detector``.
+These functions can be passed one of:
+
+* a string -- the detector name
+* a ``Detector`` object -- an instance of a ``Detector`` class, ``Detector.name`` is used is used to find the detector name
+* a ``Detector`` class -- a ``Detector`` class, ``Detector.name`` is used is used to find the detector name
+
+It is important to note that two ``Detector``\ s cant be added to the same ``Scrubber`` with the same name.
+If you want to add two copies of the same ``Detector`` to a ``Scrubber``, you can set a `name` in the constructor.
+
+Examples of this are given below:
+
+.. code:: pycon
+
+    >>> import scrubadub
+    >>> # Create a detector with a name 'example_email'
+    >>> detector = scrubadub.detectors.EmailDetector(name='example_email')
+
+    >>> # Detectors can be added on Scrubber initialisation
+    >>> scrubber = scrubadub.Scrubber(detector_list=[detector, ])
+
+    >>> # add/remove a detector with a Detector instance
+    >>> scrubber.remove_detector(detector)
+
+    >>> # adds/removes detector with the default name 'email' using the class
+    >>> scrubber.add_detector(scrubadub.detectors.EmailDetector)
+    >>> scrubber.remove_detector(scrubadub.detectors.EmailDetector)
+
+    >>> # Adds the scrubadub.detectors.EmailDetector detector
+    >>> scrubber.add_detector('email')
+    >>> scrubber.remove_detector('email')
+
+    >>> # Add back the original instance
+    >>> scrubber.add_detector(detector)
+
+    >>> # KeyError is thrown if two detectors have the same name
+    >>> scrubber.add_detector(detector)
+        ...
+    KeyError: 'can not add Detector "example_email" to this Scrubber, this name is already in use. Try removing it first.'
 
 
 .. _create-detector:
