@@ -83,10 +83,13 @@ Then you can use the ``get_filth_classification_report(filth_list)`` function to
 In addition to this classification report, there is also the ``get_filth_dataframe(filth_list)`` function that returns a pandas `DataFrame` that can be used to get more information on the types of `Filth` that were detected.
 
 .. autofunction:: scrubadub.comparison.get_filth_classification_report
+    :noindex:
 
 .. autofunction:: scrubadub.comparison.get_filth_dataframe
+    :noindex:
 
 .. autofunction:: scrubadub.comparison.make_fake_document
+    :noindex:
 
 
 
