@@ -9,7 +9,7 @@ class PredefinedTestCase(unittest.TestCase):
 
         test_str = 'this is a test string'
         detector = scrubadub.detectors.KnownFilthDetector([
-            {'match': 'test'},
+            {'match': 'test', 'filth_type': 'test'},
         ])
 
         matches = list(detector.iter_filth(test_str))
@@ -34,7 +34,7 @@ class PredefinedTestCase(unittest.TestCase):
 
         test_str = 'hello this is a test string'
         detector = scrubadub.detectors.KnownFilthDetector([
-            {'match': 'this is', 'match_end': 'test'},
+            {'match': 'this is', 'match_end': 'test', 'filth_type': 'test'},
         ])
 
         matches = list(detector.iter_filth(test_str))
@@ -46,7 +46,7 @@ class PredefinedTestCase(unittest.TestCase):
 
         test_str = 'hello this is a test string'
         detector = scrubadub.detectors.KnownFilthDetector([
-            {'match': 'this is', 'match_end': 'impossible to find'},
+            {'match': 'this is', 'match_end': 'impossible to find', 'filth_type': 'test'},
         ])
 
         matches = list(detector.iter_filth(test_str))
@@ -55,26 +55,32 @@ class PredefinedTestCase(unittest.TestCase):
     def test_error(self):
         """text exceptions thrown by predefined"""
 
-        test_str = 'hello this is a test string'
-        detector = scrubadub.detectors.KnownFilthDetector([
-            {'non_existiant': 'this is', 'items': 'test'},
-        ])
+        with self.assertRaises(KeyError):
+            detector = scrubadub.detectors.KnownFilthDetector([
+                {'non_existiant': 'this is'},
+            ])
 
-        with self.assertRaises(ValueError):
-            list(detector.iter_filth(test_str))
+        with self.assertRaises(KeyError):
+            detector = scrubadub.detectors.KnownFilthDetector([
+                {'match': 'the match', 'filth_type': 'email', 'non_existiant': 'this is'},
+            ])
 
     def test_filth_string(self):
         filth = scrubadub.filth.KnownFilth(beg=0, end=5)
-        self.assertEqual(str(filth), "<KnownFilth text=''>")
+        self.assertEqual(str(filth), "<KnownFilth text='' beg=0 end=5>")
 
         filth = scrubadub.filth.KnownFilth(beg=0, end=5, text='hello')
-        self.assertEqual(str(filth), "<KnownFilth text='hello'>")
+        self.assertEqual(str(filth), "<KnownFilth text='hello' beg=0 end=5>")
 
         filth = scrubadub.filth.KnownFilth(beg=0, end=5, text='hello', document_name='hello.txt')
-        self.assertEqual(str(filth), "<KnownFilth text='hello' document_name='hello.txt'>")
+        self.assertEqual(str(filth), "<KnownFilth text='hello' document_name='hello.txt' beg=0 end=5>")
 
         filth = scrubadub.filth.KnownFilth(beg=0, end=5, text='hello', comparison_type='greeting')
-        self.assertEqual(str(filth), "<KnownFilth text='hello' comparison_type='greeting'>")
+        self.assertEqual(str(filth), "<KnownFilth text='hello' beg=0 end=5 comparison_type='greeting'>")
 
-        filth = scrubadub.filth.KnownFilth(beg=0, end=5, text='hello', document_name='hello.txt', comparison_type='greeting')
-        self.assertEqual(str(filth), "<KnownFilth text='hello' document_name='hello.txt' comparison_type='greeting'>")
+        filth = scrubadub.filth.KnownFilth(beg=0, end=5, text='hello', document_name='hello.txt',
+                                           comparison_type='greeting')
+        self.assertEqual(
+            str(filth),
+            "<KnownFilth text='hello' document_name='hello.txt' beg=0 end=5 comparison_type='greeting'>"
+        )
