@@ -25,6 +25,7 @@ class SpacyEntityDetector(Detector):
     """
     filth_cls_map = {
         'PERSON': NameFilth,
+        'PER': NameFilth,
         'ORG': OrganizationFilth
     }
     name = 'spacy'
@@ -39,7 +40,7 @@ class SpacyEntityDetector(Detector):
 
     disallowed_nouns = CanonicalStringSet(["skype"])
 
-    def __init__(self, named_entities: Iterable[str] = {'PERSON'},
+    def __init__(self, named_entities: Iterable[str] = {'PERSON', 'PER'},
                  model: Optional[str] = None, **kwargs):
         super(SpacyEntityDetector, self).__init__(**kwargs)
 
@@ -62,6 +63,14 @@ class SpacyEntityDetector(Detector):
                              "https://github.com/explosion/spacy-models ".format(model))
 
         self.nlp = spacy.load(model)
+
+        # If the model doesn't support named entity recognition
+        if 'ner' not in [step[0] for step in self.nlp.pipeline]:
+            raise ValueError(
+                "The spacy model '{}' doesn't support named entity recognition, "
+                "please choose another model.".format(model)
+            )
+
         # Only enable necessary pipes
         self.nlp.select_pipes(enable=["transformer", "tagger", "parser", "ner"])
 
@@ -85,16 +94,17 @@ class SpacyEntityDetector(Detector):
     @staticmethod
     def check_spacy_model(model) -> bool:
         spacy_info = spacy.info()
-        models = spacy_info.get('pipelines', spacy_info.get('models', None))
+        models = list(spacy_info.get('pipelines', spacy_info.get('models', None)).keys())
         if models is None:
             raise ValueError('Unable to detect spacy models.')
 
         if model not in models:
             msg.info("Downloading spacy model {}".format(model))
             spacy.cli.download(model)
-            spacy_info = spacy.info()
-            models = spacy_info.get('pipelines', spacy_info.get('models', None))
+            # spacy.info() doesnt update after a spacy.cli.download, so theres no point checking it
+            models.append(model)
 
+        # Always returns true, if it fails to download, spacy sys.exit()s
         return model in models
 
     def iter_filth_documents(self, doc_names: Sequence[Optional[str]],
