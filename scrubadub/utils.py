@@ -74,7 +74,10 @@ def locale_transform(locale: str) -> str:
     :return: The normalised locale string
     :rtype: str
     """
-    return locale_module.normalize(locale.lower())
+    normalised = locale_module.normalize(locale.lower())
+    if normalised not in locale_module.locale_alias.values():
+        raise ValueError("Unknown locale '{}', not in locale.locale_alias".format(locale))
+    return normalised
 
 
 def locale_split(locale: str) -> Tuple[Optional[str], Optional[str]]:
@@ -87,8 +90,6 @@ def locale_split(locale: str) -> Tuple[Optional[str], Optional[str]]:
     :rtype: tuple, (str, str)
     """
     locale = locale_transform(locale)
-    if locale not in locale_module.locale_alias.values():
-        raise ValueError("Unknown locale '{}', not in locale.locale_alias".format(locale))
 
     regex = r'(?P<language>[0-9a-zA-Z]+)(_(?P<region>[0-9a-zA-Z]+))?' \
             r'(\.(?P<charset>[0-9a-zA-Z-]+)(@(?P<charset2>[0-9a-zA-Z]+))?)?'
