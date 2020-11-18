@@ -1,29 +1,45 @@
+dist: focal  # ubuntu 20.04
 language: python
 python:
   - "3.5"
   - "3.8"
 
+addons:
+  apt:
+    update: true
+    packages:
+      - curl
+      - autoconf
+      - automake
+      - libtool
+      - pkg-config
+      - pkg-default-jre
+
+before_install:
+  - git clone https://github.com/openvenues/libpostal && cd libpostal && ./bootstrap.sh && ./configure && \
+    sudo make -j4 && sudo make install
+
 # install python dependencies including this package in the travis
 # virtualenv
 install:
   - pip install -r requirements/python-dev
+  - pip install -r requirements/python-extras-address
   - pip install -r requirements/python-extras-spacy
-  - python -m textblob.download_corpora
+  - pip install -r requirements/python-extras-stanford
+#  - python -m textblob.download_corpora  # not sure this is needed
   - pip install .
-#  - apt-get install curl autoconf automake libtool pkg-config
-#  - git clone https://github.com/openvenues/libpostal && cd libpostal && ./bootstrap.sh && ./configure && \
-#    make -j4 && make install
+  # TODO: add stanford/spacy model download here?
 
 # commands to run the testing suite. if any of these fail, travic lets us know
 # Enabling type checking with mypy, but only showing the warning messages
 script:
   - mypy --config-file setup.cfg scrubadub/
-  - nosetests --with-coverage --cover-package=scrubadub
+  - nosetests
   - flake8  --config setup.cfg scrubadub/
-  - python3 ./tests/benchmark_accuracy.py
+  - python3 ./tests/benchmark_accuracy.py --fast
   - python3 ./tests/benchmark_time.py
   - cd docs && make html && cd -
 
 # commands to run after the tests successfully complete
 after_success:
-  - coveralls
+  - test "$TRAVIS_PYTHON" == "3.8" && coveralls
