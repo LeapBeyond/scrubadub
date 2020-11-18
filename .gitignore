@@ -60,3 +60,4 @@ target/
 .mypy_cache
 
 .idea/
+..bfg-report
