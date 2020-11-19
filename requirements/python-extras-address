@@ -1,4 +1,4 @@
 
 # Extra dependancies for address detector
-pypostal
+postal
 pyap
