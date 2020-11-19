@@ -14,9 +14,14 @@ addons:
       - pkg-config
       - default-jre
 
+cache:
+  pip: true
+  directories:
+    - /usr/local/
+
 before_install:
-  - git clone https://github.com/openvenues/libpostal && cd libpostal && ./bootstrap.sh && ./configure &&
-    sudo make -j4 && sudo make install && cd ..
+  - test ! -f /usr/local/libpostal.so && git clone https://github.com/openvenues/libpostal && cd libpostal &&
+    ./bootstrap.sh && ./configure && sudo make -j4 && sudo make install && cd .. && ls /usr/local/*
 
 # install python dependencies including this package in the travis
 # virtualenv
