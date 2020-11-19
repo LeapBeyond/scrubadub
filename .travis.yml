@@ -5,6 +5,8 @@ python:
 
 env:
   - LD_LIBRARY_PATH='/home/travis/prefix/lib'
+  - C_INCLUDE_PATH='/home/travis/prefix/include'
+  - CPP_INCLUDE_PATH='/home/travis/prefix/include'
 
 addons:
   apt:
@@ -27,7 +29,7 @@ before_install:
   - test ! -f /home/travis/prefix/lib/libpostal.so && pwd && mkdir -p /home/travis/prefix /home/travis/libpostal &&
     git clone https://github.com/openvenues/libpostal /home/travis/libpostal && cd /home/travis/libpostal &&
     ./bootstrap.sh && ./configure --prefix=/home/travis/prefix && sudo make -j4 && sudo make install && cd - &&
-    ls /usr/local/*
+    ls /home/travis/prefix/*
 
 # install python dependencies including this package in the travis
 # virtualenv
