@@ -5,6 +5,7 @@ python:
 
 env:
   global:
+    - LIBRARY_PATH='/home/travis/prefix/lib'
     - LD_LIBRARY_PATH='/home/travis/prefix/lib'
     - C_INCLUDE_PATH='/home/travis/prefix/include'
     - CPP_INCLUDE_PATH='/home/travis/prefix/include'
