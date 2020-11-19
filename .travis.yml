@@ -4,9 +4,10 @@ python:
   - "3.5"
 
 env:
-  - LD_LIBRARY_PATH='/home/travis/prefix/lib'
-  - C_INCLUDE_PATH='/home/travis/prefix/include'
-  - CPP_INCLUDE_PATH='/home/travis/prefix/include'
+  global:
+    - LD_LIBRARY_PATH='/home/travis/prefix/lib'
+    - C_INCLUDE_PATH='/home/travis/prefix/include'
+    - CPP_INCLUDE_PATH='/home/travis/prefix/include'
 
 addons:
   apt:
