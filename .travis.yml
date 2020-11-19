@@ -3,6 +3,9 @@ python:
   - "3.8"
   - "3.5"
 
+env:
+  - LD_LIBRARY_PATH='/home/travis/prefix/lib'
+
 addons:
   apt:
     update: true
@@ -17,11 +20,14 @@ addons:
 cache:
   pip: true
   directories:
-    - /usr/local/
+    - /home/travis/prefix
+    - /home/travis/libpostal
 
 before_install:
-  - test ! -f /usr/local/libpostal.so && git clone https://github.com/openvenues/libpostal && cd libpostal &&
-    ./bootstrap.sh && ./configure && sudo make -j4 && sudo make install && cd .. && ls /usr/local/*
+  - test ! -f /home/travis/prefix/lib/libpostal.so && pwd && mkdir -p /home/travis/prefix /home/travis/libpostal &&
+    git clone https://github.com/openvenues/libpostal /home/travis/libpostal && cd /home/travis/libpostal &&
+    ./bootstrap.sh && ./configure --prefix=/home/travis/prefix && sudo make -j4 && sudo make install && cd - &&
+    ls /usr/local/*
 
 # install python dependencies including this package in the travis
 # virtualenv
