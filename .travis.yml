@@ -14,11 +14,13 @@ addons:
   apt:
     update: true
     packages:
+      # These are packages needed for the libpostal build
       - curl
       - autoconf
       - automake
       - libtool
       - pkg-config
+      # JRE is needed by the Stanford NER model
       - default-jre
 
 cache:
@@ -33,10 +35,11 @@ cache:
     - /home/travis/nltk_data
 
 before_install:
-  - test ! -f /home/travis/prefix/lib/libpostal.so && pwd && mkdir -p /home/travis/prefix /home/travis/libpostal &&
+  # This installs libpostal, needed for the address parser
+  - if test ! -f /home/travis/prefix/lib/libpostal.so ; then mkdir -p /home/travis/prefix /home/travis/libpostal &&
     git clone https://github.com/openvenues/libpostal /home/travis/libpostal && cd /home/travis/libpostal &&
-    ./bootstrap.sh && ./configure --prefix=/home/travis/prefix && sudo make -j4 && sudo make install && cd - &&
-    ls /home/travis/prefix/*
+    ./bootstrap.sh && ./configure --prefix=/home/travis/prefix && sudo make -j4 && sudo make install && cd - ; fi
+
 
 # install python dependencies including this package in the travis
 # virtualenv
@@ -64,4 +67,4 @@ script:
 
 # commands to run after the tests successfully complete
 after_success:
-  - test "$TRAVIS_PYTHON" != "3.5" && coveralls
+  - if test "$TRAVIS_PYTHON" != "3.5" ; then coveralls fi
