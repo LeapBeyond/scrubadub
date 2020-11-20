@@ -24,8 +24,13 @@ addons:
 cache:
   pip: true
   directories:
+    # These are for caching compiled libpostal
     - /home/travis/prefix
     - /home/travis/libpostal
+    # This is for caching the downloaded stanford_ner model
+    - /home/travis/.scrubadub/stanford_ner
+    # This is filled by textblob.download_corpora
+    - /home/travis/nltk_data
 
 before_install:
   - test ! -f /home/travis/prefix/lib/libpostal.so && pwd && mkdir -p /home/travis/prefix /home/travis/libpostal &&
@@ -40,9 +45,12 @@ install:
   - pip install -r requirements/python-extras-address
   - pip install -r requirements/python-extras-spacy
   - pip install -r requirements/python-extras-stanford
-#  - python -m textblob.download_corpora  # not sure this is needed
+  # Needed for the TextBlob model
+  - python -m textblob.download_corpora
+  # One of the possible spacy models, should
+  - python -m spacy download en_core_web_sm
   - pip install .
-  # TODO: add stanford/spacy model download here?
+  # TODO: add stanford model download here?
 
 # commands to run the testing suite. if any of these fail, travic lets us know
 # Enabling type checking with mypy, but only showing the warning messages
