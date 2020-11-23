@@ -17,10 +17,33 @@ import os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 project_root = os.path.abspath(os.path.join(os.path.abspath('.'), '..'))
 sys.path.insert(0, project_root)
+
 import scrubadub
-import scrubadub.detectors.skype
-import scrubadub.detectors.spacy
-import scrubadub.detectors.text_blob
+
+try:
+    import scrubadub.detectors.skype
+except Exception:
+    pass
+
+try:
+    import scrubadub.detectors.spacy
+except Exception:
+    pass
+
+try:
+    import scrubadub.detectors.text_blob
+except Exception:
+    pass
+
+try:
+    import scrubadub.detectors.address
+except Exception:
+    pass
+
+try:
+    import scrubadub.detectors.stanford_ner
+except Exception:
+    pass
 
 # -- General configuration ------------------------------------------------
 
