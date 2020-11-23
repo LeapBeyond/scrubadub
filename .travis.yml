@@ -70,4 +70,4 @@ script:
 
 # commands to run after the tests successfully complete
 after_success:
-  - if [[ "`python3 --version`" != Python\ 3.5.* ]] ; then coveralls fi
+  - if [[ "`python3 --version`" != Python\ 3.5.* ]] ; then coveralls ; fi
