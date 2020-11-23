@@ -58,6 +58,6 @@ target/
 
 /data
 .mypy_cache
-
+.env
 .idea/
 ..bfg-report
