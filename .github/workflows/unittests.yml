@@ -37,6 +37,7 @@ jobs:
         sudo apt-get update && sudo apt-get install -y curl autoconf automake libtool pkg-config default-jre
 
     - name: Cache restore libpostal
+      id: cache-libpostal
       uses: actions/cache@v2
       with:
         path: |
@@ -45,12 +46,14 @@ jobs:
         key: v1-libpostal-${{ runner.os }}
 
     - name: Install libpostal
+      if: steps.cache-libpostal.outputs.cache-hit != 'true'
       run: |
         if test ! -f ${{ env.PREFIX }}/lib/libpostal.so ; then mkdir -p ${{ env.PREFIX }} ${{ env.LIBPOSTAL }} &&
         git clone https://github.com/openvenues/libpostal ${{ env.LIBPOSTAL }} && cd ${{ env.LIBPOSTAL }} &&
         ./bootstrap.sh && ./configure --prefix=${{ env.PREFIX }} && sudo make -j4 && sudo make install && cd - ; fi
 
     - name: Cache restore pip
+      id: cache-pip
       uses: actions/cache@v2
       with:
         path: ~/.cache/pip
@@ -71,18 +74,19 @@ jobs:
         pip install -r requirements/python-extras-stanford
 
     - name: Cache restore nltk data
+      id: cache-models
       uses: actions/cache@v2
       with:
         path: ~/nltk_data
         key: v1-nltk-data
 
-    - name: Download models/data
+    - name: Download models and NLTK data
       run: |
         # Needed for the TextBlob model
         python -m textblob.download_corpora
         # One of the possible spacy models, should
-        python -m spacy download en_core_web_sm
-        python -m spacy download en_core_web_trf
+        ( python3 -c 'import spacy' && python -m spacy download en_core_web_sm ) || bash -c 'exit 0'
+        ( python3 -c 'import spacy' && python -m spacy download en_core_web_trf ) || bash -c 'exit 0'
 
     - name: Install package
       run: |
@@ -95,4 +99,4 @@ jobs:
 
     - name: Coveralls
       run: |
-        if test "$TRAVIS_PYTHON" != "3.5" ; then coveralls fi
+        if [[ "`python3 --version`" != Python\ 3.5.* ]] ; then coveralls fi
