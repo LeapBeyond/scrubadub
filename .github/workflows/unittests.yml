@@ -18,12 +18,12 @@ jobs:
         python-version: [3.5, 3.6, 3.8]
 
     env:
-      PREFIX: ${{ env.HOME }}/prefix
-      LIBPOSTAL: ${{ env.HOME }}/libpostal
-      LIBRARY_PATH: ${{ env.PREFIX }}/lib
-      LD_LIBRARY_PATH: ${{ env.PREFIX }}/lib
-      C_INCLUDE_PATH: ${{ env.PREFIX }}/include
-      CPP_INCLUDE_PATH: ${{ env.PREFIX }}/include
+      PREFIX: ${HOME}/prefix
+      LIBPOSTAL: ${HOME}/libpostal
+      LIBRARY_PATH: ${PREFIX}/lib
+      LD_LIBRARY_PATH: ${PREFIX}/lib
+      C_INCLUDE_PATH: ${PREFIX}/include
+      CPP_INCLUDE_PATH: ${PREFIX}/include
 
     steps:
     - uses: actions/checkout@v2
