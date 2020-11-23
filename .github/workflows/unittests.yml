@@ -1,0 +1,94 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python package
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.5, 3.6, 3.8]
+
+    env:
+      PREFIX: ${HOME}/prefix
+      LIBPOSTAL: ${HOME}/libpostal
+      LIBRARY_PATH: ${PREFIX}/lib
+      LD_LIBRARY_PATH: ${PREFIX}/lib
+      C_INCLUDE_PATH: ${PREFIX}/include
+      CPP_INCLUDE_PATH: ${PREFIX}/include
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install APT dependencies
+      run: |
+        apt-get update && apt-get install -y curl autoconf automake libtool pkg-config default-jre
+
+    - name: Cache restore libpostal
+      uses: actions/cache@v2
+      with:
+        path:
+          - ${{ env.PREFIX }}
+          - ${{ env.LIBPOSTAL }}
+        key: v1-libpostal-${{ runner.os }}
+
+    - name: Install libpostal
+      run: |
+        if test ! -f ${PREFIX}/lib/libpostal.so ; then mkdir -p ${PREFIX} ${LIBPOSTAL} &&
+        git clone https://github.com/openvenues/libpostal ${LIBPOSTAL} && cd ${LIBPOSTAL} &&
+        ./bootstrap.sh && ./configure --prefix=${PREFIX} && sudo make -j4 && sudo make install && cd - ; fi
+
+    - name: Cache restore pip
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements/python*') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install pip dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements/python-dev
+        pip install -r requirements/python-extras-address
+        pip install -r requirements/python-extras-spacy
+        pip install -r requirements/python-extras-stanford
+
+    - name: Cache restore nltk data
+      uses: actions/cache@v2
+      with:
+        path: ~/nltk_data
+        key: v1-nltk-data
+
+    - name: Download models/data
+      run: |
+        # Needed for the TextBlob model
+        python -m textblob.download_corpora
+        # One of the possible spacy models, should
+        python -m spacy download en_core_web_sm
+        python -m spacy download en_core_web_trf
+
+    - name: Install package
+      run: |
+        pip install .
+        python3 -c 'import scrubadub ; print(scrubadub.__file__)'
+
+    - name: Run tests
+      run: |
+        python3 tests/run.py
+
+    - name: Coveralls
+      run: |
+        if test "$TRAVIS_PYTHON" != "3.5" ; then coveralls fi
