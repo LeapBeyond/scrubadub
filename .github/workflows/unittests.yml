@@ -18,12 +18,12 @@ jobs:
         python-version: [3.8, 3.6, 3.5]
 
     env:
-      PREFIX: ${HOME}/prefix
-      LIBPOSTAL: ${HOME}/libpostal
-      LIBRARY_PATH: ${PREFIX}/lib
-      LD_LIBRARY_PATH: ${PREFIX}/lib
-      C_INCLUDE_PATH: ${PREFIX}/include
-      CPP_INCLUDE_PATH: ${PREFIX}/include
+      PREFIX: /home/runner/prefix
+      LIBPOSTAL: /home/runner/libpostal
+      LIBRARY_PATH: /home/runner/prefix/lib
+      LD_LIBRARY_PATH: /home/runner/prefix/lib
+      C_INCLUDE_PATH: /home/runner/prefix/include
+      CPP_INCLUDE_PATH: /home/runner/prefix/include
 
     steps:
     - uses: actions/checkout@v2
