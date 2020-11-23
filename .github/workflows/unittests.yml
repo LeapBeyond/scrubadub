@@ -34,7 +34,7 @@ jobs:
 
     - name: Install APT dependencies
       run: |
-        apt-get update && apt-get install -y curl autoconf automake libtool pkg-config default-jre
+        sudo apt-get update && sudo apt-get install -y curl autoconf automake libtool pkg-config default-jre
 
     - name: Cache restore libpostal
       uses: actions/cache@v2
