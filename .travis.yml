@@ -52,8 +52,8 @@ install:
   # Needed for the TextBlob model
   - python -m textblob.download_corpora
   # One of the possible spacy models, should
-  - if test "$TRAVIS_PYTHON" != "3.5" ; then python -m spacy download en_core_web_sm ; fi
-  - if test "$TRAVIS_PYTHON" != "3.5" ; then python -m spacy download en_core_web_trf ; fi
+  - ( python3 -c 'import spacy' && python -m spacy download en_core_web_sm ) || bash -c 'exit 0'
+  - ( python3 -c 'import spacy' && python -m spacy download en_core_web_trf ) || bash -c 'exit 0'
   - pip install .
   # TODO: add stanford model download here?
 
@@ -62,6 +62,7 @@ install:
 script:
   - mypy --config-file setup.cfg scrubadub/
   # If py3.5 then examples with spacy don't work so disable doctests
+  - echo "$TRAVIS_PYTHON"
   - if test "$TRAVIS_PYTHON" != "3.5" ; then nosetests --with-doctest ; else nosetests ; fi
   - flake8  --config setup.cfg scrubadub/
   - python3 ./tests/benchmark_accuracy.py --fast
