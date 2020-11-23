@@ -77,7 +77,7 @@ class Scrubber(object):
             >>> scrubber = scrubadub.Scrubber()
             >>> scrubber.add_detector(scrubadub.detectors.spacy.SpacyEntityDetector)
             >>> scrubber.add_detector('skype')
-            >>> detector = scrubadub.detectors.spacy.SpacyEntityDetector(name='spacy-2', model='en_core_web_md')
+            >>> detector = scrubadub.detectors.spacy.SpacyEntityDetector(name='spacy-2', model='en_core_web_sm')
             >>> scrubber.add_detector(detector)
 
         :param detector: The ``Detector`` to add to this scrubber.
