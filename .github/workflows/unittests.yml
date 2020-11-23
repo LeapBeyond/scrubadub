@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.5, 3.6, 3.8]
+        python-version: [3.8, 3.6, 3.5]
 
     env:
       PREFIX: ${HOME}/prefix
@@ -46,12 +46,6 @@ jobs:
 
     - name: Install libpostal
       run: |
-        pwd
-        echo ${HOME}
-        echo ${PREFIX}
-        echo ${LIBPOSTAL}
-        echo ${{ env.PREFIX }}
-        echo ${{ env.LIBPOSTAL }}
         if test ! -f ${{ env.PREFIX }}/lib/libpostal.so ; then mkdir -p ${{ env.PREFIX }} ${{ env.LIBPOSTAL }} &&
         git clone https://github.com/openvenues/libpostal ${{ env.LIBPOSTAL }} && cd ${{ env.LIBPOSTAL }} &&
         ./bootstrap.sh && ./configure --prefix=${{ env.PREFIX }} && sudo make -j4 && sudo make install && cd - ; fi
@@ -66,6 +60,10 @@ jobs:
 
     - name: Install pip dependencies
       run: |
+        export LIBRARY_PATH=${{ env.LIBRARY_PATH }}
+        export LD_LIBRARY_PATH=${{ env.LD_LIBRARY_PATH }}
+        export C_INCLUDE_PATH=${{ env.C_INCLUDE_PATH }}
+        export CPP_INCLUDE_PATH=${{ env.CPP_INCLUDE_PATH }}
         python -m pip install --upgrade pip
         pip install -r requirements/python-dev
         pip install -r requirements/python-extras-address
