@@ -52,8 +52,8 @@ install:
   # Needed for the TextBlob model
   - python -m textblob.download_corpora
   # One of the possible spacy models, should
-  - python -m spacy download en_core_web_sm
-  - python -m spacy download en_core_web_trf
+  - if test "$TRAVIS_PYTHON" != "3.5" ; then python -m spacy download en_core_web_sm ; fi
+  - if test "$TRAVIS_PYTHON" != "3.5" ; then python -m spacy download en_core_web_trf ; fi
   - pip install .
   # TODO: add stanford model download here?
 
