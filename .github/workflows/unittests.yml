@@ -98,5 +98,7 @@ jobs:
         python3 tests/run.py
 
     - name: Coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         if python3 --version | grep -vq "Python 3.5." ; then coveralls ; fi
