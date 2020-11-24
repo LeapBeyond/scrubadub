@@ -99,4 +99,4 @@ jobs:
 
     - name: Coveralls
       run: |
-        if python3 --version | grep -vq "Python 3.5." ; then coveralls fi
+        if python3 --version | grep -vq "Python 3.5." ; then coveralls ; fi
