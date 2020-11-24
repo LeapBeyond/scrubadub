@@ -32,7 +32,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install APT dependencies
+    - name: Install apt dependencies
       run: |
         sudo apt-get update && sudo apt-get install -y curl autoconf automake libtool pkg-config default-jre
 
@@ -99,4 +99,4 @@ jobs:
 
     - name: Coveralls
       run: |
-        if [[ "`python3 --version`" != Python\ 3.5.* ]] ; then coveralls fi
+        if python3 --version | grep -vq "Python 3.5." ; then coveralls fi
