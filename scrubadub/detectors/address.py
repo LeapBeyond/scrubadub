@@ -21,19 +21,38 @@ from typing import Dict, Optional
 
 from . import register_detector
 from .base import Detector
-from ..filth.address import AddressFilth, USAddressFilth, GBAddressFilth
+from ..filth.address import AddressFilth
 
 
 class AddressDetector(Detector):
-    ignored_words = ["COVERAGE"]
-    minimum_address_sections = 4
     filth_cls = AddressFilth
-    country = 'US'  # Relies on pyap. Only US, CA and GB are implemented
-    match_pyap_postal_fields = {'region1': 'state'}  # type: Dict[str, str]
     name = 'address'
+    ignored_words = ["COVERAGE"]
+
+    def __init__(self, *args, **kwargs):
+        super(AddressDetector, self).__init__(*args, **kwargs)
+
+        self.match_pyap_postal_fields = {}  # type: Dict[str, str]
+        self.minimum_address_sections = 0
+        if self.region == 'US':
+            self.match_pyap_postal_fields = {'region1': 'state'}
+            self.minimum_address_sections = 4
+
+    @classmethod
+    def supported_locale(cls, locale: str) -> bool:
+        """Returns true if this ``Detector`` supports the given locale.
+
+        :param locale: The locale of the documents in the format: 2 letter lower-case language code followed by an
+                       underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
+        :type locale: str
+        :return: ``True`` if the locale is supported, otherwise ``False``
+        :rtype: bool
+        """
+        language, region = cls.locale_split(locale)
+        return region in ['GB', 'CA', 'US']
 
     def iter_filth(self, text, document_name: Optional[str] = None):
-        addresses = pyap.parse(text, country=self.country)
+        addresses = pyap.parse(text, country=self.region)
         for address in addresses:
             # Ignore any addresses containing any explitally ignored words
             if any([word.lower() in address.full_address.lower() for word in self.ignored_words]):
@@ -75,22 +94,9 @@ class AddressDetector(Detector):
                     end=instance.end(),
                     text=instance.group(),
                     detector_name=self.name,
-                    document_name=document_name
+                    document_name=document_name,
+                    locale=self.locale,
                 )
-
-
-class GBAddressDetector(AddressDetector):
-    country = 'GB'
-    filth_cls = GBAddressFilth
-    match_pyap_postal_fields = {}  # type: Dict[str, str]
-    minimum_address_sections = 0
-    name = 'gb_address'
-
-
-class USAddressDetector(AddressDetector):
-    country = 'US'
-    filth_cls = USAddressFilth
-    name = 'us_address'
 
 
 register_detector(AddressDetector, autoload=False)

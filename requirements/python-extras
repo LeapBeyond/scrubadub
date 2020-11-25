@@ -1,7 +1,0 @@
-
-# Extra dependancies for stanford NER
-nltk
-
-# Extra dependancies for address detector
-pypostal
-pyap

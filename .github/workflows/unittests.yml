@@ -1,0 +1,104 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python package
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.6, 3.5]
+
+    env:
+      PREFIX: /home/runner/prefix
+      LIBPOSTAL: /home/runner/libpostal
+      LIBRARY_PATH: /home/runner/prefix/lib
+      LD_LIBRARY_PATH: /home/runner/prefix/lib
+      C_INCLUDE_PATH: /home/runner/prefix/include
+      CPP_INCLUDE_PATH: /home/runner/prefix/include
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install apt dependencies
+      run: |
+        sudo apt-get update && sudo apt-get install -y curl autoconf automake libtool pkg-config default-jre
+
+    - name: Cache restore libpostal
+      id: cache-libpostal
+      uses: actions/cache@v2
+      with:
+        path: |
+          ${{ env.PREFIX }}
+          ${{ env.LIBPOSTAL }}
+        key: v1-libpostal-${{ runner.os }}
+
+    - name: Install libpostal
+      if: steps.cache-libpostal.outputs.cache-hit != 'true'
+      run: |
+        if test ! -f ${{ env.PREFIX }}/lib/libpostal.so ; then mkdir -p ${{ env.PREFIX }} ${{ env.LIBPOSTAL }} &&
+        git clone https://github.com/openvenues/libpostal ${{ env.LIBPOSTAL }} && cd ${{ env.LIBPOSTAL }} &&
+        ./bootstrap.sh && ./configure --prefix=${{ env.PREFIX }} && sudo make -j4 && sudo make install && cd - ; fi
+
+    - name: Cache restore pip
+      id: cache-pip
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements/python*') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install pip dependencies
+      run: |
+        export LIBRARY_PATH=${{ env.LIBRARY_PATH }}
+        export LD_LIBRARY_PATH=${{ env.LD_LIBRARY_PATH }}
+        export C_INCLUDE_PATH=${{ env.C_INCLUDE_PATH }}
+        export CPP_INCLUDE_PATH=${{ env.CPP_INCLUDE_PATH }}
+        python -m pip install --upgrade pip
+        pip install -r requirements/python-dev
+        pip install -r requirements/python-extras-address
+        pip install -r requirements/python-extras-spacy
+        pip install -r requirements/python-extras-stanford
+
+    - name: Cache restore nltk data
+      id: cache-models
+      uses: actions/cache@v2
+      with:
+        path: ~/nltk_data
+        key: v1-nltk-data
+
+    - name: Download models and NLTK data
+      run: |
+        # Needed for the TextBlob model
+        python -m textblob.download_corpora
+        # One of the possible spacy models, should
+        ( python3 -c 'import spacy' && python -m spacy download en_core_web_sm ) || bash -c 'exit 0'
+        ( python3 -c 'import spacy' && python -m spacy download en_core_web_trf ) || bash -c 'exit 0'
+
+    - name: Install package
+      run: |
+        pip install .
+        python3 -c 'import scrubadub ; print(scrubadub.__file__)'
+
+    - name: Run tests
+      run: |
+        python3 tests/run.py
+
+    - name: Coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        if python3 --version | grep -vq "Python 3.5." ; then coveralls ; fi

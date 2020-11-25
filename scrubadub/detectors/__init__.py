@@ -6,7 +6,7 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import TypedDict
 
-from .base import Detector
+from .base import Detector, RegexDetector
 from .credential import CredentialDetector
 from .email import EmailDetector
 from .phone import PhoneDetector
@@ -29,7 +29,6 @@ detector_configuration = {
     CredentialDetector.name: {'detector': CredentialDetector, 'autoload': True},
     EmailDetector.name: {'detector': EmailDetector, 'autoload': True},
     PhoneDetector.name: {'detector': PhoneDetector, 'autoload': True},
-    PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': True},
     SSNDetector.name: {'detector': SSNDetector, 'autoload': True},
     TwitterDetector.name: {'detector': TwitterDetector, 'autoload': True},
     UrlDetector.name: {'detector': UrlDetector, 'autoload': True},
@@ -37,6 +36,7 @@ detector_configuration = {
     GBDriversDetector.name: {'detector': GBDriversDetector, 'autoload': True},
     # Detectors that are not automatically loaded by scrubadub
     KnownFilthDetector.name: {'detector': KnownFilthDetector, 'autoload': False},
+    PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': False},
 }  # type: Dict[str, DetectorConfigurationItem]
 
 
@@ -51,8 +51,22 @@ def register_detector(detector: Type[Detector], autoload: bool = False):
     to be installed just to import this package.
 
     The argument ``autoload`` sets if a new ``Scrubber()`` instance should load this ``Detector`` by default.
+
+    .. code:: pycon
+
+        >>> import scrubadub
+        >>> class NewDetector(scrubadub.detectors.Detector):
+        ...     pass
+        >>> scrubadub.detectors.register_detector(NewDetector, autoload=False)
+
+    :param detector: The ``Detector`` to register with the scrubadub detector configuration.
+    :type detector: Detector class
+    :param autoload: Whether to automatically load this ``Detector`` on ``Scrubber`` initialisation.
+    :type autoload: bool
     """
     detector_configuration[detector.name] = {
         'detector': detector,
         'autoload': autoload,
     }
+    current_module = __import__(__name__)
+    setattr(current_module.detectors, detector.__name__, detector)

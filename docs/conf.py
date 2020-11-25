@@ -17,7 +17,33 @@ import os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 project_root = os.path.abspath(os.path.join(os.path.abspath('.'), '..'))
 sys.path.insert(0, project_root)
+
 import scrubadub
+
+try:
+    import scrubadub.detectors.skype
+except Exception:
+    pass
+
+try:
+    import scrubadub.detectors.spacy
+except Exception:
+    pass
+
+try:
+    import scrubadub.detectors.text_blob
+except Exception:
+    pass
+
+try:
+    import scrubadub.detectors.address
+except Exception:
+    pass
+
+try:
+    import scrubadub.detectors.stanford_ner
+except Exception:
+    pass
 
 # -- General configuration ------------------------------------------------
 
@@ -47,7 +73,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'scrubadub'
-copyright = u'2014, Dean Malmgren'
+copyright = u'2020, Dean Malmgren and Leap Beyond'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -109,7 +135,10 @@ html_theme = 'default'
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+    'navigation_depth': 3,
+    'collapse_navigation': False,
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
@@ -156,7 +185,7 @@ html_theme = 'default'
 #html_additional_pages = {}
 
 # If false, no module index is generated.
-#html_domain_indices = True
+html_domain_indices = True
 
 # If false, no index is generated.
 #html_use_index = True

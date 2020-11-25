@@ -12,7 +12,7 @@ from ..filth.known import KnownFilth
 
 KnownFilthItem = TypedDict(
     'KnownFilthItem',
-    {'match': str, 'match_end': Optional[str], 'limit': Optional[int], 'filth_type': Optional[str]},
+    {'match': str, 'match_end': Optional[str], 'limit': Optional[int], 'filth_type': str},
     total=False,
 )
 
@@ -32,6 +32,14 @@ class KnownFilthDetector(Detector):
         super().__init__(**kwargs)
         if known_filth_items is None:
             known_filth_items = []
+
+        for item in known_filth_items:
+            if 'match' not in item or 'filth_type' not in item:
+                raise KeyError("Each known filth item (dict) needs both keys 'match' and 'filth_type'.")
+            for key in item.keys():
+                if key not in ['match', 'match_end', 'limit', 'filth_type']:
+                    raise KeyError("Unexpected key '{}' in the known filth item.".format(key))
+
         self._known_filth_items = known_filth_items
 
     def _find_all(
@@ -53,6 +61,7 @@ class KnownFilthDetector(Detector):
                 comparison_type=comparison_type,
                 detector_name=self.name,
                 document_name=document_name,
+                locale=self.locale,
             )
             start_location = text.find(
                 substr,
@@ -90,6 +99,7 @@ class KnownFilthDetector(Detector):
                     comparison_type=comparison_type,
                     detector_name=self.name,
                     document_name=document_name,
+                    locale=self.locale,
                 )
                 next_search_start = end_location + substr_end_len
             else:

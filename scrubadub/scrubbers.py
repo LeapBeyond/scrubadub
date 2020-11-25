@@ -11,17 +11,33 @@ from .filth import Filth
 class Scrubber(object):
     """The Scrubber class is used to clean personal information out of dirty
     dirty text. It manages a set of ``Detector``'s that are each responsible
-    for identifying their particular kind of ``Filth``.
+    for identifying ``Filth``. ``PostProcessor`` objects are used to alter
+    the found Filth. This could be to replace the Filth with a hash or token.
     """
 
     def __init__(self, detector_list: Optional[Sequence[Union[Type[Detector], Detector, str]]] = None,
-                 post_processor_list: Optional[Sequence[Union[Type[PostProcessor], PostProcessor, str]]] = None):
+                 post_processor_list: Optional[Sequence[Union[Type[PostProcessor], PostProcessor, str]]] = None,
+                 locale: Optional[str] = None):
         super().__init__()
+        """Create a ``Scrubber`` object.
+
+        :param detector_list: The list of detectors to use in this scrubber.
+        :type detector_list: Optional[Sequence[Union[Type[Detector], Detector, str]]]
+        :param post_processor_list: The locale that the phone number should adhere to.
+        :type post_processor_list: Optional[Sequence[Union[Type[Detector], Detector, str]]]
+        :param locale: The locale of the documents in the format: 2 letter lower-case language code followed by an
+                       underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
+        :type locale: str, optional
+        """
 
         # instantiate all of the detectors which, by default, uses all of the
         # detectors that are in the detectors.types dictionary
         self._detectors = {}  # type: Dict[str, Detector]
         self._post_processors = []  # type: List[PostProcessor]
+
+        if locale is None:
+            locale = 'en_US'
+        self._locale = locale  # type: str
 
         if detector_list is None:
             detector_list = [
@@ -47,18 +63,38 @@ class Scrubber(object):
             self.add_post_processor(post_processor)
 
     def add_detector(self, detector: Union[Detector, Type[Detector], str]):
-        """Add a ``Detector`` to scrubadub"""
+        """Add a ``Detector`` to scrubadub
+
+        You can add a detector to a ``Scrubber`` by passing one of three objects to this function:
+
+            1. the uninitalised class to this function, which initialises the class with default settings.
+            2. an instance of a ``Detector`` class, where you can initialise it with the settings desired.
+            3. a string containing the name of the detector, which again initialises the class with default settings.
+
+        .. code:: pycon
+
+            >>> import scrubadub, scrubadub.detectors.spacy, scrubadub.detectors.skype
+            >>> scrubber = scrubadub.Scrubber()
+            >>> scrubber.add_detector(scrubadub.detectors.spacy.SpacyEntityDetector)
+            >>> scrubber.add_detector('skype')
+            >>> detector = scrubadub.detectors.spacy.SpacyEntityDetector(name='spacy-2', model='en_core_web_sm')
+            >>> scrubber.add_detector(detector)
+
+        :param detector: The ``Detector`` to add to this scrubber.
+        :type detector: a Detector class, a Detector instance, or a string with the detector's name
+        """
         if isinstance(detector, type):
             if not issubclass(detector, Detector):
                 raise TypeError((
                     '"%(detector)s" is not a subclass of Detector'
                 ) % locals())
-            self._check_and_add_detector(detector())
+            self._check_and_add_detector(detector(locale=self._locale))
         elif isinstance(detector, Detector):
             self._check_and_add_detector(detector)
         elif isinstance(detector, str):
             if detector in detectors.detector_configuration:
-                self._check_and_add_detector(detectors.detector_configuration[detector]['detector']())
+                detector_cls = detectors.detector_configuration[detector]['detector']
+                self._check_and_add_detector(detector_cls(locale=self._locale))
             else:
                 raise ValueError("Unknown Detector: {}".format(detector))
 
@@ -79,6 +115,10 @@ class Scrubber(object):
                 'Detector class.'
             ).format(detector))
         name = detector.name
+        if hasattr(detector, 'supported_locale'):
+            if not detector.supported_locale(self._locale):  # type: ignore
+                warnings.warn("Detector {} does not support the scrubber locale '{}'.".format(name, self._locale))
+                return
         if name in self._detectors:
             raise KeyError((
                 'can not add Detector "%(name)s" to this Scrubber, this name is already in use. '

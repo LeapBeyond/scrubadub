@@ -1,14 +1,21 @@
 import unittest
+import warnings
 
 import scrubadub
 
 class PostalCodesTestCase(unittest.TestCase):
 
-    def test_bad_region(self):
+    def test_bad_locale(self):
         """test a non existant region"""
+        with self.assertRaises(ValueError):
+            scrubadub.detectors.PostalCodeDetector(locale='non_existant')
 
-        with self.assertRaises(NotImplementedError):
-            scrubadub.detectors.PostalCodeDetector(region='non_existant')
+    def test_not_implemented_locale(self):
+        """test a non existant region"""
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            with self.assertRaises(UserWarning):
+                scrubadub.detectors.PostalCodeDetector(locale='fr_FR')
 
     def test_gb(self):
         """test a simple matching"""
@@ -32,7 +39,7 @@ class PostalCodesTestCase(unittest.TestCase):
         ]
 
         test_str = 'this is a {} test string'
-        detector = scrubadub.detectors.PostalCodeDetector(region='gb')
+        detector = scrubadub.detectors.PostalCodeDetector(locale='en_GB')
 
         for postal_code, result in to_test:
             matches = list(detector.iter_filth(test_str.format(postal_code)))
