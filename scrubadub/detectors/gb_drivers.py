@@ -5,7 +5,7 @@ from ..filth import GBDriversFilth
 
 
 class GBDriversDetector(RegexDetector):
-    """Use regular expressions to remove the UK National Insurance number (NINO),
+    """Use regular expressions to detect UK driving licence numbers,
     Simple pattern matching, no checksum solution.
     """
 
