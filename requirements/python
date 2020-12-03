@@ -5,3 +5,5 @@ pandas
 sklearn
 typing_extensions
 wasabi
+python-stdnum
+faker

@@ -19,4 +19,3 @@ ipython==5.4
 ipdb==0.10.2
 
 mypy
-faker
