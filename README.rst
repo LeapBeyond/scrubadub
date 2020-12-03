@@ -26,13 +26,13 @@ text, without compromising the privacy of the people we are trying to protect.
 * URLs
 * Phone numbers
 * Username and password combinations
-* Skype/twiter usernames
+* Skype/twitter usernames
 * Social security numbers (US, GB)
 * Tax numbers (GB)
 * Driving licence numbers (GB)
 
-.. image:: https://travis-ci.org/LeapBeyond/scrubadub.svg?branch=master
-   :target: https://travis-ci.org/LeapBeyond/scrubadub
+.. image:: https://img.shields.io/github/workflow/status/LeapBeyond/scrubadub/Python%20package/master
+   :target: https://github.com/LeapBeyond/scrubadub/actions?query=workflow%3A%22Python+package%22+branch%3Amaster
    :alt:  Build Status
 .. image:: https://img.shields.io/pypi/v/scrubadub.svg
    :target: https://pypi.org/project/scrubadub/
