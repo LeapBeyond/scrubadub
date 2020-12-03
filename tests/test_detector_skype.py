@@ -1,4 +1,6 @@
+import faker
 import unittest
+from scrubadub.filth import SkypeFilth
 
 from base import BaseTestCase
 
@@ -66,6 +68,15 @@ class SkypeTestCase(unittest.TestCase, BaseTestCase):
         AFTER:  SCREAM to get my attention on Skype ({{SKYPE}})
         """
         self.compare_before_after()
+
+    def test_generate(self):
+        fake = faker.Faker()
+        faker.Faker.seed(4321)
+
+        self.assertEqual(
+            'rickbrown',
+            SkypeFilth.generate(faker=fake),
+        )
 
     def tearDown(self) -> None:
         from scrubadub.detectors.skype import SkypeDetector

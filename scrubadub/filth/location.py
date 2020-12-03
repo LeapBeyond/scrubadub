@@ -3,8 +3,8 @@ from faker import Faker
 from .base import Filth
 
 
-class SSNFilth(Filth):
-    type = 'ssn'
+class LocationFilth(Filth):
+    type = 'location'
 
     @staticmethod
     def generate(faker: Faker) -> str:
@@ -15,4 +15,4 @@ class SSNFilth(Filth):
         :return: An example of this ``Filth``
         :rtype: str
         """
-        return faker.ssn()
+        return faker.city()

@@ -8,16 +8,19 @@ else:
 
 from .base import Detector, RegexDetector
 from .credential import CredentialDetector
+from .credit_card import CreditCardDetector
+from .drivers_licence import DriversLicenceDetector
 from .email import EmailDetector
 from .phone import PhoneDetector
 from .postalcode import PostalCodeDetector
 from .known import KnownFilthDetector
-from .ssn import SSNDetector
 from .twitter import TwitterDetector
 from .url import UrlDetector
-from .gb_nino import GBNINODetector
-from .gb_drivers import GBDriversDetector
-from .gb_trn import GBTrnDetector
+from .vehicle_licence_plate import VehicleLicencePlateDetector
+
+from .en_GB.nino import NINODetector
+from .en_GB.trn import TrnDetector
+from .en_US.ssn import SSNDetector
 
 
 DetectorConfigurationItem = TypedDict(
@@ -28,14 +31,16 @@ DetectorConfigurationItem = TypedDict(
 detector_configuration = {
     # Detectors that are automatically loaded by scrubadub
     CredentialDetector.name: {'detector': CredentialDetector, 'autoload': True},
+    CreditCardDetector.name: {'detector': CreditCardDetector, 'autoload': True},
+    DriversLicenceDetector.name: {'detector': DriversLicenceDetector, 'autoload': True},
     EmailDetector.name: {'detector': EmailDetector, 'autoload': True},
     PhoneDetector.name: {'detector': PhoneDetector, 'autoload': True},
     SSNDetector.name: {'detector': SSNDetector, 'autoload': True},
     TwitterDetector.name: {'detector': TwitterDetector, 'autoload': True},
     UrlDetector.name: {'detector': UrlDetector, 'autoload': True},
-    GBNINODetector.name: {'detector': GBNINODetector, 'autoload': True},
-    GBDriversDetector.name: {'detector': GBDriversDetector, 'autoload': True},
-    GBTrnDetector.name: {'detector': GBTrnDetector, 'autoload': True},
+    NINODetector.name: {'detector': NINODetector, 'autoload': True},
+    TrnDetector.name: {'detector': TrnDetector, 'autoload': True},
+    VehicleLicencePlateDetector.name: {'detector': VehicleLicencePlateDetector, 'autoload': True},
     # Detectors that are not automatically loaded by scrubadub
     KnownFilthDetector.name: {'detector': KnownFilthDetector, 'autoload': False},
     PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': False},

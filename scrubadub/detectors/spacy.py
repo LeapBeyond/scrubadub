@@ -14,7 +14,7 @@ except ImportError as e:
 
 from . import register_detector
 from .base import Detector
-from ..filth import NamedEntityFilth, Filth, NameFilth, OrganizationFilth
+from ..filth import Filth, NameFilth, OrganizationFilth, LocationFilth
 from ..utils import CanonicalStringSet
 
 
@@ -24,9 +24,12 @@ class SpacyEntityDetector(Detector):
      (PERSON)
     """
     filth_cls_map = {
-        'PERSON': NameFilth,
-        'PER': NameFilth,
-        'ORG': OrganizationFilth
+        'FAC': LocationFilth,      # Buildings, airports, highways, bridges, etc.
+        'GPE': LocationFilth,      # Countries, cities, states.
+        'LOC': LocationFilth,      # Non-GPE locations, mountain ranges, bodies of water.
+        'PERSON': NameFilth,       # People, including fictional.
+        'PER': NameFilth,          # Bug in french model
+        'ORG': OrganizationFilth,  # Companies, agencies, institutions, etc.
     }
     name = 'spacy'
     language_to_model = {
@@ -40,9 +43,12 @@ class SpacyEntityDetector(Detector):
 
     disallowed_nouns = CanonicalStringSet(["skype"])
 
-    def __init__(self, named_entities: Iterable[str] = {'PERSON', 'PER'},
+    def __init__(self, named_entities: Optional[Iterable[str]] = None,
                  model: Optional[str] = None, **kwargs):
         super(SpacyEntityDetector, self).__init__(**kwargs)
+
+        if named_entities is None:
+            named_entities = {'PERSON', 'PER', 'ORG'}
 
         # Spacy NER are all upper cased
         self.named_entities = {entity.upper() for entity in named_entities}
@@ -112,15 +118,17 @@ class SpacyEntityDetector(Detector):
         for doc_name, doc in zip(doc_names, self.nlp.pipe(doc_list)):
             for ent in doc.ents:
                 if ent.label_ in self.named_entities:
-                    # If there is no standard 'filth', returns a NamedEntity filth
-                    filth_cls = self.filth_cls_map.get(ent.label_, NamedEntityFilth)
-                    yield filth_cls(beg=ent.start_char,
-                                    end=ent.end_char,
-                                    text=ent.text,
-                                    document_name=(str(doc_name) if doc_name else None),  # None if no doc_name provided
-                                    detector_name=self.name,
-                                    label=ent.label_,
-                                    locale=self.locale)
+                    # If there is no 'filth' in self.filth_cls_map, don't return a filth
+                    filth_cls = self.filth_cls_map.get(ent.label_, Filth)
+                    yield filth_cls(
+                        beg=ent.start_char,
+                        end=ent.end_char,
+                        text=ent.text,
+                        document_name=(str(doc_name) if doc_name else None),  # None if no doc_name provided
+                        detector_name=self.name,
+                        label=ent.label_,
+                        locale=self.locale
+                    )
 
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
         yield from self.iter_filth_documents([document_name], [text])

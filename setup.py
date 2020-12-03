@@ -1,6 +1,6 @@
 import glob
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 # read in the description from README
 with open("README.rst") as stream:
@@ -41,13 +41,7 @@ setup(
     author='Dean Malmgren',
     author_email='dean.malmgren@datascopeanalytics.com',
     license='MIT',
-    packages=[
-        'scrubadub',
-        'scrubadub.filth',
-        'scrubadub.detectors',
-        'scrubadub.post_processors',
-        'scrubadub.post_processors.text_replacers',
-    ],
+    packages=find_packages(exclude=["tests", "tests.*"]),
     classifiers=[
         'Intended Audience :: Developers',
         'Development Status :: 5 - Production/Stable',

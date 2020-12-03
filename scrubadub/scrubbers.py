@@ -47,7 +47,7 @@ class Scrubber(object):
             ]
 
         for detector in detector_list:
-            self.add_detector(detector)
+            self.add_detector(detector, warn=False)
 
         if post_processor_list is None:
             post_processor_list = [
@@ -62,7 +62,7 @@ class Scrubber(object):
         for post_processor in post_processor_list:
             self.add_post_processor(post_processor)
 
-    def add_detector(self, detector: Union[Detector, Type[Detector], str]):
+    def add_detector(self, detector: Union[Detector, Type[Detector], str], warn: bool = True):
         """Add a ``Detector`` to scrubadub
 
         You can add a detector to a ``Scrubber`` by passing one of three objects to this function:
@@ -82,19 +82,21 @@ class Scrubber(object):
 
         :param detector: The ``Detector`` to add to this scrubber.
         :type detector: a Detector class, a Detector instance, or a string with the detector's name
+        :param warn: raise a warning if the locale is not supported by the detector.
+        :type warn: bool, default True
         """
         if isinstance(detector, type):
             if not issubclass(detector, Detector):
                 raise TypeError((
                     '"%(detector)s" is not a subclass of Detector'
                 ) % locals())
-            self._check_and_add_detector(detector(locale=self._locale))
+            self._check_and_add_detector(detector(locale=self._locale), warn=warn)
         elif isinstance(detector, Detector):
-            self._check_and_add_detector(detector)
+            self._check_and_add_detector(detector, warn=warn)
         elif isinstance(detector, str):
             if detector in detectors.detector_configuration:
                 detector_cls = detectors.detector_configuration[detector]['detector']
-                self._check_and_add_detector(detector_cls(locale=self._locale))
+                self._check_and_add_detector(detector_cls(locale=self._locale), warn=warn)
             else:
                 raise ValueError("Unknown Detector: {}".format(detector))
 
@@ -107,7 +109,7 @@ class Scrubber(object):
         elif isinstance(detector, str):
             self._detectors.pop(detector)
 
-    def _check_and_add_detector(self, detector: Detector):
+    def _check_and_add_detector(self, detector: Detector, warn: bool = False):
         """Check the types and add the detector to the scrubber"""
         if not isinstance(detector, Detector):
             raise TypeError((
@@ -117,7 +119,8 @@ class Scrubber(object):
         name = detector.name
         if hasattr(detector, 'supported_locale'):
             if not detector.supported_locale(self._locale):  # type: ignore
-                warnings.warn("Detector {} does not support the scrubber locale '{}'.".format(name, self._locale))
+                if warn:
+                    warnings.warn("Detector {} does not support the scrubber locale '{}'.".format(name, self._locale))
                 return
         if name in self._detectors:
             raise KeyError((
