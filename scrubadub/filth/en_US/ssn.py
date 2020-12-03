@@ -1,6 +1,7 @@
 from faker import Faker
+import stdnum.us.ssn
 
-from .base import Filth
+from scrubadub.filth.base import Filth
 
 
 class SSNFilth(Filth):
@@ -15,4 +16,7 @@ class SSNFilth(Filth):
         :return: An example of this ``Filth``
         :rtype: str
         """
+        ssn = ''
+        while not stdnum.us.ssn.is_valid(ssn):
+            ssn = faker.ssn()
         return faker.ssn()
