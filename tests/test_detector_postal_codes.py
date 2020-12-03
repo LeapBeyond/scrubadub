@@ -12,10 +12,11 @@ class PostalCodesTestCase(unittest.TestCase):
 
     def test_not_implemented_locale(self):
         """test a non existant region"""
+        scrubber = scrubadub.Scrubber(locale='fr_FR')
         with warnings.catch_warnings():
             warnings.simplefilter("error")
             with self.assertRaises(UserWarning):
-                scrubadub.detectors.PostalCodeDetector(locale='fr_FR')
+                scrubber.add_detector(scrubadub.detectors.PostalCodeDetector)
 
     def test_gb(self):
         """test a simple matching"""
