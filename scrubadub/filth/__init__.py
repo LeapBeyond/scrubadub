@@ -15,7 +15,7 @@ from .skype import SkypeFilth
 from .twitter import TwitterFilth
 from .url import UrlFilth
 from .vehicle_licence_plate import VehicleLicencePlateFilth
-
+from .date_of_birth import DoBFilth
 from .en_GB.nino import NinoFilth
 from .en_GB.trn import TrnFilth
 from .en_US.ssn import SSNFilth
