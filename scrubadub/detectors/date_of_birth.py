@@ -24,6 +24,10 @@ class DoBDetector(Detector):
 
     def __init__(self, *args, **kwargs):
         super(DoBDetector, self).__init__(*args, **kwargs)
+        self.context_before = int(2)
+        self.context_after = int(1)
+        self.min_age_years = int(18)
+        self.trigger_words = ['birth', 'dob', 'd.o.b.']
 
     def iter_filth(self, text, document_name: Optional[str] = None):
         # splitting lines using linebreaks, which is then used for counting
@@ -36,11 +40,11 @@ class DoBDetector(Detector):
                 for identified_date in date_picker:
                     # calculate if at least 18 years has lapsed
                     # find if anything related to date of birth has been mentioned in the previous lines
-                    if datetime.now().year - identified_date[1].year >= 18 and \
-                            any(trigger_word in ' '.join(lines[count - 2:count]).lower() for trigger_word in
-                                ('birth' or 'dob' or 'd.o.b.')):
-                        # date_picker doesn't return the startend, so using re.finditer for the startend locations
-                        found_dates = re.finditer(identified_date[0], text)
+                    if datetime.now().year - identified_date[1].year >= self.min_age_years and \
+                            any(trigger_word in ' '.join(lines[count - self.context_before:count + self.context_after]
+                                                         ).lower() for trigger_word in self.trigger_words):
+                        # date_picker doesn't return the startend, so using re.finditer for the start & end locations
+                        found_dates = re.finditer(re.escape(r"{0}".format(identified_date[0])), text)
                         # Iterate over each found string matching this regex and yield some filth
                         for instance in found_dates:
                             yield self.filth_cls(
@@ -49,7 +53,6 @@ class DoBDetector(Detector):
                                 text=instance.group(),
                                 detector_name=self.name,
                                 document_name=document_name,
-                                locale=self.locale,
                             )
 
 
