@@ -6,16 +6,15 @@ mentioned within 2 previous lines.
 
 Using 18+ years may not be suitable for all use cases; use with caution.
 """
-
 import re
 from dateparser.search import search_dates
 from datetime import datetime
 
-from typing import Optional, Iterable
+from typing import Optional
 
-from . import register_detector
-from .base import Detector
-from ..filth.date_of_birth import DoBFilth
+
+from scrubadub.detectors.base import Detector
+from scrubadub.filth import DoBFilth
 
 
 class DoBDetector(Detector):
@@ -23,7 +22,7 @@ class DoBDetector(Detector):
     name = 'dob'
 
     def __init__(self, context_before: Optional[int] = None, context_after: Optional[int] = None,
-                 min_age_years: Optional[int] = None, trigger_words: Optional[Iterable[str]] = None,
+                 min_age_years: Optional[int] = None,
                  **kwargs):
         super(DoBDetector, self).__init__(**kwargs)
         if context_before is None:
@@ -32,11 +31,9 @@ class DoBDetector(Detector):
             self.context_after = int(1)
         if min_age_years is None:
             self.min_age_years = int(18)
-        if trigger_words is None:
-            self.trigger_words = ['birth', 'dob', 'd.o.b.']
 
-        # only using lowercase matches
-        self.trigger_words = [word.lower() for word in trigger_words]
+        self.trigger_words = ['birth', 'born', 'dob', 'd.o.b.']
+
 
     def iter_filth(self, text, document_name: Optional[str] = None):
         # splitting lines using linebreaks, which is then used for counting
@@ -63,6 +60,3 @@ class DoBDetector(Detector):
                                 detector_name=self.name,
                                 document_name=document_name,
                             )
-
-
-register_detector(DoBDetector, autoload=False)

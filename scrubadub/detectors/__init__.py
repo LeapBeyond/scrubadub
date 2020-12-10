@@ -41,8 +41,8 @@ detector_configuration = {
     NINODetector.name: {'detector': NINODetector, 'autoload': True},
     TrnDetector.name: {'detector': TrnDetector, 'autoload': True},
     VehicleLicencePlateDetector.name: {'detector': VehicleLicencePlateDetector, 'autoload': True},
+    DoBDetector.name: {'detector': DoBDetector, 'autoload': True},
     # Detectors that are not automatically loaded by scrubadub
-    DoBDetector.name: {'detector': DoBDetector, 'autoload': False},
     KnownFilthDetector.name: {'detector': KnownFilthDetector, 'autoload': False},
     PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': False},
 }  # type: Dict[str, DetectorConfigurationItem]
