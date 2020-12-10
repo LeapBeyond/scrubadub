@@ -34,7 +34,7 @@ class DoBDetector(Detector):
 
         self.trigger_words = ['birth', 'born', 'dob', 'd.o.b.']
 
-    def iter_filth(self, text, document_name: Optional[str] = None):
+    def iter_filth(self, text: str, document_name: Optional[str] = None):
         # splitting lines using linebreaks, which is then used for counting
         lines = text.split('\n')
 
