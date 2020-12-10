@@ -11,7 +11,7 @@ import re
 from dateparser.search import search_dates
 from datetime import datetime
 
-from typing import Optional
+from typing import Optional, Iterable
 
 from . import register_detector
 from .base import Detector
@@ -22,12 +22,21 @@ class DoBDetector(Detector):
     filth_cls = DoBFilth
     name = 'dob'
 
-    def __init__(self, *args, **kwargs):
-        super(DoBDetector, self).__init__(*args, **kwargs)
-        self.context_before = int(2)
-        self.context_after = int(1)
-        self.min_age_years = int(18)
-        self.trigger_words = ['birth', 'dob', 'd.o.b.']
+    def __init__(self, context_before: Optional[int] = None, context_after: Optional[int] = None,
+                 min_age_years: Optional[int] = None, trigger_words: Optional[Iterable[str]] = None,
+                 **kwargs):
+        super(DoBDetector, self).__init__(**kwargs)
+        if context_before is None:
+            self.context_before = int(2)
+        if context_after is None:
+            self.context_after = int(1)
+        if min_age_years is None:
+            self.min_age_years = int(18)
+        if trigger_words is None:
+            self.trigger_words = ['birth', 'dob', 'd.o.b.']
+
+        # only using lowercase matches
+        self.trigger_words = [word.lower() for word in trigger_words]
 
     def iter_filth(self, text, document_name: Optional[str] = None):
         # splitting lines using linebreaks, which is then used for counting
