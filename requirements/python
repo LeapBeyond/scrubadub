@@ -7,3 +7,4 @@ typing_extensions
 wasabi
 python-stdnum
 faker
+dateparser

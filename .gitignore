@@ -61,3 +61,4 @@ target/
 .env
 .idea/
 ..bfg-report
+libpostal/
