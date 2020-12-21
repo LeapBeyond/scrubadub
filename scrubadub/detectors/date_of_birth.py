@@ -41,7 +41,10 @@ class DoBDetector(Detector):
         """ Contextual Date of Birth filter -
         only look for dates that are in close proximity with the words similar to birth
         """
-        lines = text.split('\n')
+        if isinstance(text, list):
+            lines = text
+        else:
+            lines = text.split('\n')
         for count, line in enumerate(lines):
             # using the dateparser lib - locale can be set here
             date_picker = search_dates(line, languages=['en'])
