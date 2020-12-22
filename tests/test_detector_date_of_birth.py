@@ -45,12 +45,12 @@ class DoBTestCase(unittest.TestCase, BaseTestCase):
         """
         self.compare_before_after()
 
-    # This is not useful if we use contextual filters
-    # def test_generate(self):
-    #     fake = faker.Faker()
-    #     faker.Faker.seed(4321)
-    #
-    #     self.assertEqual(
-    #         str(datetime.date(1939, 7, 27)),
-    #         DoBFilth.generate(faker=fake),
-    #     )
+    def test_generate(self):
+        fake = faker.Faker()
+        faker.Faker.seed(4321)
+
+        self.assertEqual(
+            str(datetime.date(1939, 8, 1)),
+            DoBFilth.generate(faker=fake),
+        )
+
