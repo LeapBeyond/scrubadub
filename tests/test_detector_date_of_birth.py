@@ -50,6 +50,7 @@ class DoBTestCase(unittest.TestCase, BaseTestCase):
         faker.Faker.seed(4321)
 
         self.assertEqual(
-            str(datetime.date(1939, 7, 20)),
+            str(datetime.date(1939, 8, 1)),
             DoBFilth.generate(faker=fake),
         )
+
