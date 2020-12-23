@@ -305,7 +305,7 @@ class Scrubber(object):
         for name, detector in self._detectors.items():
             document_iterator = getattr(detector, 'iter_filth_documents', None)
             if callable(document_iterator):
-                for filth in document_iterator(document_names, document_texts):
+                for filth in document_iterator(document_list=document_texts, document_names=document_names):
                     if not isinstance(filth, Filth):
                         raise TypeError('iter_filth must always yield Filth')
                     filth_list.append(filth)

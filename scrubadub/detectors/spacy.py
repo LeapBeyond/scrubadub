@@ -19,9 +19,28 @@ from ..utils import CanonicalStringSet
 
 
 class SpacyEntityDetector(Detector):
-    """Use spacy's named entity recognition to clean named entities.
-     List specific entities to include passing ``named_entities``, e.g.
-     (PERSON)
+    """Use spaCy's named entity recognition to identify possible ``Filth``.
+
+    This detector is made to work with v3 of spaCy, since the NER model has been significantly improved in this
+    version.
+
+    This is particularly useful to remove names from text, but can also be used to remove any entity that is
+    recognised by spaCy. A full list of entities that spacy supports can be found here:
+    `<https://spacy.io/api/annotation#named-entities>`_.
+
+    Additional entities can be added like so:
+
+    >>> import scrubadub, scrubadub.detectors.spacy
+    >>> class MoneyFilth(scrubadub.filth.Filth):
+    >>>     type = 'money'
+    >>> scrubadub.detectors.spacy.SpacyEntityDetector.filth_cls_map['MONEY'] = MoneyFilth
+    >>> detector = scrubadub.detectors.spacy.SpacyEntityDetector(named_entities=['MONEY'])
+    >>> scrubber = scrubadub.Scrubber(detector_list=[detector])
+    >>> scrubber.clean("You owe me 12 dollars man!")
+    "You owe me {{MONEY}} man!"
+
+    The dictonary ``scrubadub.detectors.spacy.SpacyEntityDetector.filth_cls_map`` is used to map between the spaCy
+    named entity label and the type of scrubadub ``Filth``.
     """
     filth_cls_map = {
         'FAC': LocationFilth,      # Buildings, airports, highways, bridges, etc.
@@ -45,6 +64,19 @@ class SpacyEntityDetector(Detector):
 
     def __init__(self, named_entities: Optional[Iterable[str]] = None,
                  model: Optional[str] = None, **kwargs):
+        """Initialise the ``Detector``.
+
+        :param named_entities: Limit the named entities to those in this list, defaults to ``{'PERSON', 'PER', 'ORG'}``
+        :type named_entities: Iterable[str], optional
+        :param model: The name of the spacy model to use, it must contain a 'ner' step in the model pipeline (most
+            do, but not all).
+        :type model: str, optional
+        :param name: Overrides the default name of the :class:``Detector``
+        :type name: str, optional
+        :param locale: The locale of the documents in the format: 2 letter lower-case language code followed by an
+                       underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
+        :type locale: str, optional
+        """
         super(SpacyEntityDetector, self).__init__(**kwargs)
 
         if named_entities is None:
@@ -82,7 +114,7 @@ class SpacyEntityDetector(Detector):
 
     @staticmethod
     def check_spacy_version() -> bool:
-        # spacy_info = spacy.info()
+        """Ensure that the version od spaCy is v3."""
         spacy_version = spacy.__version__  # spacy_info.get('spaCy version', spacy_info.get('spacy_version', None))
         spacy_major = 0
 
@@ -99,6 +131,7 @@ class SpacyEntityDetector(Detector):
 
     @staticmethod
     def check_spacy_model(model) -> bool:
+        """Ensure that the spaCy model is installed."""
         spacy_info = spacy.info()
         models = list(spacy_info.get('pipelines', spacy_info.get('models', None)).keys())
         if models is None:
@@ -113,9 +146,18 @@ class SpacyEntityDetector(Detector):
         # Always returns true, if it fails to download, spacy sys.exit()s
         return model in models
 
-    def iter_filth_documents(self, doc_names: Sequence[Optional[str]],
-                             doc_list: Sequence[str]) -> Generator[Filth, None, None]:
-        for doc_name, doc in zip(doc_names, self.nlp.pipe(doc_list)):
+    def iter_filth_documents(self, document_list: Sequence[str],
+                             document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
+        """Yields discovered filth in a list of documents.
+
+        :param document_list: A list of documents to clean.
+        :type document_list: List[str]
+        :param document_names: A list containing the name of each document.
+        :type document_names: List[str]
+        :return: An iterator to the discovered :class:`Filth`
+        :rtype: Iterator[:class:`Filth`]
+        """
+        for doc_name, doc in zip(document_names, self.nlp.pipe(document_list)):
             for ent in doc.ents:
                 if ent.label_ in self.named_entities:
                     # If there is no 'filth' in self.filth_cls_map, don't return a filth
@@ -131,7 +173,16 @@ class SpacyEntityDetector(Detector):
                     )
 
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
-        yield from self.iter_filth_documents([document_name], [text])
+        """Yields discovered filth in the provided ``text``.
+
+        :param text: The dirty text to clean.
+        :type text: str
+        :param document_name: The name of the document to clean.
+        :type document_name: str, optional
+        :return: An iterator to the discovered :class:`Filth`
+        :rtype: Iterator[:class:`Filth`]
+        """
+        yield from self.iter_filth_documents(document_list=[text], document_names=[document_name])
 
     @classmethod
     def supported_locale(cls, locale: str) -> bool:
@@ -147,3 +198,5 @@ class SpacyEntityDetector(Detector):
 
 
 register_detector(SpacyEntityDetector, autoload=False)
+
+__all__ = ['SpacyEntityDetector']

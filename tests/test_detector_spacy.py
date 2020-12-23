@@ -37,7 +37,7 @@ class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
     def _assert_filth_type_and_pos(self, doc_list, beg_end_list, filth_class):
         doc_names = [str(x) for x in range(len(doc_list))]
 
-        filth_list = list(self.detector.iter_filth_documents(doc_names, doc_list))
+        filth_list = list(self.detector.iter_filth_documents(document_list=doc_names, document_names=doc_list))
 
         for filth, beg_end in zip(filth_list, beg_end_list):
             self.assertIsInstance(filth, filth_class)
@@ -87,7 +87,7 @@ class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
     def test_iter_filth(self):
         doc = "John is a cat"
 
-        output_iter_docs = list(self.detector.iter_filth_documents(doc_list=[doc], doc_names=["0"]))
+        output_iter_docs = list(self.detector.iter_filth_documents(document_list=[doc], documnet_names=["0"]))
         output_iter = list(self.detector.iter_filth(text=doc, document_name="0"))
 
         self.assertListEqual(output_iter, output_iter_docs)
