@@ -90,7 +90,7 @@ This can be done with the ``enable_*`` parameters in the initialiser:
     'My name is {{NAME}} and I work at the {{ORGANIZATION}}'
 
 TextBlob
-^^^^^^^^
+--------
 
 It is suggested not to use this detector due to its high false positive rate, however it is useful in some situations.
 Please test it on your data to ensure it works well.
