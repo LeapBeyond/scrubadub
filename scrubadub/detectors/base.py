@@ -58,9 +58,9 @@ class Detector(object):
         self.locale = locale
         self.language, self.region = self.locale_split(locale)
 
-        # if hasattr(self, 'supported_locale'):
-        #     if not self.supported_locale(locale=locale):  # type: ignore
-        #         warnings.warn("Detector {} does not support the locale '{}'.".format(self.name, locale))
+        if hasattr(self, 'supported_locale'):
+            if not self.supported_locale(locale=locale):  # type: ignore
+                warnings.warn("Detector {} does not support the locale '{}'.".format(self.name, locale))
 
     locale_transform = staticmethod(utils.locale_transform)
     locale_split = staticmethod(utils.locale_split)
