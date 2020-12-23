@@ -105,7 +105,7 @@ class OldAPITestCase(unittest.TestCase):
                 scrubadub.filth.RegexFilth(0, 2, 'ab')
             finally:
                 warnings.simplefilter("default")
-            self.assertTrue(sum(issubclass(w.category, DeprecationWarning) for w in warning_context), 1)
+            self.assertEqual(sum(issubclass(w.category, DeprecationWarning) for w in warning_context), 1)
 
     def tearDown(self) -> None:
         from scrubadub.detectors.text_blob import TextBlobNameDetector
