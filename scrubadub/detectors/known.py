@@ -18,17 +18,61 @@ KnownFilthItem = TypedDict(
 
 
 class KnownFilthDetector(Detector):
-    """Use some predefined phrases to label the text.
+    """Use this ``Detector`` to find some known filth in the text.
 
-    This is useful if you have found that some particular
-    type of PII occurs regularly or you want to compare
-    scrubadub with already selected PII.
+    This is useful in two situations:
+
+        1. If you have known Filth that you want to remove from text (Such as a list of employee numbers)
+        2. If you want evaluate the effectiveness of a Detector using Filth selected by a human.
+
+    An example of how to use this detector is given below:
+
+    >>> import scrubadub, scrubadub.comparison, scrubadub.detectors.text_blob
+    >>> scrubber = scrubadub.Scrubber(detector_list=[
+    ...     scrubadub.detectors.TextBlobNameDetector(name='name_detector'),
+    ...     scrubadub.detectors.KnownFilthDetector([
+    ...         {'match': 'Tom', 'filth_type': 'name'},
+    ...         {'match': 'tom@example.com', 'filth_type': 'email'},
+    ...     ]),
+    ... ])
+    >>> filth_list = list(scrubber.iter_filth("Hello I am Tom"))
+    >>> print(scrubadub.comparison.get_filth_classification_report(filth_list))
+    filth          detector     locale    precision    recall  f1-score   support
+    <BLANKLINE>
+     name     name_detector      en_US         1.00      1.00      1.00         1
+    <BLANKLINE>
+                                accuracy                           1.00         1
+                               macro avg       1.00      1.00      1.00         1
+                            weighted avg       1.00      1.00      1.00         1
+    <BLANKLINE>
+
+    This detector is not enabled by default (since you need to supply a list of known filths) and so you must always
+    add it to your scrubber with a ``scrubber.add_detector(detector)`` call or by adding it to the ``detector_list``
+    inialising a ``Scrubber``.
     """
 
     filth_cls = KnownFilth
     name = 'known'
 
     def __init__(self, known_filth_items: Optional[List[KnownFilthItem]] = None, **kwargs):
+        """Initialise the ``Detector``.
+
+        :param known_filth_items: A list of dictionaries that describe items to be searched for in the dirty text. The
+            dictionary should contain the following keys: 'match' (with a string value that will be searched for in the
+            text) and 'filth_type' (with a string value that indicates the type of Filth, should be set to
+            ``Filth.name``). Optionally the dictionary may also contain: 'match_end' (if specified will search for
+            Filth starting with the value of match and ending with the value of match_end) and 'limit' (an integer
+            describing the maximum number of characters between match and match_end, defaults to 150). A dictionary
+            ``{'match': 'aaa', 'filth_type': 'name'}`` will search for an exact match to aaa and return it as a
+            ``NameFilth``, where as ``{'match': 'aaa', 'match_end': 'zzz', 'filth_type': 'name'}`` will search for
+            `aaa` followed by up to 150 characters followed by `zzz`, which would match both `aaabbbzzz` and `aaazzz`.
+        :type known_filth_items: list of dicts, optional
+        :param name: Overrides the default name of the :class:``Detector``
+        :type name: str, optional
+        :param locale: The locale of the documents in the format: 2 letter lower-case language code followed by an
+                       underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
+        :type locale: str, optional
+        """
         super().__init__(**kwargs)
         if known_filth_items is None:
             known_filth_items = []
@@ -112,8 +156,15 @@ class KnownFilthDetector(Detector):
             text: str,
             document_name: Optional[str] = None
     ) -> Generator[KnownFilth, None, None]:
-        """Iterate over the predefined PII list and yield
-        filth instances."""
+        """Yields discovered filth in the provided ``text``.
+
+        :param text: The dirty text to clean.
+        :type text: str
+        :param document_name: The name of the document to clean.
+        :type document_name: str, optional
+        :return: An iterator to the discovered :class:`Filth`
+        :rtype: Iterator[:class:`Filth`]
+        """
         for pii_item in self._known_filth_items:
             # could also implement other types in here too
             if 'match' in pii_item and 'match_end' in pii_item and pii_item['match_end'] is not None:
