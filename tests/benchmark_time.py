@@ -13,7 +13,7 @@ def main():
     cmd = 'scrubber.clean(doc)'
 
     print("Timing '{}':".format(cmd))
-    repeats = 100
+    repeats = 50
     timer = timeit.Timer(cmd, setup=setup_cmd, globals=variables)
     try:
         time = timer.timeit(number=repeats)
@@ -23,6 +23,11 @@ def main():
     else:
         print("{: >8.4f}s total runtime".format(time))
         print("{: >8.4f}s per iteration".format(time/repeats))
+
+    if time/repeats > 0.1:
+        print("Usual runtimes for the default set of detectors is 0.02s per iteration.")
+        sys.exit(1)
+
     sys.exit(0)
 
 
