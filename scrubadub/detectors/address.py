@@ -1,11 +1,3 @@
-"""
-This modules provides a detector for addresses.
-
-It is based on the python package `pyap` and so only supports the countries that pyap supports: US, GB and CA.
-The results from `pyap` are cross-checked using `pypostal`, which builds upon openvenues' `libpostal` library.
-`libpostal` needs to be compiled from source and instructions are available at https://github.com/openvenues/pypostal
-"""
-
 import re
 try:
     import pyap
@@ -25,11 +17,43 @@ from ..filth.address import AddressFilth
 
 
 class AddressDetector(Detector):
+    """This ``Detector`` aims to detect addresses.
+
+    This detector uses some complex dependencies and so is not enabled by default. To install the needed python
+    dependencies run:
+
+    .. code-block:: bash
+
+        pip install scrubadub[address]
+
+    This detector is based on the python package `pyap <https://pypi.org/project/pyap/>`_ and so only supports the countries that
+    pyap supports: US, GB and CA. The results from `pyap` are cross-checked using
+    `pypostal <https://github.com/openvenues/pypostal>`_, which builds upon openvenues'
+    `libpostal <https://github.com/openvenues/libpostal>`_ library. libpostal needs to be compiled from source and
+    instructions can be found on on their github `<https://github.com/openvenues/libpostal>`_
+
+    After installing the python dependencies and libpostal, you can use this detector like so:
+
+    >>> import scrubadub, scrubadub.detectors.address
+    >>> scrubber = scrubadub.Scrubber()
+    >>> scrubber.add_detector(scrubadub.detectors.address.AddressDetector)
+    >>> scrubber.clean("I live at 6919 Bell Drives, East Jessicastad, MO 76908")
+    'I live at {{ADDRESS}}'
+
+    """
     filth_cls = AddressFilth
     name = 'address'
     ignored_words = ["COVERAGE"]
 
     def __init__(self, *args, **kwargs):
+        """Initialise the ``Detector``.
+
+        :param name: Overrides the default name of the :class:``Detector``
+        :type name: str, optional
+        :param locale: The locale of the documents in the format: 2 letter lower-case language code followed by an
+                       underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
+        :type locale: str, optional
+        """
         super(AddressDetector, self).__init__(*args, **kwargs)
 
         self.match_pyap_postal_fields = {}  # type: Dict[str, str]
@@ -52,6 +76,15 @@ class AddressDetector(Detector):
         return region in ['GB', 'CA', 'US']
 
     def iter_filth(self, text, document_name: Optional[str] = None):
+        """Yields discovered filth in the provided ``text``.
+
+        :param text: The dirty text to clean.
+        :type text: str
+        :param document_name: The name of the document to clean.
+        :type document_name: str, optional
+        :return: An iterator to the discovered :class:`Filth`
+        :rtype: Iterator[:class:`Filth`]
+        """
         addresses = pyap.parse(text, country=self.region)
         for address in addresses:
             # Ignore any addresses containing any explitally ignored words
