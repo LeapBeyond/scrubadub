@@ -36,7 +36,7 @@ class Detector(object):
     name = 'detector'  # type: str
 
     def __init__(self, name: Optional[str] = None, locale: str = 'en_US'):
-        """Initialise a ``Detector``.
+        """Initialise the ``Detector``.
 
         :param name: Overrides the default name of the :class:``Detector``
         :type name: str, optional
@@ -101,6 +101,15 @@ class RegexDetector(Detector):
     filth_cls = Filth  # type: ClassVar[Type[Filth]]
 
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
+        """Yields discovered filth in the provided ``text``.
+
+        :param text: The dirty text to clean.
+        :type text: str
+        :param document_name: The name of the document to clean.
+        :type document_name: str, optional
+        :return: An iterator to the discovered :class:`Filth`
+        :rtype: Iterator[:class:`Filth`]
+        """
         if not issubclass(self.filth_cls, Filth):
             raise TypeError(
                 'filth_cls attribute of {} needs to be set to a subclass of the Filth class.'.format(self.__class__)
@@ -124,6 +133,14 @@ class RegionLocalisedRegexDetector(RegexDetector):
     region_regex = {}  # type: Dict[str, Pattern]
 
     def __init__(self, **kwargs):
+        """Initialise the ``Detector``.
+
+        :param name: Overrides the default name of the :class:``Detector``
+        :type name: str, optional
+        :param locale: The locale of the documents in the format: 2 letter lower-case language code followed by an
+                       underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
+        :type locale: str, optional
+        """
         super(RegionLocalisedRegexDetector, self).__init__(**kwargs)
 
         # This will never be matched to anything.
