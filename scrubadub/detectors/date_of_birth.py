@@ -12,74 +12,134 @@ import re
 from dateparser.search import search_dates
 from datetime import datetime
 
-from typing import Optional
+from typing import Optional, List, Generator
+
+from . import register_detector
+from .base import Detector
+from ..filth.base import Filth
+from ..filth.date_of_birth import DateOfBirthFilth
 
 
-from scrubadub.detectors.base import Detector
-from scrubadub.filth import DoBFilth
+class DateOfBirthDetector(Detector):
+    """This detector aims to detect dates of birth in text.
+
+    First all possible dates are found, then they are filtered to those that would result in people being between
+    ``min_age_years`` and ``max_age_years``.
+
+    If ``require_context`` is True, we search for one of the possible ``context_words`` near the found date. We search
+    up to ``context_before`` lines before the date and up to ``context_after`` lines after the date. But doing this we
+    can search for `'birth'` or `'DoB'` near the date to increase the likelyhood that the date is indeed a date of
+    birth.
+
+    >>> import scrubadub, scrubadub.detectors.date_of_birth
+    >>> scrubber = scrubadub.Scrubber(detector_list=[
+    ...     scrubadub.detectors.TextBlobNameDetector(name='name_detector'),
+    ...     scrubadub.detectors.KnownFilthDetector([
+    ...         {'match': 'Tom', 'filth_type': 'name'},
+    ...         {'match': 'tom@example.com', 'filth_type': 'email'},
+    ...     ]),
+    ... ])
 
 
-class DoBDetector(Detector):
-    filth_cls = DoBFilth
-    name = 'dob'
+    """
+    name = 'date_of_birth'
+    filth_cls = DateOfBirthFilth
 
-    def __init__(self, context_before: Optional[int] = None, context_after: Optional[int] = None,
-                 min_age_years: Optional[int] = None, max_age_years: Optional[int] = None,
-                 filter_type: Optional[str] = None,
+    context_words_language_map = {
+        'en': ['birth', 'born', 'dob', 'd.o.b.'],
+        'de': ['geburt', 'geboren', 'geb', 'geb.'],
+    }
+
+    def __init__(self, context_before: int = 2, context_after: int = 1, min_age_years: int = 18,
+                 max_age_years: int = 100, require_context: bool = True, context_words: Optional[List[str]] = None,
                  **kwargs):
+        """Initialise the detector.
 
-        if context_before is None:
-            self.context_before = int(2)
-        if context_after is None:
-            self.context_after = int(1)
-        if min_age_years is None:
-            self.min_age_years = int(18)
-        if max_age_years is None:
-            self.max_age_years = int(100)
-        if filter_type is None:
-            self.filter_type = 'contextual'
+        :param context_before: The number of lines of context to search before the date
+        :type context_before: int
+        :param context_after: The number of lines of context to search after the date
+        :type context_after: int
+        :param min_age_years: The minimum age of the date of birth. This is particularly useful if your data only
+            contains adults and the other general dates are recent.
+        :type min_age_years: int
+        :param max_age_years: The maximum age of the date of birth.
+        :type max_age_years: int
+        :param require_context: Set to False if your dates of birth are not near words that provide context (such as
+            "birth" or "DOB").
+        :type require_context: bool
+        :param context_words: A list of words that provide context related to dates of birth, such as the following:
+            'birth', 'born', 'dob' or 'd.o.b.'.
+        :type context_words: bool
+        :param name: Overrides the default name of the :class:``Detector``
+        :type name: str, optional
+        :param locale: The locale of the documents in the format: 2 letter lower-case language code followed by an
+                       underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
+        :type locale: str, optional
+        """
+        super(DateOfBirthDetector, self).__init__(**kwargs)
 
-        self.trigger_words = ['birth', 'born', 'dob', 'd.o.b.']
-        super(DoBDetector, self).__init__(**kwargs)
+        self.context_before = context_before
+        self.context_after = context_after
+        self.min_age_years = min_age_years
+        self.max_age_years = max_age_years
+        self.require_context = require_context
 
-    def iter_filth(self, text: str, document_name: Optional[str] = None):
-        """ filter_type:
-            contextual = only look for dates that are in close proximity with the words similar to birth
-            nuke = remove everything beyond x number of years, default x = self.min_age_years = 18
+        try:
+            self.context_words = self.context_words_language_map[self.language]
+        except KeyError:
+            raise ValueError("DateOfBirthDetector does not support language {}.".format(self.language))
 
-        :param text: the text from the blobstring
-        :param document_name: optional
-        :return:
+        if context_words is not None:
+            self.context_words = context_words
+
+    def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
+        """Search ``text`` for ``Filth`` and return a generator of ``Filth`` objects.
+
+        :param text: The dirty text that this Detector should search
+        :type text: str
+        :param document_name: Name of the document this is being passed to this detector
+        :type document_name: Optional[str]
+        :return: The found Filth in the text
+        :rtype: Generator[Filth]
         """
         lines = text.split('\n')
 
-        for count, line in enumerate(lines):
+        for i_line, line in enumerate(lines):
             # using the dateparser lib - locale can be set here
-            language, region = self.locale_split(self.locale)
-            date_picker = search_dates(line, languages=[language])
-            if date_picker is not None:
-                for identified_date in date_picker:
-                    # calculate if at least 18 years has lapsed
-                    # find if anything related to date of birth has been mentioned in the previous lines
-                    # if the captured str does not start with a phone number type plus sign
-                    if not str(identified_date[0]).startswith('+') and \
-                            self.min_age_years <= datetime.now().year - identified_date[1].year <= self.max_age_years:
-                        if self.filter_type == 'contextual':
-                            found_dates = re.finditer(re.escape(r"{0}".format(identified_date[0])), text)
-                        elif self.filter_type == 'nuke':
-                            if any(trigger_word in ' '.join(lines[count - self.context_before:count + self.context_after
-                                                                  ]).lower() for trigger_word in self.trigger_words):
-                                # date_picker doesn't return the start end, so using re.finditer
-                                found_dates = re.finditer(re.escape(r"{0}".format(identified_date[0])), text)
-                        for instance in found_dates:
-                            yield self.filth_cls(
-                                beg=instance.start(),
-                                end=instance.end(),
-                                text=instance.group(),
-                                detector_name=self.name,
-                                document_name=document_name,
-                                locale=self.locale,
-                            )
+            date_picker = search_dates(line, languages=[self.language])
+            if date_picker is None:
+                continue
+
+            for identified_date in date_picker:
+                # Skip anything that could be a phone number, dates rarely begin with a plus
+                suspected_phone_number = str(identified_date[0]).startswith('+')
+                if suspected_phone_number:
+                    continue
+
+                # Skip any dates that fall outside of the configured age range
+                years_since_identified_date = datetime.now().year - identified_date[1].year
+                within_age_range = self.min_age_years <= years_since_identified_date <= self.max_age_years
+                if not within_age_range:
+                    continue
+
+                # If its desired, search for context, if no context is found skip this identified date
+                if self.require_context:
+                    text_context = ' '.join(lines[i_line - self.context_before:i_line + self.context_after]).lower()
+                    found_context = any(context_word in text_context for context_word in self.context_words)
+                    if not found_context:
+                        continue
+
+                found_dates = re.finditer(re.escape(identified_date[0]), text)
+
+                for instance in found_dates:
+                    yield DateOfBirthFilth(
+                        beg=instance.start(),
+                        end=instance.end(),
+                        text=instance.group(),
+                        detector_name=self.name,
+                        document_name=document_name,
+                        locale=self.locale,
+                    )
 
     @classmethod
     def supported_locale(cls, locale: str) -> bool:
@@ -91,5 +151,9 @@ class DoBDetector(Detector):
         :rtype: bool
         """
         language, region = cls.locale_split(locale)
-        return language in ['en']
-    
+        return language in cls.context_words_language_map.keys()
+
+
+register_detector(DateOfBirthDetector, autoload=False)
+
+__all__ = ['DateOfBirthDetector']
