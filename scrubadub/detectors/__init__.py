@@ -17,7 +17,6 @@ from .known import KnownFilthDetector
 from .twitter import TwitterDetector
 from .url import UrlDetector
 from .vehicle_licence_plate import VehicleLicencePlateDetector
-from .date_of_birth import DoBDetector
 from .en_GB.nino import NINODetector
 from .en_GB.trn import TrnDetector
 from .en_US.ssn import SSNDetector
@@ -41,7 +40,6 @@ detector_configuration = {
     NINODetector.name: {'detector': NINODetector, 'autoload': True},
     TrnDetector.name: {'detector': TrnDetector, 'autoload': True},
     VehicleLicencePlateDetector.name: {'detector': VehicleLicencePlateDetector, 'autoload': True},
-    DoBDetector.name: {'detector': DoBDetector, 'autoload': True},
     # Detectors that are not automatically loaded by scrubadub
     KnownFilthDetector.name: {'detector': KnownFilthDetector, 'autoload': False},
     PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': False},
