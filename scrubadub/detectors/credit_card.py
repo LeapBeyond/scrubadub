@@ -9,7 +9,7 @@ from ..filth import Filth, CreditCardFilth
 
 
 class CreditCardDetector(RegexDetector):
-    """Remove credit-card numbers from dirty drity ``text``.
+    """Remove credit-card numbers from dirty dirty ``text``.
 
     Supports Visa, MasterCard, American Express, Diners Club and JCB.
     """
@@ -41,6 +41,15 @@ class CreditCardDetector(RegexDetector):
     ), re.VERBOSE)
 
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
+        """Yields discovered filth in the provided ``text``.
+
+        :param text: The dirty text to clean.
+        :type text: str
+        :param document_name: The name of the document to clean.
+        :type document_name: str, optional
+        :return: An iterator to the discovered :class:`Filth`
+        :rtype: Iterator[:class:`Filth`]
+        """
         for filth in super(CreditCardDetector, self).iter_filth(text=text, document_name=document_name):
             if stdnum.luhn.is_valid(''.join(char for char in filth.text if char in string.digits)):
                 yield filth
