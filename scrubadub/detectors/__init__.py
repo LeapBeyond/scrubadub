@@ -19,7 +19,7 @@ from .url import UrlDetector
 from .vehicle_licence_plate import VehicleLicencePlateDetector
 from .en_GB.nino import NINODetector
 from .en_GB.trn import TrnDetector
-from .en_US.ssn import SSNDetector
+from .en_US.social_security_number import SocialSecurityNumberDetector
 
 
 DetectorConfigurationItem = TypedDict(
@@ -33,12 +33,12 @@ detector_configuration = {
     CreditCardDetector.name: {'detector': CreditCardDetector, 'autoload': True},
     DriversLicenceDetector.name: {'detector': DriversLicenceDetector, 'autoload': True},
     EmailDetector.name: {'detector': EmailDetector, 'autoload': True},
+    NINODetector.name: {'detector': NINODetector, 'autoload': True},
     PhoneDetector.name: {'detector': PhoneDetector, 'autoload': True},
-    SSNDetector.name: {'detector': SSNDetector, 'autoload': True},
+    SocialSecurityNumberDetector.name: {'detector': SocialSecurityNumberDetector, 'autoload': True},
+    TrnDetector.name: {'detector': TrnDetector, 'autoload': True},
     TwitterDetector.name: {'detector': TwitterDetector, 'autoload': True},
     UrlDetector.name: {'detector': UrlDetector, 'autoload': True},
-    NINODetector.name: {'detector': NINODetector, 'autoload': True},
-    TrnDetector.name: {'detector': TrnDetector, 'autoload': True},
     VehicleLicencePlateDetector.name: {'detector': VehicleLicencePlateDetector, 'autoload': True},
     # Detectors that are not automatically loaded by scrubadub
     KnownFilthDetector.name: {'detector': KnownFilthDetector, 'autoload': False},

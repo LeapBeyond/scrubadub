@@ -276,7 +276,7 @@ def make_fake_document(
         filth_module.NameFilth,
         filth_module.PhoneFilth,
         filth_module.PostalCodeFilth,
-        filth_module.SSNFilth,
+        filth_module.SocialSecurityNumberFilth,
         filth_module.TwitterFilth,
         filth_module.UrlFilth,
     ]
