@@ -21,6 +21,16 @@ sys.path.insert(0, project_root)
 import scrubadub
 
 try:
+    import scrubadub.detectors.address
+except Exception:
+    pass
+
+try:
+    import scrubadub.detectors.date_of_birth
+except Exception:
+    pass
+
+try:
     import scrubadub.detectors.skype
 except Exception:
     pass
@@ -32,11 +42,6 @@ except Exception:
 
 try:
     import scrubadub.detectors.text_blob
-except Exception:
-    pass
-
-try:
-    import scrubadub.detectors.address
 except Exception:
     pass
 
@@ -125,6 +130,13 @@ pygments_style = 'sphinx'
 # When documenting methods, etc with autodoc, list the methods by the order they
 # appear in the source code
 autodoc_member_order = 'bysource'
+
+autodoc_default_options = {
+    'special-members': True,
+    'members': True,
+    'undoc-members': True,
+    'show-inheritance': True,
+}
 
 # -- Options for HTML output ----------------------------------------------
 
