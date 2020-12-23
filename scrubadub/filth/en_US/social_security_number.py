@@ -4,8 +4,8 @@ import stdnum.us.ssn
 from scrubadub.filth.base import Filth
 
 
-class SSNFilth(Filth):
-    type = 'ssn'
+class SocialSecurityNumberFilth(Filth):
+    type = 'social_security_number'
 
     @staticmethod
     def generate(faker: Faker) -> str:

@@ -37,6 +37,7 @@ Detectors
 
 * Detectors now require a class instance variable called name, which should be unique within a `Scrubber` instance.
 * Regular expressions used by the `RegexDetector` class have been moved from ``RegexFilth.regex`` to ``RegexDetector.regex``.
+* Renamed ``SSNDetector`` to ``SocialSecurityNumberDetector``
 
 Filth
 ^^^^^
