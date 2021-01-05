@@ -1,3 +1,4 @@
+import warnings
 import unittest
 
 import scrubadub
@@ -383,7 +384,6 @@ class ScrubberTestCase(unittest.TestCase):
         filth_list_two = list(scrubber.iter_filth_documents(docs, run_post_processors=False))
         for filths in [filth_list_one, filth_list_two]:
             self.assertEqual(
-                filths,
                 [
                     scrubadub.filth.EmailFilth(
                         text='example@example.com', document_name='0', detector_name='email', beg=27, end=46,
@@ -396,7 +396,8 @@ class ScrubberTestCase(unittest.TestCase):
                         text='+33 4 41 26 62 36', document_name='1', detector_name='phone', beg=23, end=40,
                         locale='en_US'
                     ),
-                ]
+                ],
+                filths,
             )
 
     def test_clean_documents_wrong_type(self):
@@ -417,3 +418,37 @@ class ScrubberTestCase(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             list(scrubber.iter_filth_documents(documents=doc_string))
+
+    def test_detector_with_non_supported_local_not_added(self):
+        """Test to see if a detector with a non-supported locale can be added to a scrubber"""
+
+        class FRLocaleDetector(scrubadub.detectors.Detector):
+            name = 'fr_locale'
+            @classmethod
+            def supported_locale(cls, locale: str) -> bool:
+                language, region = cls.locale_split(locale)
+                return region == 'fr'
+
+        orig_config = scrubadub.detectors.detector_configuration
+        scrubadub.detectors.detector_configuration = {}
+        scrubadub.detectors.register_detector(FRLocaleDetector, autoload=True)
+
+        scrubber = scrubadub.Scrubber(locale='en_US')
+        self.assertEqual(len(scrubber._detectors), 0)
+
+        scrubber = scrubadub.Scrubber(detector_list=[FRLocaleDetector()], locale='en_US')
+        with warnings.catch_warnings(record=True) as warning_context:
+            warnings.simplefilter("always")
+            try:
+                scrubber = scrubadub.Scrubber(detector_list=[FRLocaleDetector()], locale='en_US')
+            finally:
+                warnings.simplefilter("default")
+
+            self.assertEqual(sum(issubclass(w.category, DeprecationWarning) for w in warning_context), 1)
+
+        self.assertEqual(len(scrubber._detectors), 1)
+
+        scrubber = scrubadub.Scrubber(locale='fr_FR')
+        self.assertEqual(len(scrubber._detectors), 1)
+
+        scrubadub.detectors.detector_configuration = orig_config

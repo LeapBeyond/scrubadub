@@ -43,7 +43,12 @@ class Scrubber(object):
             detector_list = [
                 config['detector']
                 for name, config in detectors.detector_configuration.items()
-                if config['autoload']
+                if config['autoload'] and (
+                    not hasattr(config['detector'], 'supported_locale') or (
+                            hasattr(config['detector'], 'supported_locale') and
+                            config['detector'].supported_locale(locale)  # type: ignore
+                    )
+                )
             ]
 
         for detector in detector_list:
