@@ -76,6 +76,14 @@ class StanfordNERDetector(Detector):
 
     def __init__(self, enable_person: bool = True, enable_organization: bool = True, enable_location: bool = False,
                  **kwargs):
+        """Initialise the ``Detector``.
+
+        :param name: Overrides the default name of the :class:``Detector``
+        :type name: str, optional
+        :param locale: The locale of the documents in the format: 2 letter lower-case language code followed by an
+                       underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
+        :type locale: str, optional
+        """
         self.stanford_tagger = None  # type: Optional[nltk.tag.StanfordNERTagger]
 
         self.filth_lookup = {}  # type: Dict[str, Type[Filth]]
@@ -128,6 +136,15 @@ class StanfordNERDetector(Detector):
             )
 
     def iter_filth(self, text, document_name: Optional[str] = None):
+        """Yields discovered filth in the provided ``text``.
+
+        :param text: The dirty text to clean.
+        :type text: str
+        :param document_name: The name of the document to clean.
+        :type document_name: str, optional
+        :return: An iterator to the discovered :class:`Filth`
+        :rtype: Iterator[:class:`Filth`]
+        """
         if self.stanford_tagger is None:
             if not self._check_downloaded():
                 self._download()

@@ -40,7 +40,8 @@ class SpacyEntityDetector(Detector):
     "You owe me {{MONEY}} man!"
 
     The dictonary ``scrubadub.detectors.spacy.SpacyEntityDetector.filth_cls_map`` is used to map between the spaCy
-    named entity label and the type of scrubadub ``Filth``.
+    named entity label and the type of scrubadub ``Filth``, while the ``named_entities`` argument sets which named
+    entities are considered ``Filth`` by the ``SpacyEntityDetector``.
     """
     filth_cls_map = {
         'FAC': LocationFilth,      # Buildings, airports, highways, bridges, etc.
