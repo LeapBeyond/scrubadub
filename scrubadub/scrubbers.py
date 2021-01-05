@@ -327,8 +327,7 @@ class Scrubber(object):
         else:
             # ... but here, we're using a generator. If we try to use the same variable it would have two types and
             # fail static typing in mypy
-            for filth in self._merge_filths(filth_list):
-                yield filth
+            yield from self._merge_filths(filth_list)
 
     @staticmethod
     def _sort_filths(filth_list: Sequence[Filth]) -> List[Filth]:

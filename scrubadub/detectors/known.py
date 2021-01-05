@@ -168,23 +168,21 @@ class KnownFilthDetector(Detector):
         for pii_item in self._known_filth_items:
             # could also implement other types in here too
             if 'match' in pii_item and 'match_end' in pii_item and pii_item['match_end'] is not None:
-                for found_item in self._find_all_between(
+                yield from self._find_all_between(
                         text,
                         pii_item['match'],
                         pii_item['match_end'],
                         limit=int(pii_item.get('limit', 150) or 150),
                         comparison_type=pii_item.get('filth_type', None),
                         document_name=document_name,
-                ):
-                    yield found_item
+                )
             elif 'match' in pii_item:
-                for found_item in self._find_all(
+                yield from self._find_all(
                         text,
                         pii_item['match'],
                         comparison_type=pii_item.get('filth_type', None),
                         document_name=document_name,
-                ):
-                    yield found_item
+                )
             else:
                 raise ValueError(
                     "Unknown keys in predefined PII item: "
