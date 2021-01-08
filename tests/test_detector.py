@@ -56,3 +56,25 @@ class DetectorTestCase(unittest.TestCase):
         detector = RegexDetector()
         with self.assertRaises(ValueError):
             list(detector.iter_filth('text'))
+
+    def test_non_detector_registration(self):
+        """Test to ensure an error is raised if you try to register somthing thats not a detector"""
+
+        detector = scrubadub.detectors.TwitterDetector()
+        with self.assertRaises(ValueError):
+            scrubadub.detectors.register_detector(detector, autoload=False)
+
+        with self.assertRaises(ValueError):
+            scrubadub.detectors.register_detector(123, autoload=False)
+
+    def test_detector_registration(self):
+        """Test to ensure adding a detector adds it to the configuration as expected"""
+
+        class Temp(scrubadub.detectors.base.Detector):
+            name = "temp"
+
+        scrubadub.detectors.register_detector(Temp, autoload=False)
+
+        self.assertIn(Temp.name, scrubadub.detectors.detector_configuration.keys())
+
+        del scrubadub.detectors.detector_configuration[Temp.name]
