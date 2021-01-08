@@ -52,7 +52,7 @@ class Scrubber(object):
             ]
 
         for detector in detector_list:
-            self.add_detector(detector, warn=False)
+            self.add_detector(detector, warn=True)
 
         if post_processor_list is None:
             post_processor_list = [
