@@ -32,12 +32,12 @@ class SpacyEntityDetector(Detector):
 
     >>> import scrubadub, scrubadub.detectors.spacy
     >>> class MoneyFilth(scrubadub.filth.Filth):
-    >>>     type = 'money'
+    ...     type = 'money'
     >>> scrubadub.detectors.spacy.SpacyEntityDetector.filth_cls_map['MONEY'] = MoneyFilth
     >>> detector = scrubadub.detectors.spacy.SpacyEntityDetector(named_entities=['MONEY'])
     >>> scrubber = scrubadub.Scrubber(detector_list=[detector])
     >>> scrubber.clean("You owe me 12 dollars man!")
-    "You owe me {{MONEY}} man!"
+    'You owe me {{MONEY}} man!'
 
     The dictonary ``scrubadub.detectors.spacy.SpacyEntityDetector.filth_cls_map`` is used to map between the spaCy
     named entity label and the type of scrubadub ``Filth``, while the ``named_entities`` argument sets which named
