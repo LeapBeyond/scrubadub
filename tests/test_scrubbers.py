@@ -180,7 +180,6 @@ class ScrubberTestCase(unittest.TestCase):
         scrubber = scrubadub.Scrubber()
         scrubber.add_post_processor(scrubadub.post_processors.HashReplacer(salt='example_salt', include_filth_type=False))
         scrubber.add_post_processor(scrubadub.post_processors.PrefixSuffixReplacer(prefix='<<', suffix='>>'))
-        print(scrubber._post_processors)
         text = scrubber.clean("hello from example@example.com")
         self.assertEqual(text, "hello from <<5A337A5C25F9D260>>")
 
@@ -197,7 +196,6 @@ class ScrubberTestCase(unittest.TestCase):
         self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'three'][0], 2)
 
         scrubber.add_post_processor(scrubadub.post_processors.FilthTypeReplacer(name='zero'), index=0)
-        print(scrubber._post_processors)
 
         self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'zero'][0], 0)
         self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'one'][0], 1)
@@ -401,7 +399,7 @@ class ScrubberTestCase(unittest.TestCase):
             )
 
     def test_clean_documents_wrong_type(self):
-        """Tests that is throws an error if document args are not a list of strings or dict"""
+        """Test that an error is thrown if document arguments are not a list of strings or a dict"""
         doc_list_of_numbers = [0, 1, 2, '3']
         doc_string = 'String'
 
