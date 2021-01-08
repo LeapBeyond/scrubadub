@@ -121,12 +121,12 @@ class Scrubber(object):
                 'The detector "{}" is not an instance of the '
                 'Detector class.'
             ).format(detector))
+
         name = detector.name
         if hasattr(detector, 'supported_locale'):
             if not detector.supported_locale(self._locale):  # type: ignore
                 if warn:
                     warnings.warn("Detector {} does not support the scrubber locale '{}'.".format(name, self._locale))
-                return
         if name in self._detectors:
             raise KeyError((
                 'can not add Detector "%(name)s" to this Scrubber, this name is already in use. '
