@@ -1,4 +1,5 @@
 import sys
+import inspect
 from typing import Dict, Type
 
 if sys.version_info >= (3, 8):
@@ -73,6 +74,9 @@ def register_detector(detector: Type[Detector], autoload: bool = False):
     :param autoload: Whether to automatically load this ``Detector`` on ``Scrubber`` initialisation.
     :type autoload: bool
     """
+    if not inspect.isclass(detector) or not issubclass(detector, Detector):
+        raise ValueError("detector should be a class, not an instance.")
+
     detector_configuration[detector.name] = {
         'detector': detector,
         'autoload': autoload,
