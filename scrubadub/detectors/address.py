@@ -26,8 +26,8 @@ class AddressDetector(Detector):
 
         pip install scrubadub[address]
 
-    This detector is based on the python package `pyap <https://pypi.org/project/pyap/>`_ and so only supports the countries that
-    pyap supports: US, GB and CA. The results from `pyap` are cross-checked using
+    This detector is based on the python package `pyap <https://pypi.org/project/pyap/>`_ and so only supports the
+    countries that pyap supports: US, GB and CA. The results from `pyap` are cross-checked using
     `pypostal <https://github.com/openvenues/pypostal>`_, which builds upon openvenues'
     `libpostal <https://github.com/openvenues/libpostal>`_ library. libpostal needs to be compiled from source and
     instructions can be found on on their github `<https://github.com/openvenues/libpostal>`_
