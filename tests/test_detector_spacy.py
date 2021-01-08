@@ -87,7 +87,7 @@ class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
     def test_iter_filth(self):
         doc = "John is a cat"
 
-        output_iter_docs = list(self.detector.iter_filth_documents(document_list=[doc], documnet_names=["0"]))
+        output_iter_docs = list(self.detector.iter_filth_documents(document_list=[doc], document_names=["0"]))
         output_iter = list(self.detector.iter_filth(text=doc, document_name="0"))
 
         self.assertListEqual(output_iter, output_iter_docs)
