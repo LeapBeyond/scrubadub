@@ -13,7 +13,7 @@ from scrubadub.comparison import make_fake_document, get_filth_classification_re
 
 
 FILTH_IN_LOCALES = {
-    'en_US': ['address', 'email', 'name', 'phone', 'ssn', 'twitter', 'url'],
+    'en_US': ['address', 'email', 'name', 'phone', 'social_security_number', 'twitter', 'url'],
     'en_GB': ['address', 'phone', 'postalcode'],
 }
 
