@@ -1,3 +1,4 @@
+import copy
 import warnings
 import unittest
 
@@ -425,28 +426,27 @@ class ScrubberTestCase(unittest.TestCase):
             @classmethod
             def supported_locale(cls, locale: str) -> bool:
                 language, region = cls.locale_split(locale)
-                return region == 'fr'
+                return region == 'FR'
 
-        orig_config = scrubadub.detectors.detector_configuration
-        scrubadub.detectors.detector_configuration = {}
-        scrubadub.detectors.register_detector(FRLocaleDetector, autoload=True)
+        orig_config = copy.copy(scrubadub.detectors.detector_configuration)
+        try:
+            scrubadub.detectors.detector_configuration = {}
+            scrubadub.detectors.register_detector(FRLocaleDetector, autoload=True)
 
-        scrubber = scrubadub.Scrubber(locale='en_US')
-        self.assertEqual(len(scrubber._detectors), 0)
+            scrubber = scrubadub.Scrubber(locale='en_GB')
+            self.assertEqual(len(scrubber._detectors), 0)
 
-        scrubber = scrubadub.Scrubber(detector_list=[FRLocaleDetector()], locale='en_US')
-        with warnings.catch_warnings(record=True) as warning_context:
-            warnings.simplefilter("always")
-            try:
-                scrubber = scrubadub.Scrubber(detector_list=[FRLocaleDetector()], locale='en_US')
-            finally:
-                warnings.simplefilter("default")
+            with warnings.catch_warnings(record=True) as warning_context:
+                warnings.simplefilter("always")
+                try:
+                    scrubber = scrubadub.Scrubber(detector_list=[FRLocaleDetector(locale='fr_FR')], locale='en_US')
+                finally:
+                    warnings.simplefilter("default")
+                self.assertEqual(sum([issubclass(w.category, UserWarning) for w in warning_context]), 1)
 
-            self.assertEqual(sum(issubclass(w.category, DeprecationWarning) for w in warning_context), 1)
+            self.assertEqual(len(scrubber._detectors), 1)
 
-        self.assertEqual(len(scrubber._detectors), 1)
-
-        scrubber = scrubadub.Scrubber(locale='fr_FR')
-        self.assertEqual(len(scrubber._detectors), 1)
-
-        scrubadub.detectors.detector_configuration = orig_config
+            scrubber = scrubadub.Scrubber(locale='fr_FR')
+            self.assertEqual(len(scrubber._detectors), 1)
+        finally:
+            scrubadub.detectors.detector_configuration = orig_config
