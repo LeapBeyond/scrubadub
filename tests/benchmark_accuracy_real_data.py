@@ -2,17 +2,15 @@
 
 import os
 import io
-import sys
 import time
 import glob
 import click
-import pandas as pd
 import dotenv
+import chardet
 import posixpath
-
 import azure.storage.blob
 
-from typing import List, Union, Dict, Sequence, Optional
+from typing import List, Union, Dict, Sequence, Optional, Dict
 from urllib.parse import urlparse
 
 import scrubadub
@@ -38,15 +36,16 @@ def get_blob_service(connection_string: Optional[str] = None) -> azure.storage.b
         message = "Environment variable AZURE_STORAGE_CONNECTION_STRING needs to be set. "
         raise EnvironmentError(message)
 
+    import azure.storage.blob
     blob_service_client = azure.storage.blob.BlobServiceClient.from_connection_string(conn_str=connection_string)
 
     return blob_service_client
 
 
-def load_local_files(path: str) -> Dict[str, str]:
+def load_local_files(path: str) -> Dict[str, bytes]:
     files = {}
     for file_name in glob.glob(path):
-        with open(file_name, 'r') as f:
+        with open(file_name, 'rb') as f:
             files[file_name] = f.read()
 
     if len(files) == 0:
@@ -55,7 +54,7 @@ def load_local_files(path: str) -> Dict[str, str]:
     return files
 
 
-def load_azure_files(url: str, storage_connection_string: Optional[str] = None) -> Dict[str, str]:
+def load_azure_files(url: str, storage_connection_string: Optional[str] = None) -> Dict[str, bytes]:
     parsed_url = urlparse(url)
     container_split = parsed_url.netloc.split('.')
     try:
@@ -88,9 +87,37 @@ def load_azure_files(url: str, storage_connection_string: Optional[str] = None) 
     file_content = {}
     for file_name in file_names:
         blob_client = blob_service_client.get_blob_client(blob=file_name, container=container)
-        file_content[file_name] = blob_client.download_blob().readall().decode('utf8')
+        file_content[file_name] = blob_client.download_blob().readall()
 
     return file_content
+
+
+def decode_text(documents: Dict[str, bytes]) -> Dict[str, str]:
+    decoded_documents = {}  #  type: Dict[str, str]
+    for name, value in documents.items():
+        text = ""
+        charset = chardet.detect(value)
+        encoding = charset.get('encoding', 'utf-8')
+
+        # Try the auto-detected encoding first  then try some common ones
+        for test_encoding in [encoding, 'utf-8', 'ISO-8859-1', 'windows-1251', 'windows-1252', 'utf-16']:
+            if test_encoding is None:
+                continue
+            try:
+                text = value.decode(test_encoding)
+            except UnicodeDecodeError:
+                pass
+            else:
+                encoding = test_encoding
+                break
+
+        if len(text) == 0 and len(value) > 0:
+            click.echo("Skipping file, unable to decode: {}".format(name))
+            continue
+
+        decoded_documents[name] = text
+
+    return decoded_documents
 
 
 def load_files(path: str, storage_connection_string: Optional[str] = None) -> Dict[str, str]:
@@ -107,12 +134,14 @@ def load_files(path: str, storage_connection_string: Optional[str] = None) -> Di
 def load_known_pii(known_pii_locations: List[str], storage_connection_string: Optional[str] = None) -> List[KnownFilthItem]:
     start_time = time.time()
     click.echo("Loading Known Filth...")
+
+    import pandas as pd
     known_pii = []
 
     for known_pii_location in known_pii_locations:
         file_data = load_files(known_pii_location, storage_connection_string=storage_connection_string)
         for file_name, data in file_data.items():
-            dataframe = pd.read_csv(io.StringIO(data))
+            dataframe = pd.read_csv(io.BytesIO(data))
             known_pii += dataframe.to_dict(orient='records')
 
     for item in known_pii:
@@ -121,7 +150,7 @@ def load_known_pii(known_pii_locations: List[str], storage_connection_string: Op
                 del item[sub_item]
 
     end_time = time.time()
-    click.echo("Loaded Known Filth in  {:.2f}s".format(end_time-start_time))
+    click.echo("Loaded Known Filth in {:.2f}s".format(end_time-start_time))
 
     return known_pii
 
@@ -132,27 +161,31 @@ def load_documents(document_locations: List[str], storage_connection_string: Opt
     documents = {}  # type: Dict[str, str]
 
     for document_location in document_locations:
-        file_data = load_files(document_location, storage_connection_string=storage_connection_string)
-        if len(set(documents.keys()).intersection(set(file_data.keys()))) > 0:
+        binary_data = load_files(document_location, storage_connection_string=storage_connection_string)
+        text_data = decode_text(binary_data)
+        if len(set(documents.keys()).intersection(set(text_data.keys()))) > 0:
             raise ValueError('The same file has been repeated twice')
-        documents.update(file_data)
+        documents.update(text_data)
 
     end_time = time.time()
-    click.echo("Loaded documents in  {:.2f}s".format(end_time-start_time))
+    click.echo("Loaded documents in {:.2f}s".format(end_time-start_time))
 
     return documents
 
 
 def scrub_documents(documents: Dict[str, str], known_filth_items: List[KnownFilthItem], locale: str) -> List[Filth]:
     start_time = time.time()
-    click.echo("Scrubbing {} documents".format(len(documents)))
-
+    click.echo("Initialising scrubadub...")
     scrubber = scrubadub.Scrubber(locale=locale)
     scrubber.add_detector(scrubadub.detectors.KnownFilthDetector(locale=locale, known_filth_items=known_filth_items))
-    found_filth = list(scrubber.iter_filth_documents(documents))
-
     end_time = time.time()
-    click.echo("Scrubbed documents in  {:.2f}s".format(end_time-start_time))
+    click.echo("Initialised scrubadub {:.2f}s".format(end_time-start_time))
+
+    start_time = time.time()
+    click.echo("Scrubbing {} documents".format(len(documents)))
+    found_filth = list(scrubber.iter_filth_documents(documents))
+    end_time = time.time()
+    click.echo("Scrubbed documents in {:.2f}s".format(end_time-start_time))
 
     return found_filth
 
@@ -223,14 +256,25 @@ def load_complicated_detectors() -> Dict[str, bool]:
     return detector_available
 
 
+def not_none_argument(ctx, param, value):
+    error = click.BadParameter('This parameter is required, please set a value.')
+    if value is None:
+        raise error
+    if len(value) == 0:
+        raise error
+
+    return value
+
+
 @click.command()
 @click.option('--fast', is_flag=True, help='Only run fast detectors')
 @click.option('--locale', default='en_GB', show_default=True, metavar='<locale>', type=str,
               help='Locale to run with')
 @click.option('--storage-connection-string', type=str, envvar='AZURE_STORAGE_CONNECTION_STRING', metavar='<string>',
               help='Connection string to azure bob storage (if needed)')
-@click.option('--known-pii', type=str, multiple=True, metavar='<file>', help="File containing known PII CSV")
-@click.argument('document', metavar='DOCUMENT', type=str, nargs=-1)
+@click.option('--known-pii', type=str, multiple=True, metavar='<file>', help="File containing known PII CSV",
+              callback=not_none_argument)
+@click.argument('document', metavar='DOCUMENT', type=str, nargs=-1, callback=not_none_argument)
 def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_connection_string: Optional[str],
          known_pii: Sequence[str]):
     """Test scrubadub accuracy using text DOCUMENT(s). Requires a CSV of known PII.
