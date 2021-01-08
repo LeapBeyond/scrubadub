@@ -27,6 +27,9 @@ DetectorConfigurationItem = TypedDict(
     {'detector': Type[Detector], 'autoload': bool}
 )
 
+# This dictonary is used in scrubadub.scrubber.Scrubber.__init__, to find available detecotrs that should be used to
+# scrub dirty text. The autoload option says if the scrubber should automatically load this detector if no
+# `detector_list` is provided to the `Scrubber()`.
 detector_configuration = {
     # Detectors that are automatically loaded by scrubadub
     CredentialDetector.name: {'detector': CredentialDetector, 'autoload': True},
@@ -35,6 +38,7 @@ detector_configuration = {
     EmailDetector.name: {'detector': EmailDetector, 'autoload': True},
     NINODetector.name: {'detector': NINODetector, 'autoload': True},
     PhoneDetector.name: {'detector': PhoneDetector, 'autoload': True},
+    PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': True},
     SocialSecurityNumberDetector.name: {'detector': SocialSecurityNumberDetector, 'autoload': True},
     TrnDetector.name: {'detector': TrnDetector, 'autoload': True},
     TwitterDetector.name: {'detector': TwitterDetector, 'autoload': True},
@@ -42,7 +46,6 @@ detector_configuration = {
     VehicleLicencePlateDetector.name: {'detector': VehicleLicencePlateDetector, 'autoload': True},
     # Detectors that are not automatically loaded by scrubadub
     KnownFilthDetector.name: {'detector': KnownFilthDetector, 'autoload': False},
-    PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': False},
 }  # type: Dict[str, DetectorConfigurationItem]
 
 
