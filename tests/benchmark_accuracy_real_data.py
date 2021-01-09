@@ -312,8 +312,10 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
 
     # print(found_filth)
     classification_report = get_filth_classification_report(found_filth)
-    click.echo("\n" + classification_report)
-
+    if classification_report is not None:
+        click.echo("\n" + classification_report)
+    else:
+        click.echo("WARNING: No Known Filth was found in the provided documents.")
 
 if __name__ == "__main__":
     main()
