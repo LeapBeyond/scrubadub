@@ -243,15 +243,15 @@ def load_complicated_detectors() -> Dict[str, bool]:
             def __init__(self, **kwargs):
                 super(SpacyEnLgDetector, self).__init__(model='en_core_web_lg', **kwargs)
 
-        class SpacyEnTrfDetector(scrubadub.detectors.spacy.SpacyEntityDetector):
-            name = 'spacy_en_core_web_trf'
-            def __init__(self, **kwargs):
-                super(SpacyEnTrfDetector, self).__init__(model='en_core_web_trf', **kwargs)
+        # class SpacyEnTrfDetector(scrubadub.detectors.spacy.SpacyEntityDetector):
+        #     name = 'spacy_en_core_web_trf'
+        #     def __init__(self, **kwargs):
+        #         super(SpacyEnTrfDetector, self).__init__(model='en_core_web_trf', **kwargs)
 
         scrubadub.detectors.register_detector(SpacyEnSmDetector, autoload=True)
         scrubadub.detectors.register_detector(SpacyEnMdDetector, autoload=True)
         scrubadub.detectors.register_detector(SpacyEnLgDetector, autoload=True)
-        scrubadub.detectors.register_detector(SpacyEnTrfDetector, autoload=True)
+        # scrubadub.detectors.register_detector(SpacyEnTrfDetector, autoload=True)
 
     return detector_available
 
