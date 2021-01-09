@@ -90,24 +90,26 @@ class SpacyEntityDetector(Detector):
         os.environ['TOKENIZERS_PARALLELISM'] = 'false'
         self.check_spacy_version()
 
-        if model is None:
+        if model is not None:
+            self.model = model
+        else:
             if self.language in self.language_to_model:
-                model = self.language_to_model[self.language]
+                self.model = self.language_to_model[self.language]
             else:
-                model = "{}_core_news_lg".format(self.language)
+                self.model = "{}_core_news_lg".format(self.language)
 
-        if not self.check_spacy_model(model):
+        if not self.check_spacy_model(self.model):
             raise ValueError("Unable to find spacy model '{}'. Is your language supported? "
                              "Check the list of models available here: "
-                             "https://github.com/explosion/spacy-models ".format(model))
+                             "https://github.com/explosion/spacy-models ".format(self.model))
 
-        self.nlp = spacy.load(model)
+        self.nlp = spacy.load(self.model)
 
         # If the model doesn't support named entity recognition
         if 'ner' not in [step[0] for step in self.nlp.pipeline]:
             raise ValueError(
                 "The spacy model '{}' doesn't support named entity recognition, "
-                "please choose another model.".format(model)
+                "please choose another model.".format(self.model)
             )
 
         # Only enable necessary pipes
