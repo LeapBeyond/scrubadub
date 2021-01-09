@@ -96,6 +96,10 @@ def get_filth_classification_report(
     known_cols = [(x[0], filth_module.KnownFilth.type, x[2]) for x in detected_columns]
     true_classes = results_df.loc[:, known_cols].values
 
+    # Then no true classes were found
+    if detected_classes.shape[1] == 0:
+        return None
+
     if not output_dict:
         filth_max_length = max([len(x[0]) for x in detected_columns] + [len("filth")])
         detector_name_max_length = max([len(x[1]) for x in detected_columns] + [len("detector")]) + 4
