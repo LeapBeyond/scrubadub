@@ -154,6 +154,6 @@ class DateOfBirthDetector(Detector):
         return language in cls.context_words_language_map.keys()
 
 
-register_detector(DateOfBirthDetector, autoload=True)
+register_detector(DateOfBirthDetector, autoload=False)
 
 __all__ = ['DateOfBirthDetector']
