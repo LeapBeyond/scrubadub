@@ -1,4 +1,5 @@
 .. _comparison:
+.. _accuracy:
 
 Accuracy
 ========
