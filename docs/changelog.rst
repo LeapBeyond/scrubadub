@@ -14,10 +14,8 @@ latest changes in development for next release
 2.0.0
 -----
 
-There have been some changes in the scrubadub API, but (almost) no breaking changes.
+There have been some changes in the scrubadub API, but few breaking changes.
 The changes include:
-
-TODO: locale changes
 
 * Several new detectors have been added (spacy, stanford NER, tax reference number, credit card, ...)
 * Added ability to easily evaluate a `Detector`\ 's performance, see :ref:`accuracy`.
