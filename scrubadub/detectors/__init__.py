@@ -18,8 +18,8 @@ from .known import KnownFilthDetector
 from .twitter import TwitterDetector
 from .url import UrlDetector
 from .vehicle_licence_plate import VehicleLicencePlateDetector
-from .en_GB.nino import NINODetector
-from .en_GB.trn import TrnDetector
+from .en_GB.national_insurance_number import NationalInsuranceNumberDetector
+from .en_GB.tax_reference_number import TaxReferenceNumberDetector
 from .en_US.social_security_number import SocialSecurityNumberDetector
 
 
@@ -37,11 +37,11 @@ detector_configuration = {
     CreditCardDetector.name: {'detector': CreditCardDetector, 'autoload': True},
     DriversLicenceDetector.name: {'detector': DriversLicenceDetector, 'autoload': True},
     EmailDetector.name: {'detector': EmailDetector, 'autoload': True},
-    NINODetector.name: {'detector': NINODetector, 'autoload': True},
+    NationalInsuranceNumberDetector.name: {'detector': NationalInsuranceNumberDetector, 'autoload': True},
     PhoneDetector.name: {'detector': PhoneDetector, 'autoload': True},
     PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': True},
     SocialSecurityNumberDetector.name: {'detector': SocialSecurityNumberDetector, 'autoload': True},
-    TrnDetector.name: {'detector': TrnDetector, 'autoload': True},
+    TaxReferenceNumberDetector.name: {'detector': TaxReferenceNumberDetector, 'autoload': True},
     TwitterDetector.name: {'detector': TwitterDetector, 'autoload': True},
     UrlDetector.name: {'detector': UrlDetector, 'autoload': True},
     VehicleLicencePlateDetector.name: {'detector': VehicleLicencePlateDetector, 'autoload': True},

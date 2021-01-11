@@ -3,8 +3,8 @@ from faker import Faker
 from scrubadub.filth.base import Filth
 
 
-class NinoFilth(Filth):
-    type = 'nino'
+class NationalInsuranceNumberFilth(Filth):
+    type = 'national_insurance_number'
 
     @staticmethod
     def generate(faker: Faker) -> str:
