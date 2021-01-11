@@ -40,7 +40,6 @@ Contents
     names
     addresses
     localization
-    new_detectors
     contributing
     changelog
 
