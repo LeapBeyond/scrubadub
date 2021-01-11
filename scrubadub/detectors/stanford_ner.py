@@ -50,10 +50,10 @@ class ScrubadubStanfordNERTagger(nltk.tag.StanfordNERTagger):
         ]
 
 
-class StanfordNERDetector(Detector):
+class StanfordEntityDetector(Detector):
     """Search for people's names, organization's names and locations within text using the stanford 3 class model."""
     filth_cls = Filth
-    name = "stanford_ner"
+    name = "stanford"
     ignored_words = ["tennant"]
 
     # TODO: NER model Has been wrapped into coreNLP packagewhich has version 4.1.0 out now.
@@ -94,7 +94,7 @@ class StanfordNERDetector(Detector):
         if enable_location:
             self.filth_lookup['LOCATION'] = AddressFilth
 
-        super(StanfordNERDetector, self).__init__(**kwargs)
+        super(StanfordEntityDetector, self).__init__(**kwargs)
 
     def _check_downloaded(self):
         """Find out if the stanford NER tagger has already been downloaded"""
@@ -215,6 +215,6 @@ class StanfordNERDetector(Detector):
         return language in ['en']
 
 
-register_detector(StanfordNERDetector, autoload=False)
+register_detector(StanfordEntityDetector, autoload=False)
 
-__all__ = ["StanfordNERDetector"]
+__all__ = ["StanfordEntityDetector"]
