@@ -46,16 +46,22 @@ This is shown below:
 In the table below you can see which detectors are included by default and which ones arent.
 For more infomation about these detectors checkout :ref:`the detector documentation <api_scrubadub_detectors>`
 
-+---------------------------+----------------------------+
-| Default detectors         | Optional detectors         |
-+===========================+============================+
-| | ``CredentialDetector``  | | ``AddressDetector``      |
-| | ``EmailDetector``       | | ``KnownFilthDetector``   |
-| | ``PhoneDetector``       | | ``PostalCodeDetector``   |
-| | ``SSNDetector``         | | ``SkypeDetector``        |
-| | ``TwitterDetector``     | | ``StanfordNERDetector``  |
-| | ``UrlDetector``         | | ``TextBlobNameDetector`` |
-+---------------------------+----------------------------+
++----------------------------------------+-------------------------------+
+| Default detectors                      | Optional detectors            |
++========================================+===============================+
+| | ``CredentialDetector``               | | ``AddressDetector``         |
+| | ``CreditCardDetector``               | | ``DateOfBirthDetector``     |
+| | ``DriversLicenceDetector``           | | ``KnownFilthDetector``      |
+| | ``EmailDetector``                    | | ``SkypeDetector``           |
+| | ``NationalInsuranceNumberDetector``  | | ``SpacyEntityDetector``     |
+| | ``PhoneDetector``                    | | ``StanfordEntityDetector``  |
+| | ``PostalCodeDetector``               | | ``TextBlobNameDetector``    |
+| | ``SocialSecurityNumberDetector``     | |                             |
+| | ``TaxReferenceNumberDetector``       | |                             |
+| | ``TwitterDetector``                  | |                             |
+| | ``UrlDetector``                      | |                             |
+| | ``VehicleLicencePlateDetector``      | |                             |
++----------------------------------------+-------------------------------+
 
 Localisation
 ------------
