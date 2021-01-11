@@ -151,8 +151,8 @@ Detectors can also be added or removed from the scrubber at any time by calling 
 These functions can be passed one of:
 
 * a string -- the detector name
-* a ``Detector`` object -- an instance of a ``Detector`` class, ``Detector.name`` is used is used to find the detector name
-* a ``Detector`` class -- a ``Detector`` class, ``Detector.name`` is used is used to find the detector name
+* a ``Detector`` object -- an instance of a ``Detector`` class
+* a ``Detector`` class -- a ``Detector`` class
 
 It is important to note that two ``Detector``\ s cant be added to the same ``Scrubber`` with the same name.
 If you want to add two copies of the same ``Detector`` to a ``Scrubber``, you can set a `name` in the constructor.
