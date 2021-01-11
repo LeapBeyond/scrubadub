@@ -42,31 +42,71 @@ scrubadub.detectors.CredentialDetector
 
 .. autoclass:: scrubadub.detectors.CredentialDetector
 
+scrubadub.detectors.CreditCardDetector
+--------------------------------------
+
+.. autoclass:: scrubadub.detectors.CreditCardDetector
+
+scrubadub.detectors.DriversLicenceDetector
+------------------------------------------
+
+.. autoclass:: scrubadub.detectors.DriversLicenceDetector
+
 scrubadub.detectors.EmailDetector
 ---------------------------------
 
 .. autoclass:: scrubadub.detectors.EmailDetector
+
+scrubadub.detectors.NationalInsuranceNumberDetector
+---------------------------------------------------
+
+.. autoclass:: scrubadub.detectors.NationalInsuranceNumberDetector
 
 scrubadub.detectors.PhoneDetector
 ---------------------------------
 
 .. autoclass:: scrubadub.detectors.PhoneDetector
 
-scrubadub.detectors.SSNDetector
--------------------------------
+scrubadub.detectors.PostalCodeDetector
+--------------------------------------
 
-.. autoclass:: scrubadub.detectors.SSNDetector
+.. autoclass:: scrubadub.detectors.PostalCodeDetector
+
+scrubadub.detectors.SocialSecurityNumberDetector
+------------------------------------------------
+
+.. autoclass:: scrubadub.detectors.SocialSecurityNumberDetector
+
+scrubadub.detectors.TaxReferenceNumberDetector
+----------------------------------------------
+
+.. autoclass:: scrubadub.detectors.TaxReferenceNumberDetector
+
+scrubadub.detectors.TwitterDetector
+-----------------------------------
+
+.. autoclass:: scrubadub.detectors.TwitterDetector
 
 scrubadub.detectors.UrlDetector
 -------------------------------
 
 .. autoclass:: scrubadub.detectors.UrlDetector
 
+scrubadub.detectors.VehicleLicencePlateDetector
+-----------------------------------------------
+
+.. autoclass:: scrubadub.detectors.VehicleLicencePlateDetector
+
 
 Detectors that need to be enabled
 ---------------------------------
 
 These detectors need to be imported first before they they can be added to a ``Scrubber``.
+
+scrubadub.detectors.AddressDetector
+-----------------------------------
+
+.. autoclass:: scrubadub.detectors.AddressDetector
 
 scrubadub.detectors.DateOfBirthDetector
 ---------------------------------------
@@ -78,20 +118,20 @@ scrubadub.detectors.KnownFilthDetector
 
 .. autoclass:: scrubadub.detectors.KnownFilthDetector
 
-scrubadub.detectors.SpacyEntityDetector
----------------------------------------
-
-.. autoclass:: scrubadub.detectors.SpacyEntityDetector
-
 scrubadub.detectors.SkypeDetector
 ---------------------------------
 
 .. autoclass:: scrubadub.detectors.SkypeDetector
 
-scrubadub.detectors.StanfordNERDetector
+scrubadub.detectors.SpacyEntityDetector
 ---------------------------------------
 
-.. autoclass:: scrubadub.detectors.StanfordNERDetector
+.. autoclass:: scrubadub.detectors.SpacyEntityDetector
+
+scrubadub.detectors.StanfordEntityDetector
+------------------------------------------
+
+.. autoclass:: scrubadub.detectors.StanfordEntityDetector
 
 scrubadub.detectors.TextBlobNameDetector
 ----------------------------------------

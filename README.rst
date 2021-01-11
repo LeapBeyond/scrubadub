@@ -23,11 +23,13 @@ text, without compromising the privacy of the people we are trying to protect.
 * Names
 * Email addresses
 * Addresses/Postal codes (US, GB, CA)
+* Credit card numbers
+* Dates of birth
 * URLs
 * Phone numbers
 * Username and password combinations
 * Skype/twitter usernames
-* Social security numbers (US, GB)
+* Social security numbers (US and GB national insurance numbers)
 * Tax numbers (GB)
 * Driving licence numbers (GB)
 
