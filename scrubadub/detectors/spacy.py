@@ -1,7 +1,9 @@
 import os
+import re
+import copy
 
 from wasabi import msg
-from typing import Generator, Iterable, Optional, Sequence
+from typing import Generator, Iterable, Optional, Sequence, List
 
 try:
     import spacy
@@ -13,7 +15,7 @@ except ImportError as e:
         )
 
 from . import register_detector
-from .base import Detector
+from .base import Detector, RegexDetector
 from ..filth import Filth, NameFilth, OrganizationFilth, LocationFilth
 from ..utils import CanonicalStringSet
 
@@ -98,6 +100,8 @@ class SpacyEntityDetector(Detector):
             else:
                 self.model = "{}_core_news_lg".format(self.language)
 
+        self.preprocess_text = self.model.endswith('_trf')
+
         if not self.check_spacy_model(self.model):
             raise ValueError("Unable to find spacy model '{}'. Is your language supported? "
                              "Check the list of models available here: "
@@ -149,6 +153,13 @@ class SpacyEntityDetector(Detector):
         # Always returns true, if it fails to download, spacy sys.exit()s
         return model in models
 
+    @staticmethod
+    def _preprocess_text(document_list: List[str]) -> List[str]:
+        whitespace_regex = re.compile(r'\s+')
+        for i_doc, text in enumerate(document_list):
+            document_list[i_doc] = re.sub(whitespace_regex, ' ', text)
+        return document_list
+
     def iter_filth_documents(self, document_list: Sequence[str],
                              document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
         """Yields discovered filth in a list of documents.
@@ -160,12 +171,35 @@ class SpacyEntityDetector(Detector):
         :return: An iterator to the discovered :class:`Filth`
         :rtype: Iterator[:class:`Filth`]
         """
-        for doc_name, doc in zip(document_names, self.nlp.pipe(document_list)):
+        spacy_docs = list(copy.copy(document_list))
+        # If the model is a transformer model, we need to transform our data a little to avoid a maximum width of the
+        # transformer. Lots of spaces causes lots of tokens to be made and passed to the transformer which makes an
+        # index go out of range and so we remove excess whitespace.
+        if self.preprocess_text:
+            spacy_docs = self._preprocess_text(spacy_docs)
+
+        yielded_filth = set()
+        for doc_name, doc, text in zip(document_names, self.nlp.pipe(spacy_docs), document_list):
             for ent in doc.ents:
-                if ent.label_ in self.named_entities:
-                    # If there is no 'filth' in self.filth_cls_map, don't return a filth
-                    filth_cls = self.filth_cls_map.get(ent.label_, Filth)
-                    yield filth_cls(
+                if ent.label_ not in self.named_entities:
+                    continue
+                filth_class = self.filth_cls_map.get(ent.label_, Filth)
+                if self.preprocess_text:
+                    # When yielding the filth we need to yield filth as found in the original un-preprocessed text.
+                    # This section searches for text with the inverse of the preprocessing step.
+                    if ent.text in yielded_filth:
+                        continue
+                    yielded_filth.add(ent.text)
+
+                    class SpacyEntDetector(RegexDetector):
+                        filth_cls = filth_class
+                        regex = re.compile(ent.text.replace(' ', r'\s+'))
+
+                    regex_detector = SpacyEntDetector(name=self.name, locale=self.locale)
+                    yield from regex_detector.iter_filth(text, document_name=doc_name)
+                else:
+                    # If we didn't pre-process, just return the filth as it was found.
+                    yield filth_class(
                         beg=ent.start_char,
                         end=ent.end_char,
                         text=ent.text,

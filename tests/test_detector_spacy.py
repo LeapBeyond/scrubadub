@@ -103,3 +103,16 @@ class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
         clean_docs = s.clean_documents(documents=doc_list)
         self.assertIsInstance(clean_docs, list)
         self.assertListEqual(result, clean_docs)
+
+    def test_long_text(self):
+        # The transformer cant take text with many spaces as his creates many tokens and there is a limit to the
+        # width of the transformer in the model.
+        for whitespace in [' ', '\t', '\n']:
+            longtext = (whitespace * 20).join(['asd', 'qwe', 'Mike', '']) * 10
+            from scrubadub.detectors.spacy import SpacyEntityDetector
+            detector = SpacyEntityDetector(model='en_core_web_trf')
+            filths = list(detector.iter_filth(longtext))
+            self.assertIsInstance(filths, list)
+            self.assertEqual(len(filths), 10)
+            self.assertEqual(filths[-1].beg, len(longtext)-20-4)
+            self.assertEqual(filths[-1].end, len(longtext)-20)
