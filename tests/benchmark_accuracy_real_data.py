@@ -215,13 +215,13 @@ def load_complicated_detectors() -> Dict[str, bool]:
         detector_available['address'] = True
     except ImportError:
         pass
-    try:
-        import scrubadub.detectors.text_blob
-        detector_name = scrubadub.detectors.text_blob.TextBlobNameDetector.name
-        scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
-        detector_available['text_blob'] = True
-    except ImportError:
-        pass
+    # try:
+    #     import scrubadub.detectors.text_blob
+    #     detector_name = scrubadub.detectors.text_blob.TextBlobNameDetector.name
+    #     scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
+    #     detector_available['text_blob'] = True
+    # except ImportError:
+    #     pass
     try:
         import scrubadub.detectors.spacy
         detector_available['spacy'] = True
