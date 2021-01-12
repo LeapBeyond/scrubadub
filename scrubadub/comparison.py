@@ -203,7 +203,8 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
                 'comparison_type': getattr(sub_filth, 'comparison_type', float('nan')),
             })
 
-    results_df = pd.DataFrame(results)
+    results_df = pd.DataFrame(results, columns=['group_id', 'filth_id', 'filth_type', 'detector_name', 'document_name',
+                                                'text', 'beg', 'end', 'locale', 'known_filth', 'comparison_type'])
     suffix_label = '_y_suffix'
 
     return (
