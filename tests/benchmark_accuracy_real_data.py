@@ -202,8 +202,8 @@ def load_complicated_detectors() -> Dict[str, bool]:
     }
 
     try:
-        import scrubadub.detectors.stanford_ner
-        detector_name = scrubadub.detectors.stanford_ner.StanfordEntityDetector.name
+        import scrubadub.detectors.stanford
+        detector_name = scrubadub.detectors.stanford.StanfordEntityDetector.name
         scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
         detector_available['stanford_ner'] = True
     except ImportError:

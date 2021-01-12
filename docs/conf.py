@@ -46,7 +46,7 @@ except Exception:
     pass
 
 try:
-    import scrubadub.detectors.stanford_ner
+    import scrubadub.detectors.stanford
 except Exception:
     pass
 

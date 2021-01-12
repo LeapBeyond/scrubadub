@@ -71,8 +71,8 @@ def document_accuracy_settings(locales: List[str], detector_available: Dict[str,
                     if detector_available['text_blob']:
                         detectors.append('text_blob_name')
                         added_name_detector = True
-                    if detector_available['stanford_ner']:
-                        detectors.append('stanford_ner')
+                    if detector_available['stanford']:
+                        detectors.append('stanford')
                         added_name_detector = True
                 if not added_name_detector:
                     filth_list = [x for x in filth_list if x != 'name']
@@ -88,14 +88,14 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
     detector_available = {
         'address': False,
         'spacy': False,
-        'stanford_ner': False,
+        'stanford': False,
         'text_blob': False,
     }
 
     if run_slow:
         try:
-            import scrubadub.detectors.stanford_ner
-            detector_available['stanford_ner'] = True
+            import scrubadub.detectors.stanford
+            detector_available['stanford'] = True
         except ImportError:
             pass
         try:
