@@ -12,24 +12,24 @@ Base classes
 
 Every ``Detector`` that inherits from ``scrubadub.detectors.base.Detector``.
 
-scrubadub.detectors.Detector
-----------------------------
-
-.. autoclass:: scrubadub.detectors.Detector
-
-scrubadub.detectors.RegexDetector
+scrubadub.detectors.base.Detector
 ---------------------------------
+
+.. autoclass:: scrubadub.detectors.base.Detector
+
+scrubadub.detectors.base.RegexDetector
+--------------------------------------
 
 For convenience, there is also a ``RegexDetector``, which makes it easy to
 quickly add new types of ``Filth`` that can be identified from regular
 expressions:
 
-.. autoclass:: scrubadub.detectors.RegexDetector
+.. autoclass:: scrubadub.detectors.base.RegexDetector
 
-scrubadub.detectors.RegionLocalisedRegexDetector
-------------------------------------------------
+scrubadub.detectors.base.RegionLocalisedRegexDetector
+-----------------------------------------------------
 
-.. autoclass:: scrubadub.detectors.RegionLocalisedRegexDetector
+.. autoclass:: scrubadub.detectors.base.RegionLocalisedRegexDetector
 
 
 Detectors enabled by default
