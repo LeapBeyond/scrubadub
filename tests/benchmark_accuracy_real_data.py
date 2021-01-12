@@ -7,14 +7,17 @@ import glob
 import click
 import dotenv
 import chardet
+import logging
 import posixpath
 import azure.storage.blob
+import pandas as pd
+from pandas import DataFrame
 
 from typing import List, Union, Dict, Sequence, Optional, Dict
 from urllib.parse import urlparse
 
 import scrubadub
-from scrubadub.comparison import get_filth_classification_report, KnownFilthItem
+from scrubadub.comparison import get_filth_classification_report, KnownFilthItem, get_filth_dataframe
 from scrubadub.filth.base import Filth
 
 
@@ -255,6 +258,69 @@ def load_complicated_detectors() -> Dict[str, bool]:
 
     return detector_available
 
+def create_filth_summaries(found_filth: List[Filth], filth_matching_output: Optional[click.utils.LazyFile],
+                           filth_summary_output: Optional[click.utils.LazyFile]):
+    if filth_matching_output is None and filth_summary_output is None:
+        return None
+
+    dataframe = get_filth_dataframe(found_filth)
+
+    if filth_matching_output is not None:
+        dataframe.to_csv(filth_matching_output)
+
+    if filth_summary_output is not None:
+        logger = logging.getLogger('scrubadub.tests.benchmark_accuracy_real_data')
+        logger.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(message)s')
+
+        file_handler = logging.FileHandler(filth_summary_output.name, mode='wt')
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+        dataframe['filth_type'] = dataframe['filth_type'].fillna(dataframe['known_comparison_type'])
+        filth_types = dataframe['filth_type'].dropna().unique()
+        logger.info('# Filth summary report')
+        for filth_type in filth_types:
+            logger.info('\n## {} filth'.format(filth_type))
+            frequent = (
+                dataframe
+                [(dataframe['filth_type'] == filth_type) & ~dataframe['text'].isnull()]
+                ['text']
+                .value_counts()
+                .head(10)
+            )
+            frequent.index.name = 'text'
+            frequent.name = 'count'
+
+            false_positive = (
+                dataframe
+                [(dataframe['filth_type'] == filth_type) & dataframe['false_positive']]
+                [['document_name', 'detector_name', 'text', 'false_positive']]
+            )
+            false_positive.index.name = 'index'
+
+            false_negative = (
+                dataframe
+                [(dataframe['filth_type'] == filth_type) & dataframe['false_negative']]
+                [['known_text', 'false_negative']]
+            )
+            false_negative.index.name = 'index'
+
+            if false_positive.shape[1] > 10:
+                false_positive = false_positive.sample(10)
+            if false_negative.shape[1] > 10:
+                false_negative = false_negative.sample(10)
+
+            logger.info(
+                "\n### Most frequent {}\n\n{}".format(filth_type, frequent.to_markdown())
+            )
+            logger.info(
+                "\n### Sample of {} false positives\n\n{}".format(filth_type, false_positive.to_markdown())
+            )
+            logger.info(
+                "\n### Sample of {} false negatives\n\n{}".format(filth_type, false_negative.to_markdown())
+            )
+
 
 def not_none_argument(ctx, param, value):
     error = click.BadParameter('This parameter is required, please set a value.')
@@ -274,9 +340,12 @@ def not_none_argument(ctx, param, value):
               help='Connection string to azure bob storage (if needed)')
 @click.option('--known-pii', type=str, multiple=True, metavar='<file>', help="File containing known PII CSV",
               callback=not_none_argument)
+@click.option('--filth-matching-output', type=click.File('wt'), help="Location to save detailed matching information to")
+@click.option('--filth-summary-output', type=click.File('wt'), help="Location to save matching summary to")
 @click.argument('document', metavar='DOCUMENT', type=str, nargs=-1, callback=not_none_argument)
 def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_connection_string: Optional[str],
-         known_pii: Sequence[str]):
+         known_pii: Sequence[str], filth_matching_output: Optional[click.utils.LazyFile],
+         filth_summary_output: Optional[click.utils.LazyFile]):
     """Test scrubadub accuracy using text DOCUMENT(s). Requires a CSV of known PII.
 
     DOCUMENT(s) can be specified as local paths or azure blob storage URLs in the form:
@@ -294,6 +363,8 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
         $ ./benchmark_accuracy_real_data.py --locale en_GB --known-pii ./example_real_data/known_pii.csv ./example_real_data/document.txt
     """
 
+    print(filth_matching_output, type(filth_matching_output))
+
     run_slow = not fast
     if run_slow:
         load_complicated_detectors()
@@ -310,7 +381,8 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
 
     found_filth = scrub_documents(documents=documents, known_filth_items=known_filth_items, locale=locale)
 
-    # print(found_filth)
+    create_filth_summaries(found_filth, filth_matching_output, filth_summary_output)
+
     classification_report = get_filth_classification_report(found_filth)
     if classification_report is not None:
         click.echo("\n" + classification_report)
@@ -319,3 +391,4 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
 
 if __name__ == "__main__":
     main()
+
