@@ -363,8 +363,6 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
         $ ./benchmark_accuracy_real_data.py --locale en_GB --known-pii ./example_real_data/known_pii.csv ./example_real_data/document.txt
     """
 
-    print(filth_matching_dataset, type(filth_matching_dataset))
-
     run_slow = not fast
     if run_slow:
         load_complicated_detectors()
