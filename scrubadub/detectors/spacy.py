@@ -193,7 +193,7 @@ class SpacyEntityDetector(Detector):
 
                     class SpacyEntDetector(RegexDetector):
                         filth_cls = filth_class
-                        regex = re.compile(ent.text.replace(' ', r'\s+'))
+                        regex = re.compile(re.escape(ent.text).replace('\\ ', r'\s+'))
 
                     regex_detector = SpacyEntDetector(name=self.name, locale=self.locale)
                     yield from regex_detector.iter_filth(text, document_name=doc_name)
