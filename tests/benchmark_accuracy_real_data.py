@@ -306,9 +306,9 @@ def create_filth_summaries(found_filth: List[Filth], filth_matching_dataset: Opt
             )
             false_negative.index.name = 'index'
 
-            if false_positive.shape[1] > 10:
+            if false_positive.shape[0] > 10:
                 false_positive = false_positive.sample(10)
-            if false_negative.shape[1] > 10:
+            if false_negative.shape[0] > 10:
                 false_negative = false_negative.sample(10)
 
             logger.info(
