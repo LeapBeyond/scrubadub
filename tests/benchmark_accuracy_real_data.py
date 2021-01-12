@@ -384,10 +384,16 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
     create_filth_summaries(found_filth, filth_matching_dataset, filth_matching_report)
 
     classification_report = get_filth_classification_report(found_filth)
-    if classification_report is not None:
-        click.echo("\n" + classification_report)
-    else:
+    if classification_report is None:
         click.echo("WARNING: No Known Filth was found in the provided documents.")
+        return
+
+    click.echo("\n" + classification_report)
+
+    classification_report = get_filth_classification_report(found_filth, combine_detectors=True)
+    if classification_report is None:
+        click.echo("ERROR: Combined classification report is None.")
+        return
 
 if __name__ == "__main__":
     main()

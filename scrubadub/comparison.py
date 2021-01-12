@@ -15,6 +15,7 @@ import sklearn.metrics
 
 def get_filth_classification_report(
         filth_list: List[Filth],
+        combine_detectors: bool = False,
         output_dict: bool = False,
 ) -> Optional[Union[str, Dict[str, float]]]:
     """Evaluates the performance of detectors using KnownFilth.
@@ -44,6 +45,8 @@ def get_filth_classification_report(
 
     :param filth_list: The list of detected filth
     :type filth_list: A list of `Filth` objects
+    :param combine_detectors: Combine performance of all detectors for the same filth/locale
+    :type combine_detectors: bool, optional
     :param output_dict: Return the report in JSON format, defautls to False
     :type output_dict: bool, optional
     :return: The report in JSON (a `dict`) or in plain text
@@ -62,11 +65,12 @@ def get_filth_classification_report(
         results_row = {}
         for sub_filth in sub_filths:
             if isinstance(sub_filth, filth_module.KnownFilth) and sub_filth.comparison_type is not None:
-                results_row[
-                    '{}:{}:{}'.format(sub_filth.comparison_type, filth_module.KnownFilth.type, sub_filth.locale)] = 1
+                col_name = '{}:{}:{}'.format(sub_filth.comparison_type, filth_module.KnownFilth.type, sub_filth.locale)
+                results_row[col_name] = 1
             else:
                 try:
-                    results_row['{}:{}:{}'.format(sub_filth.type, sub_filth.detector_name, sub_filth.locale)] = 1
+                    detector_name = sub_filth.detector_name if not combine_detectors else 'combined'
+                    results_row['{}:{}:{}'.format(sub_filth.type, detector_name, sub_filth.locale)] = 1
                 except AttributeError:
                     print(type(sub_filth), sub_filth)
                     raise
