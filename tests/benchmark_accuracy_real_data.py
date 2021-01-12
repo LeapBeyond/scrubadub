@@ -296,6 +296,7 @@ def create_filth_summaries(found_filth: List[Filth], filth_matching_dataset: Opt
                 dataframe
                 [(dataframe['filth_type'] == filth_type) & dataframe['false_positive']]
                 [['document_name', 'detector_name', 'text', 'false_positive']]
+                .drop_duplicates()
             )
             false_positive.index.name = 'index'
 
@@ -303,6 +304,7 @@ def create_filth_summaries(found_filth: List[Filth], filth_matching_dataset: Opt
                 dataframe
                 [(dataframe['filth_type'] == filth_type) & dataframe['false_negative']]
                 [['known_text', 'false_negative']]
+                .drop_duplicates()
             )
             false_negative.index.name = 'index'
 
