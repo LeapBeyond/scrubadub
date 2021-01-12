@@ -26,7 +26,7 @@ from .base import Detector
 from ..filth.base import Filth
 from ..filth.name import NameFilth
 from ..filth.organization import OrganizationFilth
-from ..filth.address import AddressFilth
+from ..filth.location import LocationFilth
 
 
 class ScrubadubStanfordNERTagger(nltk.tag.StanfordNERTagger):
@@ -51,7 +51,20 @@ class ScrubadubStanfordNERTagger(nltk.tag.StanfordNERTagger):
 
 
 class StanfordEntityDetector(Detector):
-    """Search for people's names, organization's names and locations within text using the stanford 3 class model."""
+    """Search for people's names, organization's names and locations within text using the stanford 3 class model.
+
+    The three classes of this model can be enabled with the three arguments to the inialiser `enable_person`,
+    `enable_organization` and `enable_location`.
+    An example of their usage is given below.
+
+    >>> import scrubadub, scrubadub.detectors.stanford_ner
+    >>> detector = scrubadub.detectors.StanfordEntityDetector(
+    ...     enable_person=False, enable_organization=False, enable_location=True
+    ... )
+    >>> scrubber = scrubadub.Scrubber(detector_list=[detector])
+    >>> scrubber.clean('Jane is visiting London.')
+    'Jane is visiting {{LOCATION}}.'
+    """
     filth_cls = Filth
     name = "stanford"
     ignored_words = ["tennant"]
@@ -92,7 +105,7 @@ class StanfordEntityDetector(Detector):
         if enable_organization:
             self.filth_lookup['ORGANIZATION'] = OrganizationFilth
         if enable_location:
-            self.filth_lookup['LOCATION'] = AddressFilth
+            self.filth_lookup['LOCATION'] = LocationFilth
 
         super(StanfordEntityDetector, self).__init__(**kwargs)
 
