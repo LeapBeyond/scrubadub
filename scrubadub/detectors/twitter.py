@@ -5,9 +5,8 @@ from ..filth import TwitterFilth
 
 
 class TwitterDetector(RegexDetector):
-    """Use regular expression magic to remove email addresses from dirty
-    dirty ``text``. This method also catches email addresses like ``john at
-    gmail.com``.
+    """Use regular expression magic to remove twitter usernames from dirty
+    dirty ``text``.
     """
     filth_cls = TwitterFilth
     name = 'twitter'
