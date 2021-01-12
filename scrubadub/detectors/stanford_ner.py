@@ -73,19 +73,7 @@ class StanfordEntityDetector(Detector):
     #  The download script needs to be updated.
     # TODO: Add support for Spanish, German, Chinese, French (No Arabic NER model)
     stanford_version = "4.0.0"
-    stanford_prefix = pathlib.Path.home().joinpath('.scrubadub').joinpath('stanford_ner').__str__()
     stanford_download_url = 'https://nlp.stanford.edu/software/stanford-ner-{version}.zip'
-    stanford_download_path = os.path.join(stanford_prefix, 'stanford-ner-{version}.zip')
-    stanford_classifier = os.path.join('stanford-ner-{version}', 'classifiers', 'english.all.3class.distsim.crf.ser.gz')
-    stanford_classifier_path = os.path.join(stanford_prefix, stanford_classifier)
-    stanford_ner_jar_path = os.path.join(stanford_prefix, 'stanford-ner-{version}', 'stanford-ner.jar')
-    stanford_files = [
-        stanford_classifier,
-        os.path.join('stanford-ner-{version}', 'stanford-ner.jar'),
-        os.path.join('stanford-ner-{version}', 'stanford-ner-{version}.jar'),
-        os.path.join('stanford-ner-{version}', 'stanford-ner-{version}-javadoc.jar'),
-        os.path.join('stanford-ner-{version}', 'stanford-ner-{version}-sources.jar'),
-    ]
 
     def __init__(self, enable_person: bool = True, enable_organization: bool = True, enable_location: bool = False,
                  **kwargs):
@@ -106,6 +94,22 @@ class StanfordEntityDetector(Detector):
             self.filth_lookup['ORGANIZATION'] = OrganizationFilth
         if enable_location:
             self.filth_lookup['LOCATION'] = LocationFilth
+
+        self.stanford_classifier = os.path.join('stanford-ner-{version}', 'classifiers',
+                                                'english.all.3class.distsim.crf.ser.gz')
+
+        self.stanford_prefix = pathlib.Path.home().joinpath('.scrubadub').joinpath('stanford_ner').__str__()
+        self.stanford_download_path = os.path.join(self.stanford_prefix, 'stanford-ner-{version}.zip')
+        self.stanford_classifier_path = os.path.join(self.stanford_prefix, self.stanford_classifier)
+        self.stanford_ner_jar_path = os.path.join(self.stanford_prefix, 'stanford-ner-{version}', 'stanford-ner.jar')
+
+        self.stanford_files = [
+            self.stanford_classifier,
+            os.path.join('stanford-ner-{version}', 'stanford-ner.jar'),
+            os.path.join('stanford-ner-{version}', 'stanford-ner-{version}.jar'),
+            os.path.join('stanford-ner-{version}', 'stanford-ner-{version}-javadoc.jar'),
+            os.path.join('stanford-ner-{version}', 'stanford-ner-{version}-sources.jar'),
+        ]
 
         super(StanfordEntityDetector, self).__init__(**kwargs)
 
