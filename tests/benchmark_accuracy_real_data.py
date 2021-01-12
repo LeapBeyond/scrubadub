@@ -258,22 +258,22 @@ def load_complicated_detectors() -> Dict[str, bool]:
 
     return detector_available
 
-def create_filth_summaries(found_filth: List[Filth], filth_matching_output: Optional[click.utils.LazyFile],
-                           filth_summary_output: Optional[click.utils.LazyFile]):
-    if filth_matching_output is None and filth_summary_output is None:
+def create_filth_summaries(found_filth: List[Filth], filth_matching_dataset: Optional[click.utils.LazyFile],
+                           filth_matching_report: Optional[click.utils.LazyFile]):
+    if filth_matching_dataset is None and filth_matching_report is None:
         return None
 
     dataframe = get_filth_dataframe(found_filth)
 
-    if filth_matching_output is not None:
-        dataframe.to_csv(filth_matching_output)
+    if filth_matching_dataset is not None:
+        dataframe.to_csv(filth_matching_dataset)
 
-    if filth_summary_output is not None:
+    if filth_matching_report is not None:
         logger = logging.getLogger('scrubadub.tests.benchmark_accuracy_real_data')
         logger.setLevel(logging.DEBUG)
         formatter = logging.Formatter('%(message)s')
 
-        file_handler = logging.FileHandler(filth_summary_output.name, mode='wt')
+        file_handler = logging.FileHandler(filth_matching_report.name, mode='wt')
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
@@ -340,12 +340,12 @@ def not_none_argument(ctx, param, value):
               help='Connection string to azure bob storage (if needed)')
 @click.option('--known-pii', type=str, multiple=True, metavar='<file>', help="File containing known PII CSV",
               callback=not_none_argument)
-@click.option('--filth-matching-output', type=click.File('wt'), help="Location to save detailed matching information to")
-@click.option('--filth-summary-output', type=click.File('wt'), help="Location to save matching summary to")
+@click.option('--filth-matching-dataset', type=click.File('wt'), help="Location of csv file to save detailed matching information to")
+@click.option('--filth-matching-report', type=click.File('wt'), help="Location of markdown file to save matching report to")
 @click.argument('document', metavar='DOCUMENT', type=str, nargs=-1, callback=not_none_argument)
 def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_connection_string: Optional[str],
-         known_pii: Sequence[str], filth_matching_output: Optional[click.utils.LazyFile],
-         filth_summary_output: Optional[click.utils.LazyFile]):
+         known_pii: Sequence[str], filth_matching_dataset: Optional[click.utils.LazyFile],
+         filth_matching_report: Optional[click.utils.LazyFile]):
     """Test scrubadub accuracy using text DOCUMENT(s). Requires a CSV of known PII.
 
     DOCUMENT(s) can be specified as local paths or azure blob storage URLs in the form:
@@ -363,7 +363,7 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
         $ ./benchmark_accuracy_real_data.py --locale en_GB --known-pii ./example_real_data/known_pii.csv ./example_real_data/document.txt
     """
 
-    print(filth_matching_output, type(filth_matching_output))
+    print(filth_matching_dataset, type(filth_matching_dataset))
 
     run_slow = not fast
     if run_slow:
@@ -381,7 +381,7 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
 
     found_filth = scrub_documents(documents=documents, known_filth_items=known_filth_items, locale=locale)
 
-    create_filth_summaries(found_filth, filth_matching_output, filth_summary_output)
+    create_filth_summaries(found_filth, filth_matching_dataset, filth_matching_report)
 
     classification_report = get_filth_classification_report(found_filth)
     if classification_report is not None:
