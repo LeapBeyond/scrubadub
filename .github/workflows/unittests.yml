@@ -70,7 +70,7 @@ jobs:
         python -m pip install --upgrade pip wheel setuptools
         pip install -r requirements/python-dev
         pip install -r requirements/python-extras-address
-        pip install -r requirements/python-extras-spacy
+        if python3 --version | grep -Evq "Python (3\\.5\\.|3\\.9\\.)" ; then pip install -r requirements/python-extras-spacy ; fi
         pip install -r requirements/python-extras-stanford
 
     - name: Cache restore nltk data
@@ -90,9 +90,13 @@ jobs:
 
     - name: Install package
       run: |
-        pip install -e .
-        python3 -c 'import scrubadub ; print(scrubadub.__file__)'
-        python3 -c 'import spacy ; print(spacy.__version__)'
+        if python3 --version | grep -Eq "Python (3\\.5\\.|3\\.9\\.)" ; then
+          echo "Installing package, with no spacy"
+          pip install -e .[address,stanford]
+        else
+          echo "Installing package"
+          pip install -e .[address,spacy,stanford]
+        fi
 
     - name: Run tests
       run: |
