@@ -47,6 +47,6 @@ class GBNinoTestCase(unittest.TestCase, BaseTestCase):
         faker.Faker.seed(4321)
 
         self.assertEqual(
-            'ZZ 61 25 10 T',
+            'ZZ061251T',
             NationalInsuranceNumberFilth.generate(faker=fake),
         )

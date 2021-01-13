@@ -10,6 +10,6 @@ class OrganizationFilthTestCase(unittest.TestCase):
         faker.Faker.seed(4321)
 
         self.assertEqual(
-            'Russell Inc',
+            'Brown-Lindsey',
             OrganizationFilth.generate(faker=fake),
         )

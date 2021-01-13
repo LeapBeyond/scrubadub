@@ -10,6 +10,6 @@ class LocationFilthTestCase(unittest.TestCase):
         faker.Faker.seed(4321)
 
         self.assertEqual(
-            'West Bryan',
+            'Brianland',
             LocationFilth.generate(faker=fake),
         )

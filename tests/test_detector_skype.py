@@ -74,7 +74,7 @@ class SkypeTestCase(unittest.TestCase, BaseTestCase):
         faker.Faker.seed(4321)
 
         self.assertEqual(
-            'rickbrown',
+            'brian12',
             SkypeFilth.generate(faker=fake),
         )
 
