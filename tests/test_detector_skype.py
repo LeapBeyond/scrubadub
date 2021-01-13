@@ -70,12 +70,13 @@ class SkypeTestCase(unittest.TestCase, BaseTestCase):
         self.compare_before_after()
 
     def test_generate(self):
-        fake = faker.Faker()
-        faker.Faker.seed(4321)
+        class Faker:
+            def user_name(self):
+                return 'brian12'
 
         self.assertEqual(
             'brian12',
-            SkypeFilth.generate(faker=fake),
+            SkypeFilth.generate(faker=Faker()),
         )
 
     def tearDown(self) -> None:

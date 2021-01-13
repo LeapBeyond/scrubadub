@@ -43,10 +43,11 @@ class GBNinoTestCase(unittest.TestCase, BaseTestCase):
         self.compare_before_after(locale='en_GB')
 
     def test_generate(self):
-        fake = faker.Faker('en_GB')
-        faker.Faker.seed(4321)
+        class Faker:
+            def ssn(self):
+                return 'ZZ061251T'
 
         self.assertEqual(
             'ZZ061251T',
-            NationalInsuranceNumberFilth.generate(faker=fake),
+            NationalInsuranceNumberFilth.generate(faker=Faker()),
         )
