@@ -1,5 +1,7 @@
 
 # Extra dependancies for spacy detector
+# wheel is needed for spacy to do its funky model management, not sure why its not a dep of spacy directly
+wheel
 thinc==8.0.0rc2
 spacy-nightly[transformers]==3.0.0rc2; python_version >= '3.6'
 # spacy-nightly[transformers]>=3.0.0rc1; python_version >= '3.6'
