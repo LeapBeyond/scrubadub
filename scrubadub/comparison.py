@@ -213,7 +213,7 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
 
     return (
         pd.merge(
-            results_df[~results_df['known_filth']],
+            results_df.loc[~results_df['known_filth']],
             results_df.loc[results_df['known_filth'], ['group_id', 'text', 'beg', 'end', 'comparison_type']],
             how='outer',
             left_on=('group_id', 'filth_type'),
