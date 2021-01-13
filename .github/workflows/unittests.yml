@@ -67,7 +67,7 @@ jobs:
         export LD_LIBRARY_PATH=${{ env.LD_LIBRARY_PATH }}
         export C_INCLUDE_PATH=${{ env.C_INCLUDE_PATH }}
         export CPP_INCLUDE_PATH=${{ env.CPP_INCLUDE_PATH }}
-        python -m pip install --upgrade pip
+        python -m pip install --upgrade pip wheel
         pip install -r requirements/python-dev
         pip install -r requirements/python-extras-address
         pip install -r requirements/python-extras-spacy
@@ -90,8 +90,9 @@ jobs:
 
     - name: Install package
       run: |
-        pip install .
+        pip install -e .
         python3 -c 'import scrubadub ; print(scrubadub.__file__)'
+        python3 -c 'import spacy ; print(spacy.__version__)'
 
     - name: Run tests
       run: |
