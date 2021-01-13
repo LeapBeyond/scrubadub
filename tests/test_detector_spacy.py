@@ -6,25 +6,29 @@ from scrubadub.filth import NameFilth, OrganizationFilth, LocationFilth, Filth
 from base import BaseTestCase
 
 
-class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
+class SpacyDetectorTestCase(unittest.TestCase, BaseTestCase):
     """
     Tests whether the detector is performing correctly from a function point of view.
     For accuracy tests use .benchmark_accuracy instead
     """
 
     def setUp(self):
-        unsupported_python_version = (sys.version_info.major, sys.version_info.minor) < (3, 6)
-
         unsupported_spacy_version = False
         try:
             from scrubadub.detectors.spacy import SpacyEntityDetector
             SpacyEntityDetector.check_spacy_version()
-        except ImportError:
+        except (ImportError, NameError):
             unsupported_spacy_version = True
 
+        unsupported_python_version = (
+                ((sys.version_info.major, sys.version_info.minor) < (3, 6)) or
+                ((sys.version_info.major, sys.version_info.minor) >= (3, 9))
+        )
+        print("HERE")
         if unsupported_python_version:
+            print("SKIPPED")
             self.skipTest(
-                "Named entity detector not supported for python<3.6"
+                "Spacy detector supported for 3.6 <= python version < 3.9"
             )
         elif unsupported_spacy_version:
             self.skipTest(

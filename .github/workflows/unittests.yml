@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9, 3.8, 3.6]
+        python-version: [3.9, 3.8, 3.6, 3.5]
 
     env:
       PREFIX: /home/runner/prefix
@@ -67,7 +67,7 @@ jobs:
         export LD_LIBRARY_PATH=${{ env.LD_LIBRARY_PATH }}
         export C_INCLUDE_PATH=${{ env.C_INCLUDE_PATH }}
         export CPP_INCLUDE_PATH=${{ env.CPP_INCLUDE_PATH }}
-        python -m pip install --upgrade pip wheel
+        python -m pip install --upgrade pip wheel setuptools
         pip install -r requirements/python-dev
         pip install -r requirements/python-extras-address
         pip install -r requirements/python-extras-spacy
@@ -102,4 +102,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        if python3 --version | grep -q "Python 3.9." ; then coveralls ; fi
+        if python3 --version | grep -q "Python 3.8." ; then coveralls ; fi

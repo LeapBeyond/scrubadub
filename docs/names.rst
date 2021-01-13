@@ -54,6 +54,8 @@ This is the suggested named detector, since its easy to install and works pretty
 However, this uses spacy v3 (v2 is the stable version) and so might break if spacy change things, since v3 is only in preview.
 The v3 version of the entity detection works much better than in v2.
 
+Spacy v3 requires python version >= 3.6 and < 3.9, as python 3.9 is not yet supported by spacy.
+
 To install all dependencies for the Spacy detector you can do:
 
 .. code-block:: console
