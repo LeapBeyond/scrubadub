@@ -79,8 +79,14 @@ To install scrubadub using pip, simply type::
 
     pip install scrubadub
 
-This package requires at least python 3.5.
-For python 2.7 support see v1.2.2 which is the last version with python 2.7 support.
+To there are three extra sets of packages that can be also be installed to enable extra detectors.
+These extras are `address`, `spacy` and `stanford`, see the relevant documentation (`address documentation <https://scrubadub.readthedocs.io/en/stable/addresses.html>`_ and `name detector documentation <https://scrubadub.readthedocs.io/en/stable/names.html>`_) for more info on these as they require additional dependancies.
+To enable these detectors run the below (after having installed any needed dpenedancies)::
+
+    pip install scrubadub[address,spacy,stanford]
+
+This package requires at least python 3.6.
+For python 2.7 or 3.5 support use v1.2.2 which is the last version with support for these versions.
 
 Some detectors need extra dependencies, see `our documentation <http://scrubadub.readthedocs.io/>`_ for more details on these.
 
