@@ -114,7 +114,11 @@ class AddressDetector(Detector):
             # This is needed as pyap does some text normalisation, this undoes that normalisation
             # See _normalize_string() in https://github.com/vladimarius/pyap/blob/master/pyap/parser.py
             pattern = re.escape(address.full_address)
-            pattern = pattern.replace(r',\ ', r'\s*([\n,]\s*)+')
+            # in python3.6 re.escape escapes ',' as '\,', later versions do not.
+            # The first pattern.replace is for the earlier python versions, while the second one is for the
+            # newer versions of python
+            pattern = pattern.replace('\\,\\ ', '\\s*([\\n,]\\s*)+')
+            pattern = pattern.replace(',\\ ', '\\s*([\\n,]\\s*)+')
             pattern = pattern.replace(r'\ ', r'\s+')
             pattern = pattern.replace('-', '[‐‑‒–—―]')
             pattern = r'\b' + pattern + r'\b'
