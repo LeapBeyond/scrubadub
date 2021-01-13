@@ -15,8 +15,8 @@ try:
     import nltk
 except ImportError:
     raise ImportError(
-        'To use scrubadub.detectors.stanford_ner extra dependencies need to be installed.\n'
-        'Please run: pip install scrubadub[stanford_ner]'
+        'To use scrubadub.detectors.stanford extra dependencies need to be installed.\n'
+        'Please run: pip install scrubadub[stanford]'
     )
 
 from typing import Dict, Type, Optional, List
@@ -57,7 +57,7 @@ class StanfordEntityDetector(Detector):
     `enable_organization` and `enable_location`.
     An example of their usage is given below.
 
-    >>> import scrubadub, scrubadub.detectors.stanford_ner
+    >>> import scrubadub, scrubadub.detectors.stanford
     >>> detector = scrubadub.detectors.StanfordEntityDetector(
     ...     enable_person=False, enable_organization=False, enable_location=True
     ... )

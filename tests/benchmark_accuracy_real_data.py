@@ -197,7 +197,7 @@ def load_complicated_detectors() -> Dict[str, bool]:
     detector_available = {
         'address': False,
         'spacy': False,
-        'stanford_ner': False,
+        'stanford': False,
         'text_blob': False,
     }
 
@@ -205,7 +205,7 @@ def load_complicated_detectors() -> Dict[str, bool]:
         import scrubadub.detectors.stanford
         detector_name = scrubadub.detectors.stanford.StanfordEntityDetector.name
         scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
-        detector_available['stanford_ner'] = True
+        detector_available['stanford'] = True
     except ImportError:
         pass
     try:

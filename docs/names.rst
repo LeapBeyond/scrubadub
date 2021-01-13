@@ -41,9 +41,9 @@ Once this has been done, the ``StanfordNERDetector`` can be used with the follow
 
 .. code-block:: pycon
 
-    >>> import scrubadub, scrubadub.detectors.stanford_ner
+    >>> import scrubadub, scrubadub.detectors.stanford
     >>> scrubber = scrubadub.Scrubber()
-    >>> scrubber.add_detector(scrubadub.detectors.stanford_ner.StanfordNERDetector)
+    >>> scrubber.add_detector(scrubadub.detectors.stanford.StanfordNERDetector)
     >>> scrubber.clean("My name is John")
     'My name is {{NAME}}'
 
@@ -81,9 +81,9 @@ This can be done with the ``enable_*`` parameters in the initialiser:
 
 .. code-block:: pycon
 
-    >>> import scrubadub, scrubadub.detectors.stanford_ner
+    >>> import scrubadub, scrubadub.detectors.stanford
     >>> scrubber = scrubadub.Scrubber()
-    >>> scrubber.add_detector(scrubadub.detectors.stanford_ner.StanfordNERDetector(
+    >>> scrubber.add_detector(scrubadub.detectors.stanford.StanfordNERDetector(
     ...     enable_person=True, enable_organization=True, enable_location=True
     ... ))
     >>> scrubber.clean("My name is John and I work at the United Nations")
