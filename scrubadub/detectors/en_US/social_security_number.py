@@ -5,16 +5,16 @@ import stdnum.us.ssn
 from typing import Optional, Generator
 
 from scrubadub.detectors.base import RegexDetector
-from scrubadub.filth import Filth, SSNFilth
+from scrubadub.filth import Filth, SocialSecurityNumberFilth
 
 
-class SSNDetector(RegexDetector):
+class SocialSecurityNumberDetector(RegexDetector):
     """Use regular expressions to detect a social security number (SSN) in
     dirty dirty ``text``.
     """
 
-    filth_cls = SSNFilth
-    name = 'ssn'
+    filth_cls = SocialSecurityNumberFilth
+    name = 'social_security_number'
     regex = re.compile((
         r"[0-9][0-9][0-9]"       # first three digits
         r"[\-. ]"                # separator
@@ -35,10 +35,10 @@ class SSNDetector(RegexDetector):
         :type locale: str, optional
         """
         self.validate = validate
-        super(SSNDetector, self).__init__(*args, **kwargs)
+        super(SocialSecurityNumberDetector, self).__init__(*args, **kwargs)
 
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
-        for filth in super(SSNDetector, self).iter_filth(text=text, document_name=document_name):
+        for filth in super(SocialSecurityNumberDetector, self).iter_filth(text=text, document_name=document_name):
             if not self.validate:
                 yield filth
             elif stdnum.us.ssn.is_valid(''.join(char for char in filth.text if char not in '. -')):

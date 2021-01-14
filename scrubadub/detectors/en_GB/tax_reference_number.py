@@ -1,21 +1,18 @@
 import re
 
 from scrubadub.detectors.base import RegexDetector
-from scrubadub.filth import NinoFilth
+from scrubadub.filth import TaxReferenceNumberFilth
 
 
-class NINODetector(RegexDetector):
-    """Use regular expressions to remove the UK National Insurance number (NINO),
+class TaxReferenceNumberDetector(RegexDetector):
+    """Use regular expressions to detect the UK PAYE temporary reference number (TRN),
     Simple pattern matching, no checksum solution.
     """
 
-    name = 'nino'
-    filth_cls = NinoFilth
+    name = 'tax_reference_number'
+    filth_cls = TaxReferenceNumberFilth
     # this regex is looking for NINO that does not begin with certain letters
-    regex = re.compile(
-        r'(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)(?:[A-CEGHJ-PR-TW-Z][A-CEGHJ-NPR-TW-Z])(?:\s*\d\s*){6}[A-D]',
-        re.IGNORECASE | re.VERBOSE
-    )
+    regex = re.compile(r'''\d{2}\s?[a-zA-Z]{1}(?:\s*\d\s*){5}''', re.IGNORECASE)
 
     @classmethod
     def supported_locale(cls, locale: str) -> bool:

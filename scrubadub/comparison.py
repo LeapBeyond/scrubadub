@@ -15,6 +15,7 @@ import sklearn.metrics
 
 def get_filth_classification_report(
         filth_list: List[Filth],
+        combine_detectors: bool = False,
         output_dict: bool = False,
 ) -> Optional[Union[str, Dict[str, float]]]:
     """Evaluates the performance of detectors using KnownFilth.
@@ -44,6 +45,8 @@ def get_filth_classification_report(
 
     :param filth_list: The list of detected filth
     :type filth_list: A list of `Filth` objects
+    :param combine_detectors: Combine performance of all detectors for the same filth/locale
+    :type combine_detectors: bool, optional
     :param output_dict: Return the report in JSON format, defautls to False
     :type output_dict: bool, optional
     :return: The report in JSON (a `dict`) or in plain text
@@ -62,11 +65,12 @@ def get_filth_classification_report(
         results_row = {}
         for sub_filth in sub_filths:
             if isinstance(sub_filth, filth_module.KnownFilth) and sub_filth.comparison_type is not None:
-                results_row[
-                    '{}:{}:{}'.format(sub_filth.comparison_type, filth_module.KnownFilth.type, sub_filth.locale)] = 1
+                col_name = '{}:{}:{}'.format(sub_filth.comparison_type, filth_module.KnownFilth.type, sub_filth.locale)
+                results_row[col_name] = 1
             else:
                 try:
-                    results_row['{}:{}:{}'.format(sub_filth.type, sub_filth.detector_name, sub_filth.locale)] = 1
+                    detector_name = sub_filth.detector_name if not combine_detectors else 'combined'
+                    results_row['{}:{}:{}'.format(sub_filth.type, detector_name, sub_filth.locale)] = 1
                 except AttributeError:
                     print(type(sub_filth), sub_filth)
                     raise
@@ -95,6 +99,10 @@ def get_filth_classification_report(
     # Take the detected_columns above and find their associated known counterparts
     known_cols = [(x[0], filth_module.KnownFilth.type, x[2]) for x in detected_columns]
     true_classes = results_df.loc[:, known_cols].values
+
+    # Then no true classes were found
+    if detected_classes.shape[1] == 0:
+        return None
 
     if not output_dict:
         filth_max_length = max([len(x[0]) for x in detected_columns] + [len("filth")])
@@ -199,13 +207,14 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
                 'comparison_type': getattr(sub_filth, 'comparison_type', float('nan')),
             })
 
-    results_df = pd.DataFrame(results)
+    results_df = pd.DataFrame(results, columns=['group_id', 'filth_id', 'filth_type', 'detector_name', 'document_name',
+                                                'text', 'beg', 'end', 'locale', 'known_filth', 'comparison_type'])
     suffix_label = '_y_suffix'
 
     return (
         pd.merge(
-            results_df[~results_df['known_filth']],
-            results_df[results_df['known_filth']][['group_id', 'text', 'beg', 'end', 'comparison_type']],
+            results_df.loc[~results_df['known_filth']],
+            results_df.loc[results_df['known_filth'], ['group_id', 'text', 'beg', 'end', 'comparison_type']],
             how='outer',
             left_on=('group_id', 'filth_type'),
             right_on=('group_id', 'comparison_type'),
@@ -276,7 +285,7 @@ def make_fake_document(
         filth_module.NameFilth,
         filth_module.PhoneFilth,
         filth_module.PostalCodeFilth,
-        filth_module.SSNFilth,
+        filth_module.SocialSecurityNumberFilth,
         filth_module.TwitterFilth,
         filth_module.UrlFilth,
     ]

@@ -6,25 +6,29 @@ from scrubadub.filth import NameFilth, OrganizationFilth, LocationFilth, Filth
 from base import BaseTestCase
 
 
-class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
+class SpacyDetectorTestCase(unittest.TestCase, BaseTestCase):
     """
     Tests whether the detector is performing correctly from a function point of view.
     For accuracy tests use .benchmark_accuracy instead
     """
 
     def setUp(self):
-        unsupported_python_version = (sys.version_info.major, sys.version_info.minor) < (3, 6)
-
         unsupported_spacy_version = False
         try:
             from scrubadub.detectors.spacy import SpacyEntityDetector
             SpacyEntityDetector.check_spacy_version()
-        except ImportError:
+        except (ImportError, NameError):
             unsupported_spacy_version = True
 
+        unsupported_python_version = (
+                ((sys.version_info.major, sys.version_info.minor) < (3, 6)) or
+                ((sys.version_info.major, sys.version_info.minor) >= (3, 9))
+        )
+        print("HERE")
         if unsupported_python_version:
+            print("SKIPPED")
             self.skipTest(
-                "Named entity detector not supported for python<3.6"
+                "Spacy detector supported for 3.6 <= python version < 3.9"
             )
         elif unsupported_spacy_version:
             self.skipTest(
@@ -37,7 +41,7 @@ class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
     def _assert_filth_type_and_pos(self, doc_list, beg_end_list, filth_class):
         doc_names = [str(x) for x in range(len(doc_list))]
 
-        filth_list = list(self.detector.iter_filth_documents(doc_names, doc_list))
+        filth_list = list(self.detector.iter_filth_documents(document_list=doc_names, document_names=doc_list))
 
         for filth, beg_end in zip(filth_list, beg_end_list):
             self.assertIsInstance(filth, filth_class)
@@ -87,7 +91,7 @@ class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
     def test_iter_filth(self):
         doc = "John is a cat"
 
-        output_iter_docs = list(self.detector.iter_filth_documents(doc_list=[doc], doc_names=["0"]))
+        output_iter_docs = list(self.detector.iter_filth_documents(document_list=[doc], document_names=["0"]))
         output_iter = list(self.detector.iter_filth(text=doc, document_name="0"))
 
         self.assertListEqual(output_iter, output_iter_docs)
@@ -103,3 +107,16 @@ class NamedEntityTestCase(unittest.TestCase, BaseTestCase):
         clean_docs = s.clean_documents(documents=doc_list)
         self.assertIsInstance(clean_docs, list)
         self.assertListEqual(result, clean_docs)
+
+    def test_long_text(self):
+        # The transformer cant take text with many spaces as his creates many tokens and there is a limit to the
+        # width of the transformer in the model.
+        for whitespace in [' ', '\t', '\n']:
+            longtext = (whitespace * 20).join(['asd', 'qwe', 'Mike', '']) * 10
+            from scrubadub.detectors.spacy import SpacyEntityDetector
+            detector = SpacyEntityDetector(model='en_core_web_trf')
+            filths = list(detector.iter_filth(longtext))
+            self.assertIsInstance(filths, list)
+            self.assertEqual(len(filths), 10)
+            self.assertEqual(filths[-1].beg, len(longtext)-20-4)
+            self.assertEqual(filths[-1].end, len(longtext)-20)

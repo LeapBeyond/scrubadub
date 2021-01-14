@@ -1,4 +1,5 @@
 import sys
+import inspect
 from typing import Dict, Type
 
 if sys.version_info >= (3, 8):
@@ -17,10 +18,9 @@ from .known import KnownFilthDetector
 from .twitter import TwitterDetector
 from .url import UrlDetector
 from .vehicle_licence_plate import VehicleLicencePlateDetector
-from .date_of_birth import DoBDetector
-from .en_GB.nino import NINODetector
-from .en_GB.trn import TrnDetector
-from .en_US.ssn import SSNDetector
+from .en_GB.national_insurance_number import NationalInsuranceNumberDetector
+from .en_GB.tax_reference_number import TaxReferenceNumberDetector
+from .en_US.social_security_number import SocialSecurityNumberDetector
 
 
 DetectorConfigurationItem = TypedDict(
@@ -28,23 +28,25 @@ DetectorConfigurationItem = TypedDict(
     {'detector': Type[Detector], 'autoload': bool}
 )
 
+# This dictonary is used in scrubadub.scrubber.Scrubber.__init__, to find available detecotrs that should be used to
+# scrub dirty text. The autoload option says if the scrubber should automatically load this detector if no
+# `detector_list` is provided to the `Scrubber()`.
 detector_configuration = {
     # Detectors that are automatically loaded by scrubadub
     CredentialDetector.name: {'detector': CredentialDetector, 'autoload': True},
     CreditCardDetector.name: {'detector': CreditCardDetector, 'autoload': True},
     DriversLicenceDetector.name: {'detector': DriversLicenceDetector, 'autoload': True},
     EmailDetector.name: {'detector': EmailDetector, 'autoload': True},
+    NationalInsuranceNumberDetector.name: {'detector': NationalInsuranceNumberDetector, 'autoload': True},
     PhoneDetector.name: {'detector': PhoneDetector, 'autoload': True},
-    SSNDetector.name: {'detector': SSNDetector, 'autoload': True},
+    PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': True},
+    SocialSecurityNumberDetector.name: {'detector': SocialSecurityNumberDetector, 'autoload': True},
+    TaxReferenceNumberDetector.name: {'detector': TaxReferenceNumberDetector, 'autoload': True},
     TwitterDetector.name: {'detector': TwitterDetector, 'autoload': True},
     UrlDetector.name: {'detector': UrlDetector, 'autoload': True},
-    NINODetector.name: {'detector': NINODetector, 'autoload': True},
-    TrnDetector.name: {'detector': TrnDetector, 'autoload': True},
     VehicleLicencePlateDetector.name: {'detector': VehicleLicencePlateDetector, 'autoload': True},
-    DoBDetector.name: {'detector': DoBDetector, 'autoload': True},
     # Detectors that are not automatically loaded by scrubadub
     KnownFilthDetector.name: {'detector': KnownFilthDetector, 'autoload': False},
-    PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': False},
 }  # type: Dict[str, DetectorConfigurationItem]
 
 
@@ -72,6 +74,9 @@ def register_detector(detector: Type[Detector], autoload: bool = False):
     :param autoload: Whether to automatically load this ``Detector`` on ``Scrubber`` initialisation.
     :type autoload: bool
     """
+    if not inspect.isclass(detector) or not issubclass(detector, Detector):
+        raise ValueError("detector should be a class, not an instance.")
+
     detector_configuration[detector.name] = {
         'detector': detector,
         'autoload': autoload,

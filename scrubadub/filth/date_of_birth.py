@@ -3,8 +3,8 @@ from faker import Faker
 from .base import Filth
 
 
-class DoBFilth(Filth):
-    type = 'dob'
+class DateOfBirthFilth(Filth):
+    type = 'date_of_birth'
 
     @staticmethod
     def generate(faker: Faker) -> str:

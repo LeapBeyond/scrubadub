@@ -6,10 +6,11 @@ from scrubadub.filth import LocationFilth
 class LocationFilthTestCase(unittest.TestCase):
 
     def test_generate(self):
-        fake = faker.Faker()
-        faker.Faker.seed(4321)
+        class Faker:
+            def city(self):
+                return 'Brianland'
 
         self.assertEqual(
-            'West Bryan',
-            LocationFilth.generate(faker=fake),
+            'Brianland',
+            LocationFilth.generate(faker=Faker()),
         )

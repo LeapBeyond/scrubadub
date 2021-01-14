@@ -13,7 +13,7 @@ from scrubadub.comparison import make_fake_document, get_filth_classification_re
 
 
 FILTH_IN_LOCALES = {
-    'en_US': ['address', 'email', 'name', 'phone', 'ssn', 'twitter', 'url'],
+    'en_US': ['address', 'email', 'name', 'phone', 'social_security_number', 'twitter', 'url'],
     'en_GB': ['address', 'phone', 'postalcode'],
 }
 
@@ -71,8 +71,8 @@ def document_accuracy_settings(locales: List[str], detector_available: Dict[str,
                     if detector_available['text_blob']:
                         detectors.append('text_blob_name')
                         added_name_detector = True
-                    if detector_available['stanford_ner']:
-                        detectors.append('stanford_ner')
+                    if detector_available['stanford']:
+                        detectors.append('stanford')
                         added_name_detector = True
                 if not added_name_detector:
                     filth_list = [x for x in filth_list if x != 'name']
@@ -88,14 +88,14 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
     detector_available = {
         'address': False,
         'spacy': False,
-        'stanford_ner': False,
+        'stanford': False,
         'text_blob': False,
     }
 
     if run_slow:
         try:
-            import scrubadub.detectors.stanford_ner
-            detector_available['stanford_ner'] = True
+            import scrubadub.detectors.stanford
+            detector_available['stanford'] = True
         except ImportError:
             pass
         try:
@@ -103,11 +103,11 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
             detector_available['address'] = True
         except ImportError:
             pass
-        try:
-            import scrubadub.detectors.text_blob
-            detector_available['text_blob'] = True
-        except ImportError:
-            pass
+        # try:
+        #     import scrubadub.detectors.text_blob
+        #     detector_available['text_blob'] = True
+        # except ImportError:
+        #     pass
         try:
             import scrubadub.detectors.spacy
             detector_available['spacy'] = True
@@ -149,9 +149,10 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
 @click.option('--ndocs', help='Number of fake documents', default=50, type=click.INT, show_default=True)
 @click.option('--seed', help='Document generation seed', default=1234, type=click.INT, show_default=True)
 @click.option('--fast', is_flag=True, help='Only run fast detectors')
+@click.option('--combine-detectors', is_flag=True, help='Print statistics for combined detectors')
 @click.option('--locales', default=','.join(FILTH_IN_LOCALES.keys()), show_default=True,
                metavar='<locale>', type=click.STRING, help='Locales to run with')
-def main(fast: bool, locales: Union[str, List[str]], ndocs: int = 50, seed: int = 1234):
+def main(fast: bool, combine_detectors: bool, locales: Union[str, List[str]], ndocs: int = 50, seed: int = 1234):
     """Test scrubadub accuracy using fake data."""
     run_slow = not fast
 
@@ -173,7 +174,9 @@ def main(fast: bool, locales: Union[str, List[str]], ndocs: int = 50, seed: int 
     for locale, filth_list, detectors in settings:
         found_filth += generate_and_scrub(locale, filth_list, detectors, n_docs=ndocs)
 
-    print(get_filth_classification_report(found_filth))
+    print(get_filth_classification_report(found_filth, combine_detectors=False))
+    if combine_detectors:
+        print(get_filth_classification_report(found_filth, combine_detectors=True))
 
     # TODO: check seed sets things correctly
 

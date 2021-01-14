@@ -15,8 +15,8 @@ try:
     import nltk
 except ImportError:
     raise ImportError(
-        'To use scrubadub.detectors.stanford_ner extra dependencies need to be installed.\n'
-        'Please run: pip install scrubadub[stanford_ner]'
+        'To use scrubadub.detectors.stanford extra dependencies need to be installed.\n'
+        'Please run: pip install scrubadub[stanford]'
     )
 
 from typing import Dict, Type, Optional, List
@@ -26,7 +26,7 @@ from .base import Detector
 from ..filth.base import Filth
 from ..filth.name import NameFilth
 from ..filth.organization import OrganizationFilth
-from ..filth.address import AddressFilth
+from ..filth.location import LocationFilth
 
 
 class ScrubadubStanfordNERTagger(nltk.tag.StanfordNERTagger):
@@ -50,32 +50,41 @@ class ScrubadubStanfordNERTagger(nltk.tag.StanfordNERTagger):
         ]
 
 
-class StanfordNERDetector(Detector):
-    """Search for people's names, organization's names and locations within text using the stanford 3 class model."""
+class StanfordEntityDetector(Detector):
+    """Search for people's names, organization's names and locations within text using the stanford 3 class model.
+
+    The three classes of this model can be enabled with the three arguments to the inialiser `enable_person`,
+    `enable_organization` and `enable_location`.
+    An example of their usage is given below.
+
+    >>> import scrubadub, scrubadub.detectors.stanford
+    >>> detector = scrubadub.detectors.StanfordEntityDetector(
+    ...     enable_person=False, enable_organization=False, enable_location=True
+    ... )
+    >>> scrubber = scrubadub.Scrubber(detector_list=[detector])
+    >>> scrubber.clean('Jane is visiting London.')
+    'Jane is visiting {{LOCATION}}.'
+    """
     filth_cls = Filth
-    name = "stanford_ner"
+    name = "stanford"
     ignored_words = ["tennant"]
 
     # TODO: NER model Has been wrapped into coreNLP packagewhich has version 4.1.0 out now.
     #  The download script needs to be updated.
     # TODO: Add support for Spanish, German, Chinese, French (No Arabic NER model)
     stanford_version = "4.0.0"
-    stanford_prefix = pathlib.Path.home().joinpath('.scrubadub').joinpath('stanford_ner').__str__()
     stanford_download_url = 'https://nlp.stanford.edu/software/stanford-ner-{version}.zip'
-    stanford_download_path = os.path.join(stanford_prefix, 'stanford-ner-{version}.zip')
-    stanford_classifier = os.path.join('stanford-ner-{version}', 'classifiers', 'english.all.3class.distsim.crf.ser.gz')
-    stanford_classifier_path = os.path.join(stanford_prefix, stanford_classifier)
-    stanford_ner_jar_path = os.path.join(stanford_prefix, 'stanford-ner-{version}', 'stanford-ner.jar')
-    stanford_files = [
-        stanford_classifier,
-        os.path.join('stanford-ner-{version}', 'stanford-ner.jar'),
-        os.path.join('stanford-ner-{version}', 'stanford-ner-{version}.jar'),
-        os.path.join('stanford-ner-{version}', 'stanford-ner-{version}-javadoc.jar'),
-        os.path.join('stanford-ner-{version}', 'stanford-ner-{version}-sources.jar'),
-    ]
 
     def __init__(self, enable_person: bool = True, enable_organization: bool = True, enable_location: bool = False,
                  **kwargs):
+        """Initialise the ``Detector``.
+
+        :param name: Overrides the default name of the :class:``Detector``
+        :type name: str, optional
+        :param locale: The locale of the documents in the format: 2 letter lower-case language code followed by an
+                       underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
+        :type locale: str, optional
+        """
         self.stanford_tagger = None  # type: Optional[nltk.tag.StanfordNERTagger]
 
         self.filth_lookup = {}  # type: Dict[str, Type[Filth]]
@@ -84,9 +93,25 @@ class StanfordNERDetector(Detector):
         if enable_organization:
             self.filth_lookup['ORGANIZATION'] = OrganizationFilth
         if enable_location:
-            self.filth_lookup['LOCATION'] = AddressFilth
+            self.filth_lookup['LOCATION'] = LocationFilth
 
-        super(StanfordNERDetector, self).__init__(**kwargs)
+        self.stanford_classifier = os.path.join('stanford-ner-{version}', 'classifiers',
+                                                'english.all.3class.distsim.crf.ser.gz')
+
+        self.stanford_prefix = pathlib.Path.home().joinpath('.scrubadub').joinpath('stanford_ner').__str__()
+        self.stanford_download_path = os.path.join(self.stanford_prefix, 'stanford-ner-{version}.zip')
+        self.stanford_classifier_path = os.path.join(self.stanford_prefix, self.stanford_classifier)
+        self.stanford_ner_jar_path = os.path.join(self.stanford_prefix, 'stanford-ner-{version}', 'stanford-ner.jar')
+
+        self.stanford_files = [
+            self.stanford_classifier,
+            os.path.join('stanford-ner-{version}', 'stanford-ner.jar'),
+            os.path.join('stanford-ner-{version}', 'stanford-ner-{version}.jar'),
+            os.path.join('stanford-ner-{version}', 'stanford-ner-{version}-javadoc.jar'),
+            os.path.join('stanford-ner-{version}', 'stanford-ner-{version}-sources.jar'),
+        ]
+
+        super(StanfordEntityDetector, self).__init__(**kwargs)
 
     def _check_downloaded(self):
         """Find out if the stanford NER tagger has already been downloaded"""
@@ -128,6 +153,15 @@ class StanfordNERDetector(Detector):
             )
 
     def iter_filth(self, text, document_name: Optional[str] = None):
+        """Yields discovered filth in the provided ``text``.
+
+        :param text: The dirty text to clean.
+        :type text: str
+        :param document_name: The name of the document to clean.
+        :type document_name: str, optional
+        :return: An iterator to the discovered :class:`Filth`
+        :rtype: Iterator[:class:`Filth`]
+        """
         if self.stanford_tagger is None:
             if not self._check_downloaded():
                 self._download()
@@ -198,6 +232,6 @@ class StanfordNERDetector(Detector):
         return language in ['en']
 
 
-register_detector(StanfordNERDetector, autoload=False)
+register_detector(StanfordEntityDetector, autoload=False)
 
-__all__ = ["StanfordNERDetector"]
+__all__ = ["StanfordEntityDetector"]

@@ -44,6 +44,15 @@ class SkypeDetector(RegexDetector):
     SKYPE_USERNAME = re.compile(_SKYPE+'{5,31}')
 
     def iter_filth(self, text, document_name: Optional[str] = None):
+        """Yields discovered filth in the provided ``text``.
+
+        :param text: The dirty text to clean.
+        :type text: str
+        :param document_name: The name of the document to clean.
+        :type document_name: str, optional
+        :return: An iterator to the discovered :class:`Filth`
+        :rtype: Iterator[:class:`Filth`]
+        """
 
         # find 'skype' in the text using a customized tokenizer. this makes
         # sure that all valid skype usernames are kept as tokens and not split

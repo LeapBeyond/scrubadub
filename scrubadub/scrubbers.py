@@ -18,7 +18,6 @@ class Scrubber(object):
     def __init__(self, detector_list: Optional[Sequence[Union[Type[Detector], Detector, str]]] = None,
                  post_processor_list: Optional[Sequence[Union[Type[PostProcessor], PostProcessor, str]]] = None,
                  locale: Optional[str] = None):
-        super().__init__()
         """Create a ``Scrubber`` object.
 
         :param detector_list: The list of detectors to use in this scrubber.
@@ -29,6 +28,7 @@ class Scrubber(object):
                        underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
         :type locale: str, optional
         """
+        super().__init__()
 
         # instantiate all of the detectors which, by default, uses all of the
         # detectors that are in the detectors.types dictionary
@@ -43,11 +43,16 @@ class Scrubber(object):
             detector_list = [
                 config['detector']
                 for name, config in detectors.detector_configuration.items()
-                if config['autoload']
+                if config['autoload'] and (
+                    not hasattr(config['detector'], 'supported_locale') or (
+                            hasattr(config['detector'], 'supported_locale') and
+                            config['detector'].supported_locale(locale)  # type: ignore
+                    )
+                )
             ]
 
         for detector in detector_list:
-            self.add_detector(detector, warn=False)
+            self.add_detector(detector, warn=True)
 
         if post_processor_list is None:
             post_processor_list = [
@@ -63,7 +68,7 @@ class Scrubber(object):
             self.add_post_processor(post_processor)
 
     def add_detector(self, detector: Union[Detector, Type[Detector], str], warn: bool = True):
-        """Add a ``Detector`` to scrubadub
+        """Add a ``Detector`` to Scrubber
 
         You can add a detector to a ``Scrubber`` by passing one of three objects to this function:
 
@@ -101,7 +106,26 @@ class Scrubber(object):
                 raise ValueError("Unknown Detector: {}".format(detector))
 
     def remove_detector(self, detector: Union[Detector, Type[Detector], str]):
-        """Remove a ``Detector`` from scrubadub"""
+        """Remove a ``Detector`` from a Scrubber
+
+        You can remove a detector from a ``Scrubber`` by passing one of three objects to this function:
+
+            1. the uninitalised class to this function, which removes the initalised detector of the same name.
+            2. an instance of a ``Detector`` class, which removes the initalised detector of the same name.
+            3. a string containing the name of the detector, which removed the detector of that name.
+
+        .. code:: pycon
+
+            >>> import scrubadub
+            >>> scrubber = scrubadub.Scrubber()
+            >>> scrubber.remove_detector(scrubadub.detectors.CreditCardDetector)
+            >>> scrubber.remove_detector('url')
+            >>> detector = scrubadub.detectors.email.EmailDetector()
+            >>> scrubber.remove_detector(detector)
+
+        :param detector: The ``Detector`` to remove from this scrubber.
+        :type detector: a Detector class, a Detector instance, or a string with the detector's name
+        """
         if isinstance(detector, type):
             self._detectors.pop(detector().name)
         elif isinstance(detector, detectors.base.Detector):
@@ -116,12 +140,12 @@ class Scrubber(object):
                 'The detector "{}" is not an instance of the '
                 'Detector class.'
             ).format(detector))
+
         name = detector.name
         if hasattr(detector, 'supported_locale'):
             if not detector.supported_locale(self._locale):  # type: ignore
                 if warn:
                     warnings.warn("Detector {} does not support the scrubber locale '{}'.".format(name, self._locale))
-                return
         if name in self._detectors:
             raise KeyError((
                 'can not add Detector "%(name)s" to this Scrubber, this name is already in use. '
@@ -130,7 +154,25 @@ class Scrubber(object):
         self._detectors[name] = detector
 
     def add_post_processor(self, post_processor: Union[PostProcessor, Type[PostProcessor], str], index: int = None):
-        """Add a ``Detector`` to scrubadub"""
+        """Add a ``PostProcessor`` to a Scrubber
+
+        You can add a post-processor to a ``Scrubber`` by passing one of three objects to this function:
+
+            1. the uninitalised class to this function, which initialises the class with default settings.
+            2. an instance of a ``PostProcessor`` class, where you can initialise it with the settings desired.
+            3. a string containing the name of the detector, which again initialises the class with default settings.
+
+        .. code:: pycon
+
+            >>> import scrubadub, scrubadub.post_processors
+            >>> scrubber = scrubadub.Scrubber()
+            >>> scrubber.add_post_processor('filth_type_replacer')
+            >>> scrubber.add_post_processor(scrubadub.post_processors.PrefixSuffixReplacer)
+
+        :param post_processor: The ``PostProcessor`` to remove from this scrubber.
+        :type post_processor: a PostProcessor class, a PostProcessor instance, or a string with the post-processor's
+            name
+        """
         if isinstance(post_processor, type):
             if not issubclass(post_processor, PostProcessor):
                 raise TypeError((
@@ -148,7 +190,25 @@ class Scrubber(object):
                 raise ValueError("Unknown PostProcessor: {}".format(post_processor))
 
     def remove_post_processor(self, post_processor: Union[PostProcessor, Type[PostProcessor], str]):
-        """Remove a ``Detector`` from scrubadub"""
+        """Remove a ``PostProcessor`` from a Scrubber
+
+        You can remove a post-processor from a ``Scrubber`` by passing one of three objects to this function:
+
+            1. the uninitalised class to this function, which removes the initalised post-processor of the same name.
+            2. an instance of a ``PostProcessor`` class, which removes the initalised post-processor of the same name.
+            3. a string containing the name of the detector, which removed the post-processor of that name.
+
+        .. code:: pycon
+
+            >>> import scrubadub, scrubadub.post_processors
+            >>> scrubber = scrubadub.Scrubber()
+            >>> scrubber.remove_post_processor('filth_type_replacer')
+            >>> scrubber.remove_post_processor(scrubadub.post_processors.PrefixSuffixReplacer)
+
+        :param post_processor: The ``PostProcessor`` to remove from this scrubber.
+        :type post_processor: a PostProcessor class, a PostProcessor instance, or a string with the post-processor's
+            name
+        """
         if isinstance(post_processor, type):
             self._post_processors = [x for x in self._post_processors if x.name != post_processor().name]
         elif isinstance(post_processor, post_processors.base.PostProcessor):
@@ -305,7 +365,7 @@ class Scrubber(object):
         for name, detector in self._detectors.items():
             document_iterator = getattr(detector, 'iter_filth_documents', None)
             if callable(document_iterator):
-                for filth in document_iterator(document_names, document_texts):
+                for filth in document_iterator(document_list=document_texts, document_names=document_names):
                     if not isinstance(filth, Filth):
                         raise TypeError('iter_filth must always yield Filth')
                     filth_list.append(filth)
@@ -327,8 +387,7 @@ class Scrubber(object):
         else:
             # ... but here, we're using a generator. If we try to use the same variable it would have two types and
             # fail static typing in mypy
-            for filth in self._merge_filths(filth_list):
-                yield filth
+            yield from self._merge_filths(filth_list)
 
     @staticmethod
     def _sort_filths(filth_list: Sequence[Filth]) -> List[Filth]:

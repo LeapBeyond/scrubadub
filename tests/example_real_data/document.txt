@@ -1,0 +1,12 @@
+
+This is is an example document that has been labelled in known_pii.csv. This document contains filthy personal
+infomation that we want to remove, such as an address for Mike Johnson:
+
+123 The Street,
+London,
+E2 2AA,
+England
+
+or an example phone number 0775 2212 211 and email address mike@example.com.
+
+benchmark_accuracy_real_data.py checks to see if the personal information can be found in this file.

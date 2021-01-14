@@ -16,9 +16,8 @@ BaseBlob.pos_tagger = PatternTagger()
 
 
 class TextBlobNameDetector(RegexDetector):
-    """Use part of speech tagging to clean proper nouns out of the dirty dirty
-    ``text``. Disallow particular nouns by adding them to the
-    ``NameDetector.disallowed_nouns`` set.
+    """Use part of speech tagging from textblob to clean proper nouns out of the dirty dirty
+    ``text``. Disallow particular nouns by adding them to the ``NameDetector.disallowed_nouns`` set.
     """
     filth_cls = NameFilth
     name = 'text_blob_name'
@@ -26,6 +25,15 @@ class TextBlobNameDetector(RegexDetector):
     disallowed_nouns = CanonicalStringSet(["skype"])
 
     def iter_filth(self, text, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
+        """Yields discovered filth in the provided ``text``.
+
+        :param text: The dirty text to clean.
+        :type text: str
+        :param document_name: The name of the document to clean.
+        :type document_name: str, optional
+        :return: An iterator to the discovered :class:`Filth`
+        :rtype: Iterator[:class:`Filth`]
+        """
 
         if not isinstance(self.disallowed_nouns, CanonicalStringSet):
             raise TypeError(
@@ -48,8 +56,7 @@ class TextBlobNameDetector(RegexDetector):
             for proper_noun in proper_nouns:
                 re_list.append(r'\b' + re.escape(str(proper_noun)) + r'\b')
             self.regex = re.compile('|'.join(re_list))
-            for filth in super(TextBlobNameDetector, self).iter_filth(text, document_name=document_name):
-                yield filth
+            yield from super(TextBlobNameDetector, self).iter_filth(text, document_name=document_name)
         return
 
     @classmethod

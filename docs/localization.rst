@@ -1,4 +1,5 @@
 .. _locales:
+.. _localization:
 
 Localization
 ============

@@ -189,6 +189,38 @@ class ComparisonTestCase(unittest.TestCase):
             },
         )
 
+    def test_overall(self):
+        """test comparison with other predefined filth types"""
+
+        filths = [
+            MergedFilth(
+                PhoneFilth(beg=0, end=4, text='1234', detector_name='phone1', locale='en_GB'),
+                KnownFilth(beg=0, end=4, text='1234', comparison_type='phone', locale='en_GB'),
+            ),
+            KnownFilth(beg=5, end=10, text='12345', comparison_type='phone', locale='en_GB'),
+            MergedFilth(
+                PhoneFilth(beg=5, end=9, text='1234', detector_name='phone2', locale='en_US'),
+                KnownFilth(beg=5, end=9, text='1234', comparison_type='phone', locale='en_US'),
+            ),
+            KnownFilth(beg=15, end=20, text='12345', comparison_type='phone2', locale='en_US'),
+        ]
+
+        self.assertEquals(
+            {
+                'macro avg': {'f1-score': 0.8333333333333333, 'precision': 1.0,'recall': 0.75, 'support': 3},
+                'micro avg': {'f1-score': 0.8, 'precision': 1.0, 'recall': 0.6666666666666666, 'support': 3},
+                'phone:combined:en_GB': {'f1-score': 0.6666666666666666, 'precision': 1.0, 'recall': 0.5, 'support': 2},
+                'phone:combined:en_US': {'f1-score': 1.0, 'precision': 1.0, 'recall': 1.0, 'support': 1},
+                'samples avg': {'f1-score': 0.5, 'precision': 0.5, 'recall': 0.5, 'support': 3},
+                'weighted avg': {'f1-score': 0.7777777777777777, 'precision': 1.0, 'recall': 0.6666666666666666, 'support': 3}
+            },
+            scrubadub.comparison.get_filth_classification_report(
+                filths,
+                combine_detectors=True,
+                output_dict=True,
+            ),
+        )
+
     def test_with_irrelevant_filth(self):
         """text comparison with irrelevant filths included"""
 
@@ -231,6 +263,9 @@ class ComparisonTestCase(unittest.TestCase):
 
     def test_dataframe(self):
         """test basic comparison"""
+        # test to ensure it doesn't crash if no filth is given to get_filth_dataframe
+        scrubadub.comparison.get_filth_dataframe([])
+        # setup some filths for the other tests
         filths = [
             MergedFilth(
                 PhoneFilth(beg=0, end=4, text='1234', detector_name='phone'),

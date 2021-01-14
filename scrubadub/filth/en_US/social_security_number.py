@@ -1,10 +1,11 @@
 from faker import Faker
+import stdnum.us.ssn
 
 from scrubadub.filth.base import Filth
 
 
-class NinoFilth(Filth):
-    type = 'nino'
+class SocialSecurityNumberFilth(Filth):
+    type = 'social_security_number'
 
     @staticmethod
     def generate(faker: Faker) -> str:
@@ -15,4 +16,7 @@ class NinoFilth(Filth):
         :return: An example of this ``Filth``
         :rtype: str
         """
+        ssn = ''
+        while not stdnum.us.ssn.is_valid(ssn):
+            ssn = faker.ssn()
         return faker.ssn()

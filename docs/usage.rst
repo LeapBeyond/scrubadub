@@ -46,16 +46,22 @@ This is shown below:
 In the table below you can see which detectors are included by default and which ones arent.
 For more infomation about these detectors checkout :ref:`the detector documentation <api_scrubadub_detectors>`
 
-+---------------------------+----------------------------+
-| Default detectors         | Optional detectors         |
-+===========================+============================+
-| | ``CredentialDetector``  | | ``AddressDetector``      |
-| | ``EmailDetector``       | | ``KnownFilthDetector``   |
-| | ``PhoneDetector``       | | ``PostalCodeDetector``   |
-| | ``SSNDetector``         | | ``SkypeDetector``        |
-| | ``TwitterDetector``     | | ``StanfordNERDetector``  |
-| | ``UrlDetector``         | | ``TextBlobNameDetector`` |
-+---------------------------+----------------------------+
++----------------------------------------+-------------------------------+
+| Default detectors                      | Optional detectors            |
++========================================+===============================+
+| | ``CredentialDetector``               | | ``AddressDetector``         |
+| | ``CreditCardDetector``               | | ``DateOfBirthDetector``     |
+| | ``DriversLicenceDetector``           | | ``KnownFilthDetector``      |
+| | ``EmailDetector``                    | | ``SkypeDetector``           |
+| | ``NationalInsuranceNumberDetector``  | | ``SpacyEntityDetector``     |
+| | ``PhoneDetector``                    | | ``StanfordEntityDetector``  |
+| | ``PostalCodeDetector``               | | ``TextBlobNameDetector``    |
+| | ``SocialSecurityNumberDetector``     | |                             |
+| | ``TaxReferenceNumberDetector``       | |                             |
+| | ``TwitterDetector``                  | |                             |
+| | ``UrlDetector``                      | |                             |
+| | ``VehicleLicencePlateDetector``      | |                             |
++----------------------------------------+-------------------------------+
 
 Localisation
 ------------
@@ -151,8 +157,8 @@ Detectors can also be added or removed from the scrubber at any time by calling 
 These functions can be passed one of:
 
 * a string -- the detector name
-* a ``Detector`` object -- an instance of a ``Detector`` class, ``Detector.name`` is used is used to find the detector name
-* a ``Detector`` class -- a ``Detector`` class, ``Detector.name`` is used is used to find the detector name
+* a ``Detector`` object -- an instance of a ``Detector`` class
+* a ``Detector`` class -- a ``Detector`` class
 
 It is important to note that two ``Detector``\ s cant be added to the same ``Scrubber`` with the same name.
 If you want to add two copies of the same ``Detector`` to a ``Scrubber``, you can set a `name` in the constructor.

@@ -5,7 +5,7 @@ from ..filth.postalcode import PostalCodeFilth
 
 
 class PostalCodeDetector(RegionLocalisedRegexDetector):
-    """Detects british postcodes."""
+    """Detects postal codes, currently only British post codes are supported."""
     filth_cls = PostalCodeFilth
     name = 'postalcode'
     region_regex = {

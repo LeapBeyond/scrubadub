@@ -41,9 +41,9 @@ Once this has been done, the ``StanfordNERDetector`` can be used with the follow
 
 .. code-block:: pycon
 
-    >>> import scrubadub, scrubadub.detectors.stanford_ner
+    >>> import scrubadub, scrubadub.detectors.stanford
     >>> scrubber = scrubadub.Scrubber()
-    >>> scrubber.add_detector(scrubadub.detectors.stanford_ner.StanfordNERDetector)
+    >>> scrubber.add_detector(scrubadub.detectors.stanford.StanfordNERDetector)
     >>> scrubber.clean("My name is John")
     'My name is {{NAME}}'
 
@@ -53,6 +53,8 @@ Spacy
 This is the suggested named detector, since its easy to install and works pretty well.
 However, this uses spacy v3 (v2 is the stable version) and so might break if spacy change things, since v3 is only in preview.
 The v3 version of the entity detection works much better than in v2.
+
+Spacy v3 requires python version >= 3.6 and < 3.9, as python 3.9 is not yet supported by spacy.
 
 To install all dependencies for the Spacy detector you can do:
 
@@ -81,16 +83,16 @@ This can be done with the ``enable_*`` parameters in the initialiser:
 
 .. code-block:: pycon
 
-    >>> import scrubadub, scrubadub.detectors.stanford_ner
+    >>> import scrubadub, scrubadub.detectors.stanford
     >>> scrubber = scrubadub.Scrubber()
-    >>> scrubber.add_detector(scrubadub.detectors.stanford_ner.StanfordNERDetector(
+    >>> scrubber.add_detector(scrubadub.detectors.stanford.StanfordNERDetector(
     ...     enable_person=True, enable_organization=True, enable_location=True
     ... ))
     >>> scrubber.clean("My name is John and I work at the United Nations")
     'My name is {{NAME}} and I work at the {{ORGANIZATION}}'
 
 TextBlob
-^^^^^^^^
+--------
 
 It is suggested not to use this detector due to its high false positive rate, however it is useful in some situations.
 Please test it on your data to ensure it works well.
