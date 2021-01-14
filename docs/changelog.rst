@@ -20,6 +20,7 @@ The changes include:
 * Several new detectors have been added (spacy, stanford NER, tax reference number, credit card, ...)
 * Added ability to easily evaluate a `Detector`\ 's performance, see :ref:`accuracy`.
 * Started to localise detectors to function for more than one language/location.
+* Support for scrubbing multiple documents together.
 * Introduced the concept of a `PostProcessor`.
   This will allow more complex groupings of `Filth`\ s and new types of tokenization.
 
@@ -28,8 +29,9 @@ Scrubber
 
 * `Detector`\ s and `PostProcessor`\ s can be added and removed using a string containing their default name, their class or an instance.
 * You can clean multiple documents with one `Scrubber().clean_documents(docs)` call
-* A default set of `Detector`\ s are loaded instead of all `Detector`\ s.
-  This is particularly useful for optional detectors with complex dependencies.
+* **A default set of `Detector`\ s are loaded instead of all `Detector`\ s.**
+  This is particularly useful for detectors that are slow or have complex dependencies, as they dont need to be loaded each time.
+  However, this might need an explicit `Scrubber().add_detector(detector)` call for the same behaviour as before.
 * Added a `locale` parameter to the `Scrubber` initialiser.
 * A Scrubber will only auto-load detectors that support a given `Scrubber` `locale`.
 
@@ -38,11 +40,11 @@ Detectors
 
 * The the name of the detector has been separated from the type of filth found.
   This means multiple instances of the same detector (configured differently) can be in the same `Scrubber` instance and one `Detector` can return multiple types of `Filth`.
-* Detectors now require a class instance variable called name, which should be unique within a `Scrubber` instance.
-* `Detector`\ s now have a `locale` argument to the `Detector` initialiser.
+* **`Detector`\ s now required to define an attribute called name**, which should be unique within a `Scrubber` instance.
+* **`Detector`\ s are now passed a `locale` argument to the `Detector` initialiser**.
 * `Detector`\ s have an optional `supported_locale(locale)` function that returns a bool to indicate if a given `Detector` supports a `locale`.
-* Regular expressions used by the `RegexDetector` class have been moved from `RegexFilth.regex` to `RegexDetector.regex`.
-* Renamed `SSNDetector` to `SocialSecurityNumberDetector`
+* **Regular expressions used by the `RegexDetector` class have been moved from `RegexFilth.regex` to `RegexDetector.regex`**.
+* **Renamed `SSNDetector` to `SocialSecurityNumberDetector`**.
 * Added `AddressDetector`, which detects US, CA and GB addresses.
 * Added `CreditCardDetector`, which detects credit card numbers (based on the Detector in the alphagov scrubadub fork).
 * Added `DateOfBirthDetector`, which detects dates of birth.
@@ -59,7 +61,7 @@ Detectors
 Filth
 ^^^^^
 
-* Introduced three parameters in the constructor `detector_name`, `document_name` and `locale`.
+* **Introduced three parameters in the constructor `detector_name`, `document_name` and `locale`**.
   These keep track of the `Detector` that found the `Filth`, the document it came from and the documents locale.
   This results in `Filth` objects being passed additional parameters on initialisation.
   If you have defined custom `Filth`\ s they will need to be updated so that `Filth.__init__` accepts the `detector_name`, `document_name` and `locale` keywords and call the base class constructor.
