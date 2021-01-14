@@ -29,7 +29,7 @@ Scrubber
 
 * `Detector`\ s and `PostProcessor`\ s can be added and removed using a string containing their default name, their class or an instance.
 * You can clean multiple documents with one `Scrubber().clean_documents(docs)` call
-* **A default set of `Detector`\ s are loaded instead of all `Detector`\ s.**
+* **A default set of Detectors are loaded instead of all Detectors.**
   This is particularly useful for detectors that are slow or have complex dependencies, as they dont need to be loaded each time.
   However, this might need an explicit `Scrubber().add_detector(detector)` call for the same behaviour as before.
 * Added a `locale` parameter to the `Scrubber` initialiser.
@@ -40,23 +40,23 @@ Detectors
 
 * The the name of the detector has been separated from the type of filth found.
   This means multiple instances of the same detector (configured differently) can be in the same `Scrubber` instance and one `Detector` can return multiple types of `Filth`.
-* **`Detector`\ s now required to define an attribute called name**, which should be unique within a `Scrubber` instance.
-* **`Detector`\ s are now passed a `locale` argument to the `Detector` initialiser**.
-* `Detector`\ s have an optional `supported_locale(locale)` function that returns a bool to indicate if a given `Detector` supports a `locale`.
-* **Regular expressions used by the `RegexDetector` class have been moved from `RegexFilth.regex` to `RegexDetector.regex`**.
-* **Renamed `SSNDetector` to `SocialSecurityNumberDetector`**.
-* Added `AddressDetector`, which detects US, CA and GB addresses.
-* Added `CreditCardDetector`, which detects credit card numbers (based on the Detector in the alphagov scrubadub fork).
-* Added `DateOfBirthDetector`, which detects dates of birth.
-* Added `DriversLicenceDetector`, which detects GB drivers licence numbers.
-* Added `KnownFilthDetector`, which is used to find bits of known Filth, such as human tagged Filth.
-* Added `PostalCodeDetector`, which detects GB post codes.
-* Added `SpacyEntityDetector`, which detects a `range of named entities <https://spacy.io/api/annotation#named-entities>`_, including names.
-* Added `StanfordEntityDetector`, which also detects `slightly different range of named entities <https://nlp.stanford.edu/software/CRF-NER.html#Models>`_, including names.
-* Added `NationalInsuranceNumberDetector`, which detects GB National Insurance Numbers (NINO).
-* Added `TaxReferenceNumberDetector`, which detects GB Tax Reference Numbers (TRN).
-* Added `VehicleLicencePlateDetector`, which detects number plates on GB cars.
-* Added `RegionLocalisedRegexDetector`, which derived from the convenience class `RegexDetector` to allow for quickly creating regional regex based detectors.
+* **Detectors now required to define an attribute called name**, which should be unique within a `Scrubber` instance.
+* **Detectors are now passed a locale argument to the Detector initialiser**.
+* `Detectors have an optional `supported_locale(locale)` function that returns a bool to indicate if a given `Detector` supports a `locale`.
+* **Regular expressions used by the `egexDetector class have been moved from RegexFilth.regex to RegexDetector.regex**.
+* **Renamed SSNDetector to SocialSecurityNumberDetector**.
+* New `AddressDetector`, which detects US, CA and GB addresses.
+* New `CreditCardDetector`, which detects credit card numbers (based on the Detector in the `alphagov scrubadub fork <https://github.com/alphagov/scrubadub>`_).
+* New `DateOfBirthDetector`, which detects dates of birth (thanks to `@mirandachong <https://github.com/mirandachong>`_).
+* New `DriversLicenceDetector`, which detects GB drivers licence numbers.
+* New `KnownFilthDetector`, which is used to find bits of known Filth, such as human tagged Filth.
+* New `PostalCodeDetector`, which detects GB post codes.
+* New `SpacyEntityDetector`, which detects a `range of named entities <https://spacy.io/api/annotation#named-entities>`_, including names (thanks to `@aCampello <https://github.com/aCampello>`_).
+* New `StanfordEntityDetector`, which also detects `slightly different range of named entities <https://nlp.stanford.edu/software/CRF-NER.html#Models>`_, including names.
+* New `NationalInsuranceNumberDetector`, which detects GB National Insurance Numbers (NINO) (thanks to `@mirandachong <https://github.com/mirandachong>`_).
+* New `TaxReferenceNumberDetector`, which detects GB Tax Reference Numbers (TRN) (thanks to `@mirandachong <https://github.com/mirandachong>`_).
+* New `VehicleLicencePlateDetector`, which detects number plates on GB cars (based on the Detector in the `alphagov scrubadub fork <https://github.com/alphagov/scrubadub>`_).
+* New `RegionLocalisedRegexDetector`, which derived from the convenience class `RegexDetector` to allow for quickly creating regional regex based detectors.
 
 Filth
 ^^^^^
