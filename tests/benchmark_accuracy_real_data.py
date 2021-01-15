@@ -144,7 +144,7 @@ def load_known_pii(known_pii_locations: List[str], storage_connection_string: Op
     for known_pii_location in known_pii_locations:
         file_data = load_files(known_pii_location, storage_connection_string=storage_connection_string)
         for file_name, data in file_data.items():
-            dataframe = pd.read_csv(io.BytesIO(data))
+            dataframe = pd.read_csv(io.BytesIO(data), dtype={'match': str, 'match_end': str})
             known_pii += dataframe.to_dict(orient='records')
 
     for item in known_pii:
