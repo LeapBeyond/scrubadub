@@ -6,7 +6,9 @@ import time
 import glob
 import click
 import dotenv
-import chardet
+# import chardet
+# try a new chardet package, its a drop in replacement based on a mozilla project.
+import cchardet as chardet
 import logging
 import posixpath
 import azure.storage.blob
@@ -114,8 +116,10 @@ def decode_text(documents: Dict[str, bytes]) -> Dict[str, str]:
                 encoding = test_encoding
                 break
 
+        # If the decoded text is blank, but the encoded text isn't blank
         if len(text) == 0 and len(value) > 0:
-            click.echo("Skipping file, unable to decode: {}".format(name))
+            logger = logging.getLogger('scrubadub.tests.benchmark_accuracy_real_data')
+            logger.warning("Skipping file, unable to decode: {} (detected {})".format(name, encoding))
             continue
 
         decoded_documents[name] = text
