@@ -273,59 +273,52 @@ def create_filth_summaries(found_filth: List[Filth], filth_matching_dataset: Opt
         dataframe.to_csv(filth_matching_dataset)
 
     if filth_matching_report is not None:
-        logger = logging.getLogger('scrubadub.tests.benchmark_accuracy_real_data')
-        logger.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(message)s')
+        with open(filth_matching_report.name, mode='wt') as report_file:
+            dataframe['filth_type'] = dataframe['filth_type'].fillna(dataframe['known_comparison_type'])
+            filth_types = dataframe['filth_type'].dropna().unique()
+            report_file.write('# Filth summary report\n')
+            for filth_type in filth_types:
+                report_file.write('\n## {} filth\n'.format(filth_type))
+                frequent = (
+                    dataframe
+                    [(dataframe['filth_type'] == filth_type) & ~dataframe['text'].isnull()]
+                    ['text']
+                    .value_counts()
+                    .head(10)
+                )
+                frequent.index.name = 'text'
+                frequent.name = 'count'
 
-        file_handler = logging.FileHandler(filth_matching_report.name, mode='wt')
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+                false_positive = (
+                    dataframe
+                    [(dataframe['filth_type'] == filth_type) & dataframe['false_positive']]
+                    [['document_name', 'detector_name', 'text', 'false_positive']]
+                    .drop_duplicates()
+                )
+                false_positive.index.name = 'index'
 
-        dataframe['filth_type'] = dataframe['filth_type'].fillna(dataframe['known_comparison_type'])
-        filth_types = dataframe['filth_type'].dropna().unique()
-        logger.info('# Filth summary report')
-        for filth_type in filth_types:
-            logger.info('\n## {} filth'.format(filth_type))
-            frequent = (
-                dataframe
-                [(dataframe['filth_type'] == filth_type) & ~dataframe['text'].isnull()]
-                ['text']
-                .value_counts()
-                .head(10)
-            )
-            frequent.index.name = 'text'
-            frequent.name = 'count'
+                false_negative = (
+                    dataframe
+                    [(dataframe['filth_type'] == filth_type) & dataframe['false_negative']]
+                    [['known_text', 'false_negative']]
+                    .drop_duplicates()
+                )
+                false_negative.index.name = 'index'
 
-            false_positive = (
-                dataframe
-                [(dataframe['filth_type'] == filth_type) & dataframe['false_positive']]
-                [['document_name', 'detector_name', 'text', 'false_positive']]
-                .drop_duplicates()
-            )
-            false_positive.index.name = 'index'
+                if false_positive.shape[0] > 10:
+                    false_positive = false_positive.sample(10)
+                if false_negative.shape[0] > 10:
+                    false_negative = false_negative.sample(10)
 
-            false_negative = (
-                dataframe
-                [(dataframe['filth_type'] == filth_type) & dataframe['false_negative']]
-                [['known_text', 'false_negative']]
-                .drop_duplicates()
-            )
-            false_negative.index.name = 'index'
-
-            if false_positive.shape[0] > 10:
-                false_positive = false_positive.sample(10)
-            if false_negative.shape[0] > 10:
-                false_negative = false_negative.sample(10)
-
-            logger.info(
-                "\n### Most frequent {}\n\n{}".format(filth_type, frequent.to_markdown())
-            )
-            logger.info(
-                "\n### Sample of {} false positives\n\n{}".format(filth_type, false_positive.to_markdown())
-            )
-            logger.info(
-                "\n### Sample of {} false negatives\n\n{}".format(filth_type, false_negative.to_markdown())
-            )
+                report_file.write(
+                    "\n### Most frequent {}\n\n{}\n".format(filth_type, frequent.to_markdown())
+                )
+                report_file.write(
+                    "\n### Sample of {} false positives\n\n{}\n".format(filth_type, false_positive.to_markdown())
+                )
+                report_file.write(
+                    "\n### Sample of {} false negatives\n\n{}\n".format(filth_type, false_negative.to_markdown())
+                )
 
 
 def not_none_argument(ctx, param, value):
