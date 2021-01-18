@@ -339,12 +339,16 @@ def not_none_argument(ctx, param, value):
               help='Connection string to azure bob storage (if needed)')
 @click.option('--known-pii', type=str, multiple=True, metavar='<file>', help="File containing known PII CSV",
               callback=not_none_argument)
-@click.option('--filth-matching-dataset', type=click.File('wt'), help="Location of csv file to save detailed matching information to")
-@click.option('--filth-matching-report', type=click.File('wt'), help="Location of markdown file to save matching report to")
+@click.option('--filth-matching-dataset', type=click.File('wt'),
+              help="Location of csv file to save detailed matching information to")
+@click.option('--filth-matching-report', type=click.File('wt'),
+              help="Location of markdown file to save matching report to")
+@click.option('--debug-log', type=click.File('wt'),
+              help="Location of a log file for log messages that may contain PII")
 @click.argument('document', metavar='DOCUMENT', type=str, nargs=-1, callback=not_none_argument)
 def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_connection_string: Optional[str],
          known_pii: Sequence[str], filth_matching_dataset: Optional[click.utils.LazyFile],
-         filth_matching_report: Optional[click.utils.LazyFile]):
+         filth_matching_report: Optional[click.utils.LazyFile], debug_log: Optional[click.utils.LazyFile]):
     """Test scrubadub accuracy using text DOCUMENT(s). Requires a CSV of known PII.
 
     DOCUMENT(s) can be specified as local paths or azure blob storage URLs in the form:
@@ -365,6 +369,22 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
     run_slow = not fast
     if run_slow:
         load_complicated_detectors()
+
+    # Setup a logger that we can use to log things with possible PII data in that won't go to stdout
+    logger = logging.getLogger('scrubadub')
+    logger.handlers = []
+    logger.setLevel(logging.NOTSET)
+
+    if debug_log is not None:
+        root_logger = logging.getLogger()
+        root_logger.removeHandler(root_logger.handlers[0])
+        root_logger.setLevel(logging.WARNING)
+
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler = logging.FileHandler(debug_log.name, mode='wt')
+        file_handler.setFormatter(formatter)
+
+        root_logger.addHandler(file_handler)
 
     known_pii_locations = list(known_pii)
     known_filth_items = load_known_pii(
