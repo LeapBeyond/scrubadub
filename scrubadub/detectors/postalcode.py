@@ -13,7 +13,7 @@ class PostalCodeDetector(RegionLocalisedRegexDetector):
         # and validated against https://osdatahub.os.uk/downloads/open/CodePointOpen
         'GB': re.compile(r"""
             (
-                # 
+                # Girobank postcode
                 (?:[gG][iI][rR] {0,}0[aA]{2})|
                 (?:  # British Overseas Territories in usual format
                     (?:
