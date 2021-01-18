@@ -1,6 +1,7 @@
 import os
 import re
 import copy
+import logging
 
 from wasabi import msg
 from typing import Generator, Iterable, Optional, Sequence, List
@@ -171,15 +172,35 @@ class SpacyEntityDetector(Detector):
         :return: An iterator to the discovered :class:`Filth`
         :rtype: Iterator[:class:`Filth`]
         """
-        spacy_docs = list(copy.copy(document_list))
+        preprocessed_docs = list(copy.copy(document_list))
         # If the model is a transformer model, we need to transform our data a little to avoid a maximum width of the
         # transformer. Lots of spaces causes lots of tokens to be made and passed to the transformer which makes an
         # index go out of range and so we remove excess whitespace.
         if self.preprocess_text:
-            spacy_docs = self._preprocess_text(spacy_docs)
+            preprocessed_docs = self._preprocess_text(preprocessed_docs)
+
+        i = 0
+        spacy_docs = []
+        generator = self.nlp.pipe(preprocessed_docs)
+        while True:
+            try:
+                spacy_doc = next(generator)
+            except IndexError as e:
+                if e.args[0] == 'index out of range in self':
+                    message = "Error processing documents due to spacy's transformer model. To use this model, try " \
+                              "preprocessing the text by removing non-words and reducing spaces. Skipping file: {}"
+                    logger = logging.getLogger('scrubadub.detectors.spacy.SpacyEntityDetector')
+                    logger.warning(message.format(document_names[i]))
+                    spacy_doc = list(self.nlp.pipe(' '))[0]
+                else:
+                    raise e
+            except StopIteration:
+                break
+            i += 1
+            spacy_docs.append(spacy_doc)
 
         yielded_filth = set()
-        for doc_name, doc, text in zip(document_names, self.nlp.pipe(spacy_docs), document_list):
+        for doc_name, doc, text in zip(document_names, spacy_docs, document_list):
             for ent in doc.ents:
                 if ent.label_ not in self.named_entities:
                     continue
