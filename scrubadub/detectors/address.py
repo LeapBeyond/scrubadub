@@ -1,4 +1,5 @@
 import re
+import pkg_resources
 try:
     import pyap
     import postal.parser
@@ -13,7 +14,28 @@ from typing import Dict, Optional
 
 from . import register_detector
 from .base import Detector
+from .postalcode import PostalCodeDetector
 from ..filth.address import AddressFilth
+
+# if pkg_resources.get_distribution('pyap').version.split('.') '0.3.1':
+# A little monkey patching to fix the postcode regex
+import pyap.source_GB.data
+pyap.source_GB.data.full_address = r"""
+    (?P<full_address>
+        {full_street}
+        (?: {part_divider} {city} )?
+        (?: {part_divider} {region1} )?
+        {part_divider}? {postal_code}
+        (?: {part_divider} {country} )?
+    )  # end full_address
+""".format(
+    full_street=pyap.source_GB.data.full_street,
+    part_divider=pyap.source_GB.data.part_divider,
+    city=pyap.source_GB.data.city,
+    region1=pyap.source_GB.data.region1,
+    country=pyap.source_GB.data.country,
+    postal_code="(?P<postal_code>" + PostalCodeDetector.region_regex['GB'].pattern + ")",
+)
 
 
 class AddressDetector(Detector):
