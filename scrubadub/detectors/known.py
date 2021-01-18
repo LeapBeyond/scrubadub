@@ -80,6 +80,13 @@ class KnownFilthDetector(Detector):
         for item in known_filth_items:
             if 'match' not in item or 'filth_type' not in item:
                 raise KeyError("Each known filth item (dict) needs both keys 'match' and 'filth_type'.")
+            if not isinstance(item['match'], str):
+                raise ValueError("The value of 'match' in each KnownItem should be a string. "
+                                 "Current value: " + item['match'].__repr__())
+            if 'match_end' in item:
+                if not isinstance(item['match_end'], str):
+                    raise ValueError("The value of 'match_end' in each KnownItem should be a string. "
+                                     "Current value: " + item['match_end'].__repr__())
             for key in item.keys():
                 if key not in ['match', 'match_end', 'limit', 'filth_type']:
                     raise KeyError("Unexpected key '{}' in the known filth item.".format(key))
