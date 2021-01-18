@@ -12,10 +12,8 @@ import cchardet as chardet
 import logging
 import posixpath
 import azure.storage.blob
-import pandas as pd
-from pandas import DataFrame
 
-from typing import List, Union, Dict, Sequence, Optional, Dict
+from typing import List, Union, Sequence, Optional, Dict
 from urllib.parse import urlparse
 
 import scrubadub
@@ -98,7 +96,7 @@ def load_azure_files(url: str, storage_connection_string: Optional[str] = None) 
 
 
 def decode_text(documents: Dict[str, bytes]) -> Dict[str, str]:
-    decoded_documents = {}  #  type: Dict[str, str]
+    decoded_documents = {}  # type: Dict[str, str]
     for name, value in documents.items():
         text = ""
         charset = chardet.detect(value)
@@ -127,7 +125,7 @@ def decode_text(documents: Dict[str, bytes]) -> Dict[str, str]:
     return decoded_documents
 
 
-def load_files(path: str, storage_connection_string: Optional[str] = None) -> Dict[str, str]:
+def load_files(path: str, storage_connection_string: Optional[str] = None) -> Dict[str, bytes]:
     if path.startswith('https://') or path.startswith('http://'):
         parsed_url = urlparse(path)
         if parsed_url.netloc.endswith('blob.core.windows.net'):
@@ -138,7 +136,8 @@ def load_files(path: str, storage_connection_string: Optional[str] = None) -> Di
     return load_local_files(path)
 
 
-def load_known_pii(known_pii_locations: List[str], storage_connection_string: Optional[str] = None) -> List[KnownFilthItem]:
+def load_known_pii(known_pii_locations: List[str],
+                   storage_connection_string: Optional[str] = None) -> List[KnownFilthItem]:
     start_time = time.time()
     click.echo("Loading Known Filth...")
 
@@ -150,6 +149,19 @@ def load_known_pii(known_pii_locations: List[str], storage_connection_string: Op
         for file_name, data in file_data.items():
             dataframe = pd.read_csv(io.BytesIO(data), dtype={'match': str, 'match_end': str})
             known_pii += dataframe.to_dict(orient='records')
+            if sorted(dataframe.columns.to_list()) != sorted(['match', 'match_end', 'limit', 'filth_type']):
+                raise ValueError(
+                    "Unexpected columns in '{}'. Expected the following columns: match, match_end, limit and "
+                    "filth_type".format(file_name)
+                )
+            if pd.isnull(dataframe['match']).sum() > 0:
+                raise ValueError(
+                    "The KnownFilth column 'match' contains some null/blank entries in '{}'".format(file_name)
+                )
+            if pd.isnull(dataframe['filth_type']).sum() > 0:
+                raise ValueError(
+                    "The KnownFilth column 'filth_type' contains some null/blank entries in '{}'".format(file_name)
+                )
 
     for item in known_pii:
         for sub_item in ('limit', 'match_end'):
@@ -261,6 +273,7 @@ def load_complicated_detectors() -> Dict[str, bool]:
         scrubadub.detectors.register_detector(SpacyEnTrfDetector, autoload=True)
 
     return detector_available
+
 
 def create_filth_summaries(found_filth: List[Filth], filth_matching_dataset: Optional[click.utils.LazyFile],
                            filth_matching_report: Optional[click.utils.LazyFile]):
@@ -412,6 +425,6 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
         click.echo("ERROR: Combined classification report is None.")
         return
 
+
 if __name__ == "__main__":
     main()
-
