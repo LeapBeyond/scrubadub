@@ -139,7 +139,12 @@ class SpacyEntityDetector(Detector):
     @staticmethod
     def check_spacy_model(model) -> bool:
         """Ensure that the spaCy model is installed."""
-        spacy_info = spacy.info()
+        try:
+            spacy_info = spacy.info()
+        except TypeError:
+            # There is a forgotten default argument in spacy.info in version 3rc3, this try except should be removed
+            # in the future.
+            spacy_info = spacy.info(exclude=[])
         models = list(spacy_info.get('pipelines', spacy_info.get('models', None)).keys())
         if models is None:
             raise ValueError('Unable to detect spacy models.')
