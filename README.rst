@@ -80,7 +80,7 @@ To install scrubadub using pip, simply type::
     pip install scrubadub
 
 To there are three extra sets of packages that can be also be installed to enable extra detectors.
-These extras are `address`, `spacy` and `stanford`, see the relevant documentation (`address documentation <https://scrubadub.readthedocs.io/en/stable/addresses.html>`_ and `name detector documentation <https://scrubadub.readthedocs.io/en/stable/names.html>`_) for more info on these as they require additional dependancies.
+These extras are `address`, `spacy` and `stanford`, see the relevant documentation (`address documentation <https://scrubadub.readthedocs.io/en/latest/addresses.html>`_ and `name detector documentation <https://scrubadub.readthedocs.io/en/latest/names.html>`_) for more info on these as they require additional dependancies.
 To enable these detectors run the below (after having installed any needed dpenedancies)::
 
     pip install scrubadub[address,spacy,stanford]
