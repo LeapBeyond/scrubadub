@@ -2,6 +2,7 @@ import os
 import re
 import copy
 import logging
+import importlib
 
 from wasabi import msg
 from typing import Generator, Iterable, Optional, Sequence, List
@@ -144,7 +145,7 @@ class SpacyEntityDetector(Detector):
             spacy_info = spacy.info()
         except TypeError:
             # There is a forgotten default argument in spacy.info in version 3rc3, this try except should be removed
-            # in the future.
+            # in the future. Fixed in spacy v3rc5.
             spacy_info = spacy.info(exclude=[])
         models = list(spacy_info.get('pipelines', spacy_info.get('models', None)).keys())
         if models is None:
@@ -153,6 +154,7 @@ class SpacyEntityDetector(Detector):
         if model not in models:
             msg.info("Downloading spacy model {}".format(model))
             spacy.cli.download(model)
+            importlib.reload(model)
             # spacy.info() doesnt update after a spacy.cli.download, so theres no point checking it
             models.append(model)
 
@@ -231,8 +233,7 @@ class SpacyEntityDetector(Detector):
                         text=ent.text,
                         document_name=(str(doc_name) if doc_name else None),  # None if no doc_name provided
                         detector_name=self.name,
-                        label=ent.label_,
-                        locale=self.locale
+                        locale=self.locale,
                     )
 
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
