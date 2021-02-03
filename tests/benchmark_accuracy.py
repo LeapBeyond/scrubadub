@@ -56,9 +56,14 @@ def document_accuracy_settings(locales: List[str], detector_available: Dict[str,
         for filth in filth_list:
             if filth == 'address':
                 filth_list = [x for x in filth_list if x != 'address']
+                add_dets = []
+                if detector_available['sklearn_address'] and locale == 'en_GB':
+                    add_dets.append('sklearn_address')
                 if detector_available['address'] and run_slow:
+                    add_dets.append('address')
+                if len(add_dets) > 0:
                     run_settings += [
-                        (locale, ['address'], ['address'])
+                        (locale, ['address'], add_dets)
                     ]
             elif filth == 'name':
                 added_name_detector = False
@@ -87,10 +92,16 @@ def document_accuracy_settings(locales: List[str], detector_available: Dict[str,
 def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
     detector_available = {
         'address': False,
+        'sklearn_address': False,
         'spacy': False,
         'stanford': False,
         'text_blob': False,
     }
+    try:
+        import scrubadub.detectors.sklearn
+        detector_available['sklearn_address'] = True
+    except ImportError:
+        pass
 
     if run_slow:
         try:
