@@ -17,6 +17,7 @@ class SocialSecurityNumberFilth(Filth):
         :rtype: str
         """
         ssn = ''
-        while not stdnum.us.ssn.is_valid(ssn):
-            ssn = faker.ssn()
+        if faker.locales == ['en_US']:
+            while not stdnum.us.ssn.is_valid(ssn):
+                ssn = faker.ssn()
         return faker.ssn()
