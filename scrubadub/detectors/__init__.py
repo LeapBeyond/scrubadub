@@ -8,16 +8,19 @@ else:
     from typing_extensions import TypedDict
 
 from .base import Detector, RegexDetector
+
 from .credential import CredentialDetector
 from .credit_card import CreditCardDetector
 from .drivers_licence import DriversLicenceDetector
 from .email import EmailDetector
+from .known import KnownFilthDetector
 from .phone import PhoneDetector
 from .postalcode import PostalCodeDetector
-from .known import KnownFilthDetector
+from .sklearn_address import SklearnAddressDetector
 from .twitter import TwitterDetector
 from .url import UrlDetector
 from .vehicle_licence_plate import VehicleLicencePlateDetector
+
 from .en_GB.national_insurance_number import NationalInsuranceNumberDetector
 from .en_GB.tax_reference_number import TaxReferenceNumberDetector
 from .en_US.social_security_number import SocialSecurityNumberDetector
@@ -40,6 +43,7 @@ detector_configuration = {
     NationalInsuranceNumberDetector.name: {'detector': NationalInsuranceNumberDetector, 'autoload': True},
     PhoneDetector.name: {'detector': PhoneDetector, 'autoload': True},
     PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': True},
+    SklearnAddressDetector.name: {'detector': SklearnAddressDetector, 'autoload': True},
     SocialSecurityNumberDetector.name: {'detector': SocialSecurityNumberDetector, 'autoload': True},
     TaxReferenceNumberDetector.name: {'detector': TaxReferenceNumberDetector, 'autoload': True},
     TwitterDetector.name: {'detector': TwitterDetector, 'autoload': True},
