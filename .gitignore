@@ -62,3 +62,4 @@ target/
 .idea/
 ..bfg-report
 libpostal/
+tests/code_point_uk_post_codes.zip
