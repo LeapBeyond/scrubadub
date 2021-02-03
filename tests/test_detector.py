@@ -9,7 +9,6 @@ import scrubadub
 
 
 class DetectorTestCase(unittest.TestCase):
-    pass
     # TODO: test detector names
 
     def test_detector_names(self):
