@@ -8,7 +8,7 @@ from . import filth as filth_module
 from .filth import Filth
 from .detectors.known import KnownFilthItem
 
-from typing import List, Dict, Union, Optional, Tuple
+from typing import List, Dict, Union, Optional, Tuple, Callable
 import pandas as pd
 import sklearn.metrics
 
@@ -234,7 +234,7 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
 
 def make_fake_document(
         paragraphs: int = 20, locale: str = 'en_US', seed: Optional[int] = None, faker: Optional[Faker] = None,
-        filth_types: Optional[List[str]] = None
+        filth_types: Optional[List[str]] = None, fake_text_function: Optional[Callable] = None
 ) -> Tuple[str, List[KnownFilthItem]]:
     """Creates a fake document containing `Filth` that needs to be removed. Also returns the list of known filth
     items that are needed byt the `KnownFilthDetector`\\ .
@@ -271,12 +271,17 @@ def make_fake_document(
     :type faker: int
     :param filth_types: A list of the ``Filth.type`` to generate
     :type filth_types: List[str]
+    :param fake_text_function: A function that will generate a 1-3 sentances of text
+    :type fake_text_function: Callable, optional
     :return: The document and a list of `KnownFilthItem`\\ s
     :rtype: Tuple[str, List[KnownFilthItem]]
 
     """
     if faker is None:
         faker = Faker(locale=locale)
+
+    if fake_text_function is None:
+        fake_text_function = faker.text
 
     # TODO: register filth types to build up a dict that can be read from, like the detectors
     possible_filth = [
@@ -301,7 +306,7 @@ def make_fake_document(
     known_items = []  # type: List[KnownFilthItem]
     for i_paragraph in range(paragraphs):
         for i_sentance_group in range(random.randint(1, 10)):
-            text = faker.text()
+            text = fake_text_function()
             matches = list(re.finditer(r'[\s.]', text))
             position = random.choice(matches)
             chosen_filth = random.choice(possible_filth)
