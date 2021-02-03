@@ -4,7 +4,7 @@
 wheel
 
 thinc>=8.0.0rc3,<8.1.0; python_version>='3.6' or python_version<'3.9'
-spacy-nightly[transformers]==3.0.0rc3; python_version>='3.6' or python_version<'3.9'
+spacy-nightly[transformers]==3.0.0rc5; python_version>='3.6' or python_version<'3.9'
 
 # thinc==8.0.0rc2; python_version>='3.6' or python_version<'3.9'
 # spacy-nightly[transformers]==3.0.0rc2; python_version>='3.6' or python_version<'3.9'
