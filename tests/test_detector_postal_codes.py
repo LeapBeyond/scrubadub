@@ -75,7 +75,7 @@ class PostalCodesTestCase(unittest.TestCase):
         detector = scrubadub.detectors.PostalCodeDetector(locale='en_GB')
 
         # Run the detector against this list to ensure we pickup all post codes
-        with zipfile.ZipFile(zip_location.name) as zip:
+        with zipfile.ZipFile(zip_location.absolute()) as zip:
             data_file_names = [
                 name for name in zip.namelist()
                 if name.lower().endswith('.csv') and name.startswith('Data/CSV')
