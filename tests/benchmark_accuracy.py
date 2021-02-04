@@ -6,7 +6,7 @@ import click
 import random
 
 from faker import Faker
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Optional
 
 import scrubadub
 from scrubadub.comparison import make_fake_document, get_filth_classification_report
@@ -45,9 +45,16 @@ def generate_and_scrub(locale, filth_list, detectors, n_docs: int = 50):
     return found_filth
 
 
-def document_accuracy_settings(locales: List[str], detector_available: Dict[str, bool], run_slow: bool = False):
+def document_accuracy_settings(locales: List[str], detector_available: Dict[str, bool], run_slow: bool = False,
+                               limit_detectors: Optional[str] = False):
+    """This works out what should be executed"""
     global FILTH_IN_LOCALES
     run_settings = []
+
+    detector_list = None  # type: Optional[List[str]]
+    if limit_detectors is not None:
+        if isinstance(limit_detectors, str):
+            detector_list = [x.strip() for x in limit_detectors.split(',')]
 
     for locale in locales:
         detectors = []
@@ -57,9 +64,11 @@ def document_accuracy_settings(locales: List[str], detector_available: Dict[str,
             if filth == 'address':
                 filth_list = [x for x in filth_list if x != 'address']
                 add_dets = []
-                if detector_available['sklearn_address'] and locale == 'en_GB':
+                if detector_available['sklearn_address'] and locale == 'en_GB' \
+                        and (detector_list is None or 'sklearn_address' in detector_list):
                     add_dets.append('sklearn_address')
-                if detector_available['address'] and run_slow:
+                if detector_available['address'] and run_slow \
+                        and (detector_list is None or 'address' in detector_list):
                     add_dets.append('address')
                 if len(add_dets) > 0:
                     run_settings += [
@@ -67,27 +76,36 @@ def document_accuracy_settings(locales: List[str], detector_available: Dict[str,
                     ]
             elif filth == 'name':
                 added_name_detector = False
-                if detector_available['spacy']:
+                if detector_available['spacy'] \
+                        and (detector_list is None or 'spacy_en_core_web_sm' in detector_list
+                             or 'spacy' in detector_list):
                     detectors.append('spacy_en_core_web_sm')
                     added_name_detector = True
                     if run_slow:
-                        detectors += ['spacy_en_core_web_md', 'spacy_en_core_web_lg', 'spacy_en_core_web_trf', ]
+                        detectors += [
+                            x for x in ['spacy_en_core_web_md', 'spacy_en_core_web_lg', 'spacy_en_core_web_trf']
+                            if detector_list is None or 'spacy' in detector_list or x in detector_list
+                        ]
                 if run_slow:
-                    if detector_available['text_blob']:
+                    if detector_available['text_blob'] \
+                            and (detector_list is None or 'text_blob' in detector_list):
                         detectors.append('text_blob_name')
                         added_name_detector = True
-                    if detector_available['stanford']:
+                    if detector_available['stanford'] \
+                            and (detector_list is None or 'stanford' in detector_list):
                         detectors.append('stanford')
                         added_name_detector = True
                 if not added_name_detector:
                     filth_list = [x for x in filth_list if x != 'name']
             else:
-                detectors.append(filth)
+                if detector_list is None or filth in detector_list:
+                    detectors.append(filth)
 
         if len(filth_list) > 0 and len(detectors) > 0:
             run_settings += [(locale, filth_list, detectors)]
 
     return run_settings
+
 
 def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
     detector_available = {
@@ -163,7 +181,10 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
 @click.option('--combine-detectors', is_flag=True, help='Print statistics for combined detectors')
 @click.option('--locales', default=','.join(FILTH_IN_LOCALES.keys()), show_default=True,
                metavar='<locale>', type=click.STRING, help='Locales to run with')
-def main(fast: bool, combine_detectors: bool, locales: Union[str, List[str]], ndocs: int = 50, seed: int = 1234):
+@click.option('--detectors', default=None, metavar='<locale>', type=click.STRING,
+              help='Comma separated detectors to run')
+def main(fast: bool, combine_detectors: bool, locales: Union[str, List[str]], ndocs: int = 50, seed: int = 1234,
+         detectors: Optional[str] = None):
     """Test scrubadub accuracy using fake data."""
     run_slow = not fast
 
@@ -175,7 +196,7 @@ def main(fast: bool, combine_detectors: bool, locales: Union[str, List[str]], nd
     detector_available = load_complicated_detectors(run_slow)
 
     settings = document_accuracy_settings(
-        locales=locales_list, run_slow=run_slow, detector_available=detector_available,
+        locales=locales_list, run_slow=run_slow, detector_available=detector_available, limit_detectors=detectors,
     )
 
     Faker.seed(seed)
