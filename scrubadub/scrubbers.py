@@ -336,6 +336,12 @@ class Scrubber(object):
         yield from self.iter_filth_documents(documents={document_name: text},
                                              run_post_processors=run_post_processors)
 
+    @staticmethod
+    def _detector_iter_filth_iterator(detector: Detector, document_list: Sequence[str],
+                                      document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
+        for doc_name, text in zip(document_names, document_list):
+            yield from detector.iter_filth(text, document_name=doc_name)
+
     def iter_filth_documents(
             self,
             documents: Union[Sequence[str], Dict[Optional[str], str]],
@@ -353,6 +359,9 @@ class Scrubber(object):
         elif isinstance(documents, (tuple, list)):
             document_texts = documents
             document_names = [str(x) for x in range(len(documents))]
+        else:
+            raise TypeError(f'documents should be one of dict, list or tuple, but got unsupported type: '
+                            f'{type(documents)}')
 
         # currently doing this by aggregating all_filths and then sorting
         # inline instead of with a Filth.__cmp__ method, which is apparently
@@ -363,18 +372,22 @@ class Scrubber(object):
         # working right now and we can worry about efficiency later
         filth_list = []  # type: List[Filth]
         for name, detector in self._detectors.items():
-            document_iterator = getattr(detector, 'iter_filth_documents', None)
-            if callable(document_iterator):
-                for filth in document_iterator(document_list=document_texts, document_names=document_names):
-                    if not isinstance(filth, Filth):
-                        raise TypeError('iter_filth must always yield Filth')
-                    filth_list.append(filth)
-            else:
-                for document_name, text in zip(document_names, document_texts):
-                    for filth in detector.iter_filth(text, document_name=document_name):
-                        if not isinstance(filth, Filth):
-                            raise TypeError('iter_filth must always yield Filth')
-                        filth_list.append(filth)
+            try:
+                filth_iterator = detector.iter_filth_documents(
+                    document_list=document_texts,
+                    document_names=document_names,
+                )
+            except NotImplementedError:
+                filth_iterator = self._detector_iter_filth_iterator(
+                    detector=detector,
+                    document_list=document_texts,
+                    document_names=document_names,
+                )
+
+            for filth in filth_iterator:
+                if not isinstance(filth, Filth):
+                    raise TypeError('iter_filth must always yield Filth')
+                filth_list.append(filth)
 
         # This is split up so that we only have to use lists if we have to post_process Filth
         if run_post_processors:

@@ -1,6 +1,6 @@
 import re
 import warnings
-from typing import Optional, ClassVar, Type, Generator, Pattern, Dict
+from typing import Optional, ClassVar, Type, Generator, Pattern, Dict, Sequence
 
 from ..filth import Filth
 from ..import utils
@@ -72,6 +72,19 @@ class Detector(object):
         :type text: str
         :param document_name: The name of the document to clean.
         :type document_name: str, optional
+        :return: An iterator to the discovered :class:`Filth`
+        :rtype: Iterator[:class:`Filth`]
+        """
+        raise NotImplementedError('must be implemented in derived classes')
+
+    def iter_filth_documents(self, document_list: Sequence[str],
+                             document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
+        """Yields discovered filth in a list of documents.
+
+        :param document_list: A list of documents to clean.
+        :type document_list: List[str]
+        :param document_names: A list containing the name of each document.
+        :type document_names: List[str]
         :return: An iterator to the discovered :class:`Filth`
         :rtype: Iterator[:class:`Filth`]
         """
