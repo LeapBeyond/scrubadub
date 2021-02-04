@@ -39,6 +39,8 @@ class DetectorTestCase(unittest.TestCase):
         """Test that the Detector abstract class raises an error when iter_filth is not implemented"""
         detector = Detector()
         with self.assertRaises(NotImplementedError):
+            detector.iter_filth_documents(['text'], ['text.txt'])
+        with self.assertRaises(NotImplementedError):
             detector.iter_filth('text')
 
     def test_abstract_regex_filth_raises_error(self):
