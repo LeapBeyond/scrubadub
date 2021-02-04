@@ -251,7 +251,8 @@ def load_complicated_detectors() -> Dict[str, bool]:
         detector_available['spacy'] = True
     except ImportError:
         pass
-    if detector_available['spacy']:
+    # Disable spacy due to thinc.config.ConfigValidationError
+    if detector_available['spacy'] and False:
         del scrubadub.detectors.detector_configuration[scrubadub.detectors.spacy.SpacyEntityDetector.name]
 
         # TODO: this only supports english models for spacy, this should be improved
