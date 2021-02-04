@@ -64,5 +64,7 @@ setup(
         "spacy": get_package_list('python-extras-spacy'),
         "stanford": get_package_list('python-extras-stanford'),
     },
+    include_package_data=True,
+    package_data={'': ['scrubadub/detectors/models/sklearn_address/*.json']},
     zip_safe=False,
 )
