@@ -1,7 +1,6 @@
 import re
 import nltk
 import copy
-import pandas as pd
 import pathlib
 import warnings
 
@@ -11,7 +10,7 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LogisticRegression
 
-from typing import Optional, List, Dict, Any, Generator, Union, Collection, NamedTuple
+from typing import Optional, List, Dict, Any, Generator, Union, Collection, NamedTuple, Sequence
 
 from .base import Detector
 from ..filth.base import Filth
@@ -48,8 +47,6 @@ class TokenTupleWithPredictedTrueLabels(NamedTuple):
     true_label: str
 
 
-# TODO: fix mypy errors
-
 class SklearnDetector(Detector):
     """This is the base of a detector that tokenises text, turns that into features (including features from
     next/previous words), and runs this through a serialised ML model.
@@ -80,23 +77,27 @@ class SklearnDetector(Detector):
         'I-ADD': AddressFilth,
     }
 
-    def __init__(self, dict_vectorizer_json_path: Optional[str] = None,
+    def __init__(self, model_path_prefix: Optional[str] = None, dict_vectorizer_json_path: Optional[str] = None,
                  label_encoder_json_path: Optional[str] = None, model_json_path: Optional[str] = None,
                  number_minimum_tokens: int = 5, number_skippable_tokens: int = 2, Start: int = 2, **kwargs):
         super(SklearnDetector, self).__init__(**kwargs)
 
         # model paths
+        self.model_path_prefix = model_path_prefix
+        if self.model_path_prefix is None:
+            self.model_path_prefix = str(pathlib.Path(__file__).parent / 'models')
+
         self.dict_vectorizer_json_path = dict_vectorizer_json_path
         if self.dict_vectorizer_json_path is None:
-            self.dict_vectorizer_json_path = str(pathlib.Path(__file__).parent / 'dict_vectorizer.json')
+            self.dict_vectorizer_json_path = str(pathlib.Path(self.model_path_prefix) / 'dict_vectorizer.json')
 
         self.label_encoder_json_path = label_encoder_json_path
         if self.label_encoder_json_path is None:
-            self.label_encoder_json_path = str(pathlib.Path(__file__).parent / 'label_encoder.json')
+            self.label_encoder_json_path = str(pathlib.Path(self.model_path_prefix) / 'label_encoder.json')
 
         self.model_json_path = model_json_path
         if self.model_json_path is None:
-            self.model_json_path = str(pathlib.Path(__file__).parent / 'model.json')
+            self.model_json_path = str(pathlib.Path(self.model_path_prefix) / 'model.json')
 
         self.n_prev_tokens = 3
         self.n_next_tokens = 5
@@ -255,9 +256,6 @@ class SklearnDetector(Detector):
         if document_names is None or len(document_names) == 0:
             document_names = list(range(len(document_list)))
 
-        # TODO: delete old code
-        # text_tokens = [(0, token, 'NA') for token in self.word_tokenize(text)]
-        # text_token_positions = self.token_positions(text=text, tokens=[x[1] for x in text_tokens])
         text_tokens = [
             token_tuple
             for doc_name, text in zip(document_names, document_list)
@@ -281,9 +279,9 @@ class SklearnDetector(Detector):
             return filth.type.upper()
         raise ValueError(f'Unable to determine label to assign to filth: f{filth}')
 
-    @staticmethod
     def _add_labels_to_tokens_using_known_filth(
-            token_tuples: Collection[Union[TokenTuple, TokenTupleWithLabel]], known_filth_items: Collection[KnownFilth]
+            self, token_tuples: Collection[Union[TokenTuple, TokenTupleWithLabel]],
+            known_filth_items: Collection[KnownFilth]
     ) -> List[TokenTupleWithLabel]:
         new_token_tuples = []  # type: List[TokenTupleWithLabel]
         current_doc_name = None  # type: Optional[Union[str, int]]
@@ -306,11 +304,12 @@ class SklearnDetector(Detector):
                     prev_label = new_token_tuples[-1][3]  # type: Optional[str]
                 except IndexError:
                     prev_label = None
-                new_label = SklearnDetector._get_label(matching_known_items[0], prev_label)
+                new_label = self._get_label(matching_known_items[0], prev_label)
                 if len(matching_known_items) > 1:
                     multi_types = [ki.comparison_type for ki in known_filth_items].__repr__()
                     warnings.warn(f"Token '{token}' in '{doc_name}' has been labelled as multiple types of filth: "
                                   f"{multi_types}")
+
             new_token_tuples.append(
                 TokenTupleWithLabel(
                     doc_name=doc_name, token=token, span=TokenPosition(token_start, token_end), label=new_label
@@ -333,7 +332,6 @@ class SklearnDetector(Detector):
         self.model = LogisticRegression(**(logistic_regression_kwargs if logistic_regression_kwargs else {}))
         self.label_encoder = LabelEncoder()
 
-        print('tokens')
         text_tokens = [
             token_tuple
             for doc_name, text in zip(document_names, document_list)
@@ -342,45 +340,47 @@ class SklearnDetector(Detector):
         text_tokens_with_labels = self._add_labels_to_tokens_using_known_filth(text_tokens, known_filth_items)
         del text_tokens
 
-        print('features')
         text_features = self.create_features(text_tokens_with_labels,
                                              n_prev_tokens=self.n_prev_tokens, n_next_tokens=self.n_next_tokens)
 
-        print('sklearn')
         target = self.label_encoder.fit_transform([x[3] for x in text_tokens_with_labels])
         text_data = self.dict_vectorizer.fit_transform(text_features)
         self.model = self.model.fit(text_data, target)
         text_prediction = self.model.predict(text_data)
         text_labels = self.label_encoder.inverse_transform(text_prediction)
 
-        print('finishing')
         # TODO: return both predited and true labels
         text_tokens_with_labels = self._add_labels_to_tokens(text_tokens_with_labels, text_labels)
 
-        print('done')
         return text_tokens_with_labels
 
-    def _yield_filth(self, text: str, token_tuple_list: Collection[TokenTupleWithLabel],
-                     document_name: Optional[DocumentName] = None) -> Generator[Filth, None, None]:
+    def _yield_filth(self, token_tuple_list: Collection[TokenTupleWithLabel]) -> Generator[Filth, None, None]:
         for i_token, (doc_name, token, span, *additional_vars) in enumerate(token_tuple_list):
             if len(additional_vars) < 1:
                 raise ValueError('A token is not labelled, cannot yield Filth.')
             label = additional_vars[0]
             if label in self.label_filth_map:
                 filth_cls = self.label_filth_map[label]
-                yield filth_cls(
+                filth = filth_cls(
                         beg=span[0],
                         end=span[1],
-                        text=text[span[0]:span[1]],
-                        document_name=(str(document_name) if document_name else None),  # None if no doc_name provided
+                        text=token,
+                        document_name=(str(doc_name) if doc_name else None),  # None if no doc_name provided
                         detector_name=self.name,
                         locale=self.locale,
                 )
+                yield filth
 
-    # TODO: add support for the multi doc iter_filth too
+    def iter_filth_documents(self, document_list: Sequence[str],
+                             document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
+        token_tuple_list = self.predict(document_list=document_list, document_names=document_names)
+        yield from self._yield_filth(token_tuple_list=token_tuple_list)
+
     def iter_filth(self, text: str, document_name: Optional[DocumentName] = None) -> Generator[Filth, None, None]:
-        token_tuple_list = self.predict(text)
-        yield from self._yield_filth(text, token_tuple_list, document_name=document_name)
+        yield from self.iter_filth_documents(
+            document_list=[text],
+            document_names=[str(document_name) if document_name is not None else document_name],
+        )
 
     @classmethod
     def supported_locale(cls, locale: str) -> bool:
@@ -427,7 +427,7 @@ class BIOTokenSklearnDetector(SklearnDetector):
     def _get_label(filth: Filth, prev_label: Optional[str] = None) -> str:
         if isinstance(filth, KnownFilth) and filth.comparison_type is not None:
             new_label = filth.comparison_type.upper()
-        elif hasattr(filth, 'type') and filth.type not in (None, 'known'):
+        elif filth.type not in (None, 'known'):
             new_label = filth.type.upper()
         else:
             raise ValueError(f'Unable to determine label to assign to filth: f{filth}')
@@ -439,8 +439,32 @@ class BIOTokenSklearnDetector(SklearnDetector):
         return new_label
 
     @staticmethod
+    def _get_doc_text(document_name: DocumentName, document_list: Sequence[str],
+                      document_names: Sequence[Optional[str]]) -> str:
+        doc_id = None  # type: Optional[int]
+        try:
+            doc_id = document_names.index(document_name)
+        except ValueError:
+            if isinstance(document_name, (str, int)):
+                try:
+                    doc_id = int(document_name)
+                except (ValueError, TypeError):
+                    pass
+
+        if doc_id is None:
+            raise ValueError(f"Unable to find '{document_name}' in document_names.")
+
+        try:
+            text = document_list[doc_id]
+        except IndexError:
+            raise IndexError(f"Unable to find index={doc_id} in document_list.")
+
+        return text
+
+    @staticmethod
     def _combine_iob_tokens(
-        text: str, text_tokens: Collection[TokenTupleWithLabel], minimum_ntokens: int,
+        document_list: Sequence[str], document_names: Sequence[Optional[str]],
+        text_tokens: Collection[TokenTupleWithLabel], minimum_ntokens: int,
         maximum_token_distance: int, b_token_required: bool
     ) -> List[TokenTupleWithLabel]:
         """Combines The B-XXX and I-XXX tags into single objects that are labelled simply as XXX."""
@@ -449,20 +473,19 @@ class BIOTokenSklearnDetector(SklearnDetector):
 
         combined_filth_location = None  # type: Optional[TokenPosition]
         combined_filth_label = None  # type: Optional[str]
+        combined_filth_doc_name = None  # Type: Optional[DocumentName]
         combined_filth_ntokens = 0
 
         for token in text_tokens:
             if BIOTokenSklearnDetector.get_iob_from_label(token.label) == 'O':
                 continue
 
-            print((token.span.beg, token.span.end), token.label)
-
             if combined_filth_location is not None and combined_filth_label is not None:
                 max_start_position = combined_filth_location[1] + maximum_token_distance
                 if token.span.beg <= max_start_position \
-                        and BIOTokenSklearnDetector.remove_iob_from_label(token.label) == combined_filth_label:
+                        and BIOTokenSklearnDetector.remove_iob_from_label(token.label) == combined_filth_label\
+                        and token.doc_name == combined_filth_doc_name:
                     # Extend existing filth
-                    # print('combine...')
                     combined_filth_location = TokenPosition(
                         min([combined_filth_location.beg, token.span.beg]),
                         max([combined_filth_location.end, token.span.end]),
@@ -472,10 +495,14 @@ class BIOTokenSklearnDetector(SklearnDetector):
 
             if combined_filth_ntokens >= minimum_ntokens and combined_filth_location is not None:
                 # Issue the collected new filth
-                # print('ISSUE')
+                text = BIOTokenSklearnDetector._get_doc_text(
+                    document_name=combined_filth_doc_name,
+                    document_list=document_list,
+                    document_names=document_names
+                )
                 final_tokens.append(
                     TokenTupleWithLabel(
-                        doc_name=token.doc_name,
+                        doc_name=combined_filth_doc_name,
                         token=text[combined_filth_location.beg:combined_filth_location.end],
                         span=combined_filth_location,
                         label=combined_filth_label if combined_filth_label is not None else token.label,
@@ -483,9 +510,9 @@ class BIOTokenSklearnDetector(SklearnDetector):
                 )
 
             # Reset
-            # print('Reset')
             combined_filth_location = None
             combined_filth_label = None
+            combined_filth_doc_name = None
             combined_filth_ntokens = 0
 
             if b_token_required and not token.label.startswith('B-'):
@@ -494,30 +521,46 @@ class BIOTokenSklearnDetector(SklearnDetector):
             # Start collecting a new filth
             combined_filth_location = TokenPosition(token.span.beg, token.span.end)
             combined_filth_label = BIOTokenSklearnDetector.remove_iob_from_label(token.label)
+            combined_filth_doc_name = token.doc_name
             combined_filth_ntokens = 1
 
-        if combined_filth_ntokens >= minimum_ntokens and combined_filth_location is not None:
+        if combined_filth_ntokens >= minimum_ntokens and combined_filth_location is not None \
+                and combined_filth_label is not None:
             # Issue the collected new filth
-            # print('ISSUE')
+            text = BIOTokenSklearnDetector._get_doc_text(
+                document_name=combined_filth_doc_name,
+                document_list=document_list,
+                document_names=document_names
+            )
             final_tokens.append(
                 TokenTupleWithLabel(
-                    doc_name=token.doc_name,
+                    doc_name=combined_filth_doc_name,
                     token=text[combined_filth_location.beg:combined_filth_location.end],
                     span=combined_filth_location,
-                    label=combined_filth_label if combined_filth_label is not None else token.label,
+                    label=combined_filth_label,
                 )
             )
 
         return final_tokens
 
-    def iter_filth(self, text, document_name: Optional[DocumentName] = None) -> Generator[Filth, None, None]:
-        text_tokens = self.predict(text)
-        print(pd.Series([x.label for x in text_tokens]).value_counts())
+    def iter_filth_documents(self, document_list: Sequence[str],
+                             document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
+        """Yields discovered filth in a list of documents.
+
+        :param document_list: A list of documents to clean.
+        :type document_list: List[str]
+        :param document_names: A list containing the name of each document.
+        :type document_names: List[str]
+        :return: An iterator to the discovered :class:`Filth`
+        :rtype: Iterator[:class:`Filth`]
+        """
+        text_tokens = self.predict(document_list=document_list, document_names=document_names)
         text_tokens = self._combine_iob_tokens(
-            text=text,
+            document_list=document_list,
+            document_names=document_names,
             text_tokens=text_tokens,
             minimum_ntokens=self.minimum_ntokens,
             maximum_token_distance=self.maximum_token_distance,
             b_token_required=self.b_token_required,
         )
-        yield from self._yield_filth(text, token_tuple_list=text_tokens, document_name=document_name)
+        yield from self._yield_filth(token_tuple_list=text_tokens)

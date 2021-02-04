@@ -1,5 +1,5 @@
 import re
-import pkg_resources
+# import pkg_resources
 try:
     import pyap
     import postal.parser

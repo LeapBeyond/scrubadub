@@ -1,10 +1,11 @@
 import re
-from typing import Dict
+import pathlib
+from typing import Dict, Optional
 
 import nltk
 import pyap.source_US.data
 
-# from . import register_detector
+from . import register_detector
 from .sklearn import BIOTokenSklearnDetector
 from ..filth import AddressFilth
 
@@ -23,6 +24,7 @@ class AddressTokeniser(nltk.tokenize.destructive.NLTKWordTokenizer):
         ),  # Handles the final period.
         # Earlier we put a space before the full-stop, if there is something in the format X.X.X .
         # transform this back to X.X.X.
+        # TODO: tokens are not correctly split eg: "aliquid.650" should be "aliquid", ".", "650"
         (re.compile(r'(?<!\w)(\w(?:\.\w)+) +(\.)'), r'\1\2'),
         (re.compile(r"[?!]"), r" \g<0> "),
         (re.compile(r"([^'])' "), r"\1 ' "),
@@ -73,6 +75,8 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
         'B-ADDRESS': AddressFilth,
     }
 
+    # models / sklearn_address
+
     BUILDING_WORDS = [
         'flat', 'building', 'bldg', 'bld', 'apartment', 'apt', 'house', 'studio', 'suite', 'room'
     ]
@@ -101,8 +105,14 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
         'cymry', 'cymru', 'alba'
     ]
 
-    def __init__(self, **kwargs):
-        super(SklearnAddressDetector, self).__init__(**kwargs)
+    def __init__(self, model_path_prefix: Optional[str] = None, b_token_required: bool = True, **kwargs):
+
+        if model_path_prefix is None:
+            model_path_prefix = str(pathlib.Path(__file__).parent / 'models' / 'sklearn_address')
+
+        super(SklearnAddressDetector, self).__init__(
+            model_path_prefix=model_path_prefix, b_token_required=b_token_required, **kwargs
+        )
         self.tokeniser = AddressTokeniser()
 
     @staticmethod
@@ -147,4 +157,4 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
         return region in ['GB']
 
 
-# register_detector(SklearnAddressDetector, autoload=False)
+register_detector(SklearnAddressDetector, autoload=False)

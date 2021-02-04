@@ -16,7 +16,6 @@ from .email import EmailDetector
 from .known import KnownFilthDetector
 from .phone import PhoneDetector
 from .postalcode import PostalCodeDetector
-from .sklearn_address import SklearnAddressDetector
 from .twitter import TwitterDetector
 from .url import UrlDetector
 from .vehicle_licence_plate import VehicleLicencePlateDetector
@@ -43,7 +42,6 @@ detector_configuration = {
     NationalInsuranceNumberDetector.name: {'detector': NationalInsuranceNumberDetector, 'autoload': True},
     PhoneDetector.name: {'detector': PhoneDetector, 'autoload': True},
     PostalCodeDetector.name: {'detector': PostalCodeDetector, 'autoload': True},
-    SklearnAddressDetector.name: {'detector': SklearnAddressDetector, 'autoload': True},
     SocialSecurityNumberDetector.name: {'detector': SocialSecurityNumberDetector, 'autoload': True},
     TaxReferenceNumberDetector.name: {'detector': TaxReferenceNumberDetector, 'autoload': True},
     TwitterDetector.name: {'detector': TwitterDetector, 'autoload': True},
