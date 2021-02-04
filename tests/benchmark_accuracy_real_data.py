@@ -212,11 +212,19 @@ def scrub_documents(documents: Dict[str, str], known_filth_items: List[KnownFilt
 def load_complicated_detectors() -> Dict[str, bool]:
     detector_available = {
         'address': False,
+        'address_sklearn': False,
         'spacy': False,
         'stanford': False,
         'text_blob': False,
     }
 
+    try:
+        import scrubadub.detectors.sklearn_address
+        detector_name = scrubadub.detectors.sklearn_address.SklearnAddressDetector.name
+        scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
+        detector_available['address_sklearn'] = True
+    except ImportError:
+        pass
     try:
         import scrubadub.detectors.stanford
         detector_name = scrubadub.detectors.stanford.StanfordEntityDetector.name
