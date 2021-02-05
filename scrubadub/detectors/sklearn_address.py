@@ -24,8 +24,9 @@ class AddressTokeniser(nltk.tokenize.destructive.NLTKWordTokenizer):
         ),  # Handles the final period.
         # Earlier we put a space before the full-stop, if there is something in the format X.X.X .
         # transform this back to X.X.X.
-        # TODO: tokens are not correctly split eg: "aliquid.650" should be "aliquid", ".", "650"
         (re.compile(r'(?<!\w)(\w(?:\.\w)+) +(\.)'), r'\1\2'),
+        # Remove special whitespace
+        (re.compile(r"[\t\r\f\v]*"), ""),
         (re.compile(r"[?!]"), r" \g<0> "),
         (re.compile(r"([^'])' "), r"\1 ' "),
         (re.compile(r"[*]", re.U), r" \g<0> "),  # See https://github.com/nltk/nltk/pull/2322
