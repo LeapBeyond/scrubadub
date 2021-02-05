@@ -111,6 +111,8 @@ def decode_text(documents: Dict[str, bytes]) -> Dict[str, str]:
             except UnicodeDecodeError:
                 pass
             else:
+                # Remove \r from \r\n to leave \n. Assumes no newlines represented by simply '\r'.
+                text = text.replace('\r', '')
                 encoding = test_encoding
                 break
 
