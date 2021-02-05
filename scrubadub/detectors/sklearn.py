@@ -133,9 +133,9 @@ class SklearnDetector(Detector):
     @staticmethod
     def token_positions(text: str, tokens: Collection[str]) -> List[TokenPosition]:
         if len(tokens) == 0:
-            raise ValueError("tokens should not be empty")
-        if len(text.strip()) == 0:
-            raise ValueError("text should not be empty")
+            return []
+        if len(text) == 0 and len(tokens) > 0:
+            raise ValueError("Cannot find tokens in empty text.")
 
         non_token_pattern = "(?:[^a-zA-Z0-9]*)"
         inter_token_pattern = "){inter}(".format(inter=non_token_pattern)
