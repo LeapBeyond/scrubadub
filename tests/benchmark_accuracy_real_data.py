@@ -5,13 +5,17 @@ import io
 import time
 import glob
 import click
+import magic
 import dotenv
 # import chardet
 # try a new chardet package, its a drop in replacement based on a mozilla project.
 import cchardet as chardet
 import logging
+import warnings
 import posixpath
 import azure.storage.blob
+
+from pandas import DataFrame
 
 from typing import List, Union, Sequence, Optional, Dict
 from urllib.parse import urlparse
@@ -146,29 +150,82 @@ def load_known_pii(known_pii_locations: List[str],
     import pandas as pd
     known_pii = []
 
+    target_cols = {'match', 'filth_type'}
+    target_cols_optional = {'match_end', 'limit'}
+    target_cols_alt = {'pii_type', 'pii_start', 'pii_end'}
+
     for known_pii_location in known_pii_locations:
         file_data = load_files(known_pii_location, storage_connection_string=storage_connection_string)
         for file_name, data in file_data.items():
-            dataframe = pd.read_csv(io.BytesIO(data), dtype={'match': str, 'match_end': str})
-            known_pii += dataframe.to_dict(orient='records')
-            if sorted(dataframe.columns.to_list()) != sorted(['match', 'match_end', 'limit', 'filth_type']):
-                raise ValueError(
-                    "Unexpected columns in '{}'. Expected the following columns: match, match_end, limit and "
-                    "filth_type".format(file_name)
-                )
+
+            mime_type = magic.from_buffer(data, mime=True)
+            pandas_reader = pd.read_csv
+            if mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                pandas_reader = pd.read_excel
+
+            dataframe = None  # type: Optional[DataFrame]
+            for i in range(10):
+                dataframe = pandas_reader(io.BytesIO(data), skiprows=i, dtype={
+                    'match': str,
+                    'match_end': str,
+                    'filth_type': str,
+                    'pii_start': str,
+                    'pii_end': str,
+                    'pii_type': str,
+                })
+                if (set(dataframe.columns.to_list()) & target_cols) == target_cols:
+                    break
+                elif (set(dataframe.columns.to_list()) & target_cols_alt) == target_cols_alt:
+                    dataframe = dataframe.rename(
+                        columns={
+                            'pii_type': 'filth_type',
+                            'pii_start': 'match',
+                            'pii_end': 'match_end',
+                        }
+                    )
+                    dataframe = dataframe.replace({
+                        "filth_type": {
+                            "organisation": "organization",
+                            "card-number": "credit_card",
+                            "dob": "date_of_birth",
+                            "driverslicence": "drivers_licence",
+                            "postcode": "postalcode",
+                            "licenceplate": "vehicle_licence_plate",
+                        }
+                    })
+                    break
+                dataframe = None
+
+            if dataframe is None:
+                raise ValueError(f'Unable to read file: {known_pii_location} Are the file format (csv or xslx) and '
+                                 f'columns (match, match_end, filth_type and optionally limit) correct?')
+
+            for col in ['match', 'match_end', 'filth_type']:
+                dataframe[col] = dataframe[col].str.strip()
+
             if pd.isnull(dataframe['match']).sum() > 0:
-                raise ValueError(
-                    "The KnownFilth column 'match' contains some null/blank entries in '{}'".format(file_name)
+                dataframe = dataframe.dropna(axis='index', subset=['match'])
+                warnings.warn(
+                    f"The KnownFilth column 'match' contains some null/blank entries in '{file_name}'. "
+                    f"Skipping these rows."
                 )
             if pd.isnull(dataframe['filth_type']).sum() > 0:
-                raise ValueError(
-                    "The KnownFilth column 'filth_type' contains some null/blank entries in '{}'".format(file_name)
+                dataframe = dataframe.dropna(axis='index', subset=['filth_type'])
+                warnings.warn(
+                    f"The KnownFilth column 'filth_type' contains some null/blank entries in '{file_name}'. "
+                    f"Skipping these rows."
                 )
+            known_pii += dataframe[
+                [col for col in dataframe.columns if col in (target_cols | target_cols_optional)]
+            ].to_dict(orient='records')
 
     for item in known_pii:
         for sub_item in ('limit', 'match_end'):
-            if pd.isnull(item[sub_item]):
-                del item[sub_item]
+            if sub_item in item.keys():
+                if pd.isnull(item[sub_item]):
+                    del item[sub_item]
+                elif isinstance(item[sub_item], str) and len(item[sub_item].strip()) == 0:
+                    del item[sub_item]
 
     end_time = time.time()
     click.echo("Loaded Known Filth in {:.2f}s".format(end_time-start_time))
