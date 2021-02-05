@@ -25,8 +25,9 @@ class AddressTokeniser(nltk.tokenize.destructive.NLTKWordTokenizer):
         # Earlier we put a space before the full-stop, if there is something in the format X.X.X .
         # transform this back to X.X.X.
         (re.compile(r'(?<!\w)(\w(?:\.\w)+) +(\.)'), r'\1\2'),
-        # Remove special whitespace
-        (re.compile(r"[\t\r\f\v]*"), ""),
+        # Remove special whitespace by replacing anything that's not (^) not whitespace (\S) and that's not a newline
+        # This is the same as removing whitespace (\s) except newlines (\n)
+        (re.compile(r"[^\S\n]+"), " "),
         (re.compile(r"[?!]"), r" \g<0> "),
         (re.compile(r"([^'])' "), r"\1 ' "),
         (re.compile(r"[*]", re.U), r" \g<0> "),  # See https://github.com/nltk/nltk/pull/2322
