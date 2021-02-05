@@ -116,7 +116,7 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
         'text_blob': False,
     }
     try:
-        import scrubadub.detectors.sklearn
+        import scrubadub.detectors.sklearn_address
         detector_available['sklearn_address'] = True
     except ImportError:
         pass
