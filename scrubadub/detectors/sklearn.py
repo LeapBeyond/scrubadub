@@ -141,25 +141,30 @@ class SklearnDetector(Detector):
         inter_token_pattern = "){inter}(".format(inter=non_token_pattern)
         start_end_pattern = "^{inter}({tokens}){inter}$"
 
-        # TODO: re.escape(tok) might need replacements
         pattern = start_end_pattern.format(
             tokens=inter_token_pattern.join([re.escape(tok) for tok in tokens]),
             inter=non_token_pattern,
         )
 
+        # This is as a result of using the nltk.tokenize.destructive.NLTKWordTokenizer, will need to be changed if
+        # the tokeniser is changed too much
+        tokenisation_replacements = [
+            (re.compile(r"``"), "(?:``|\"|'')"),
+            (re.compile(r"''"), "(?:''|\")"),
+        ]
+        for search, replace in tokenisation_replacements:
+            pattern = re.sub(search, replace, pattern)
+
+        print(pattern)
+        pattern.replace("\\'\\'", "(\\'\\'|)")
+
         match = re.match(pattern, text, re.DOTALL)
         if match is None:
-            print(text.__repr__())
-            print(tokens.__repr__())
-            print(pattern.__repr__())
             raise ValueError('Tokens were not able to be matched to original document')
         groups = match.groups()
         n_groups = len(groups)
-        if len(tokens) != n_groups or tokens != list(groups):
-            print(text.__repr__())
-            print(tokens.__repr__())
-            print(pattern.__repr__())
-            raise ValueError('Matched tokens do not matched the expected tokens')
+        if len(tokens) != n_groups:
+            raise ValueError('Length of matched tokens do not match the expected tokens')
 
         return [
             TokenPosition(*match.span(i_group))
