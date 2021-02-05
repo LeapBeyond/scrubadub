@@ -306,7 +306,7 @@ def make_fake_document(
     known_items = []  # type: List[KnownFilthItem]
     for i_paragraph in range(paragraphs):
         for i_sentance_group in range(random.randint(1, 10)):
-            text = fake_text_function()
+            text = fake_text_function() + " "
             matches = list(re.finditer(r'[\s.]', text))
             position = random.choice(matches)
             chosen_filth = random.choice(possible_filth)
@@ -315,11 +315,14 @@ def make_fake_document(
                 'match': copy.copy(pii_text),
                 'filth_type': copy.copy(chosen_filth.type),
             })
+            separator = position.group()
+            if '\n' in pii_text:
+                separator = '\n'
             doc += (
                 text[:position.start()] +
-                position.group() +
+                (separator if separator != '.' else separator + ' ') +
                 pii_text +
-                position.group() +
+                separator +
                 text[position.end():]
             )
         doc += "\n\n"
