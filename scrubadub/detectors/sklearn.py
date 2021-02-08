@@ -254,6 +254,9 @@ class SklearnDetector(Detector):
 
     def predict(self, document_list: Collection[str],
                 document_names: Optional[Collection[DocumentName]] = None) -> List[TokenTupleWithLabel]:
+        if len(document_list) == 0:
+            return []
+
         self.load_model()
         if self.dict_vectorizer is None or self.model is None or self.label_encoder is None:
             raise ValueError("Unable to load serialised model")
