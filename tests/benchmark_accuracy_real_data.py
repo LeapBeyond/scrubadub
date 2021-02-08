@@ -257,10 +257,19 @@ def load_documents(document_locations: List[str], storage_connection_string: Opt
     return documents
 
 
-def scrub_documents(documents: Dict[str, str], known_filth_items: List[KnownFilthItem], locale: str) -> List[Filth]:
+def scrub_documents(documents: Dict[str, str], known_filth_items: List[KnownFilthItem], locale: str,
+                    detectors: Optional[str] = None) -> List[Filth]:
     start_time = time.time()
     click.echo("Initialising scrubadub...")
-    scrubber = scrubadub.Scrubber(locale=locale)
+
+    detector_list = None  # type: Optional[List[str]]
+    if detectors is not None:
+        detector_list = [x.strip() for x in detectors.split(',')]
+
+    scrubber = scrubadub.Scrubber(locale=locale, detector_list=detector_list)
+
+    print(f"Running with detectors: {', '.join(scrubber._detectors.keys())}")
+
     scrubber.add_detector(scrubadub.detectors.KnownFilthDetector(locale=locale, known_filth_items=known_filth_items))
     end_time = time.time()
     click.echo("Initialised scrubadub {:.2f}s".format(end_time-start_time))
@@ -422,6 +431,8 @@ def not_none_argument(ctx, param, value):
 @click.option('--fast', is_flag=True, help='Only run fast detectors')
 @click.option('--locale', default='en_GB', show_default=True, metavar='<locale>', type=str,
               help='Locale to run with')
+@click.option('--detectors', default=None, metavar='<locale>', type=click.STRING,
+              help='Comma separated detectors to run')
 @click.option('--storage-connection-string', type=str, envvar='AZURE_STORAGE_CONNECTION_STRING', metavar='<string>',
               help='Connection string to azure bob storage (if needed)')
 @click.option('--known-pii', type=str, multiple=True, metavar='<file>', help="File containing known PII CSV",
@@ -435,7 +446,8 @@ def not_none_argument(ctx, param, value):
 @click.argument('document', metavar='DOCUMENT', type=str, nargs=-1, callback=not_none_argument)
 def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_connection_string: Optional[str],
          known_pii: Sequence[str], filth_matching_dataset: Optional[click.utils.LazyFile],
-         filth_matching_report: Optional[click.utils.LazyFile], debug_log: Optional[click.utils.LazyFile]):
+         filth_matching_report: Optional[click.utils.LazyFile], debug_log: Optional[click.utils.LazyFile],
+         detectors: Optional[str] = None):
     """Test scrubadub accuracy using text DOCUMENT(s). Requires a CSV of known PII.
 
     DOCUMENT(s) can be specified as local paths or azure blob storage URLs in the form:
@@ -483,7 +495,13 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
         document_locations=documents_list, storage_connection_string=storage_connection_string
     )
 
-    found_filth = scrub_documents(documents=documents, known_filth_items=known_filth_items, locale=locale)
+    if len(documents) == 0:
+        click.echo("ERROR: No documents were loaded.")
+        return
+
+    found_filth = scrub_documents(
+        documents=documents, known_filth_items=known_filth_items, locale=locale, detectors=detectors
+    )
 
     create_filth_summaries(found_filth, filth_matching_dataset, filth_matching_report)
 
