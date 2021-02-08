@@ -18,7 +18,7 @@ import azure.storage.blob
 from pandas import DataFrame
 
 from typing import List, Union, Sequence, Optional, Dict
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 
 import scrubadub
 from scrubadub.comparison import get_filth_classification_report, KnownFilthItem, get_filth_dataframe
@@ -83,12 +83,12 @@ def load_azure_files(url: str, storage_connection_string: Optional[str] = None) 
     path, container = parsed_url.path, parsed_url.path
     while path not in ('/', ''):
         path, container = posixpath.split(path)
-    path = parsed_url.path[len(container)+2:]
+    path = unquote(parsed_url.path[len(container)+2:])
 
     container_client = blob_service_client.get_container_client(container)
     file_names = [
         blob.name
-        for blob in list(container_client.list_blobs(path))
+        for blob in container_client.list_blobs(path)
     ]
 
     file_content = {}
