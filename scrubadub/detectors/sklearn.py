@@ -137,7 +137,8 @@ class SklearnDetector(Detector):
         if len(text) == 0 and len(tokens) > 0:
             raise ValueError("Cannot find tokens in empty text.")
 
-        non_token_pattern = "(?:[^a-zA-Z0-9]*)"
+        # non_token_pattern = "(?:[^a-zA-Z0-9]*)"
+        non_token_pattern = r"(?:[\s]*)"
         inter_token_pattern = "){inter}(".format(inter=non_token_pattern)
         start_end_pattern = "^{inter}({tokens}){inter}$"
 
