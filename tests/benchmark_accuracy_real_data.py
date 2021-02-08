@@ -103,6 +103,12 @@ def decode_text(documents: Dict[str, bytes]) -> Dict[str, str]:
     decoded_documents = {}  # type: Dict[str, str]
     for name, value in documents.items():
         text = ""
+        mime_type = magic.from_buffer(value, mime=True)
+        if mime_type in ('application/x-empty'):
+            warnings.warn(f"The file '{name}' is empty, skipping.")
+            continue
+        if mime_type not in ('text/plain', 'application/octet-stream'):
+            warnings.warn(f"The file '{name}' has mime type '{mime_type}', opening as plain text anyway.")
         charset = chardet.detect(value)
         encoding = charset.get('encoding', 'utf-8')
 
