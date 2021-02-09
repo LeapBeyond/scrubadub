@@ -154,7 +154,7 @@ class SpacyEntityDetector(Detector):
         if model not in models:
             msg.info("Downloading spacy model {}".format(model))
             spacy.cli.download(model)
-            importlib.reload(model)
+            importlib.import_module(model)
             # spacy.info() doesnt update after a spacy.cli.download, so theres no point checking it
             models.append(model)
 
