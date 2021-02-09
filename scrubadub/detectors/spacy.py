@@ -163,13 +163,13 @@ class SpacyEntityDetector(Detector):
                     for span_token in doc[token.i:token.i + n_tokens]:
 
                         if span_token.dep_ != "punct" and span_token.tag_ in ("NNP", "NN", "NNPS") \
-                                and span_token.is_stop == False:
+                                and span_token.is_stop is False:
                             span_obj.append(span_token.i)
 
-                except ValueError:
+                except IndexError:
                     for span_token in doc[token.i]:
                         if span_token.dep_ != "punct" and span_token.tag_ in ("NNP", "NN", "NNPS") \
-                                and span_token.is_stop == False:
+                                and span_token.is_stop is False:
                             span_obj.append(span_token.i)
 
                 if len(span_obj) > 1:
