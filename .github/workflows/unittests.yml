@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9, 3.8, 3.6, 3.5]
+        python-version: [3.9, 3.8, 3.7, 3.6]
 
     env:
       PREFIX: /home/runner/prefix
@@ -70,7 +70,7 @@ jobs:
         python -m pip install --upgrade pip wheel setuptools
         pip install -r requirements/python-dev
         pip install -r requirements/python-extras-address
-        if python3 --version | grep -Evq "Python (3\\.5\\.|3\\.9\\.)" ; then pip install -r requirements/python-extras-spacy ; fi
+        if python3 --version | grep -Evq "Python (3\\.5\\.)" ; then pip install -r requirements/python-extras-spacy ; fi
         pip install -r requirements/python-extras-stanford
 
     - name: Cache restore nltk data
@@ -90,7 +90,7 @@ jobs:
 
     - name: Install package
       run: |
-        if python3 --version | grep -Eq "Python (3\\.5\\.|3\\.9\\.)" ; then
+        if python3 --version | grep -Eq "Python (3\\.5\\.)" ; then
           echo "Installing package, with no spacy"
           pip install -e .[address,stanford]
         else
@@ -108,4 +108,4 @@ jobs:
         COVERALLS_SERVICE_NAME: github-actions
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
       run: |
-        if python3 --version | grep -q "Python 3.8." ; then coveralls ; fi
+        if python3 --version | grep -q "Python 3.9." ; then coveralls ; fi
