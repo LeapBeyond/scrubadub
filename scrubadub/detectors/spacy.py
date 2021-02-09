@@ -9,6 +9,10 @@ from typing import Generator, Iterable, Optional, Sequence, List
 
 try:
     import spacy
+    # new in spacy v3
+    from spacy.language import Language
+    from spacy.tokens import Doc
+    from spacy.tokens import Span
 except ImportError as e:
     if e.name == "spacy":
         raise ImportError(
@@ -68,6 +72,7 @@ class SpacyEntityDetector(Detector):
     disallowed_nouns = CanonicalStringSet(["skype"])
 
     def __init__(self, named_entities: Optional[Iterable[str]] = None,
+                 expand_person_titles: Optional[bool] = True,
                  model: Optional[str] = None, **kwargs):
         """Initialise the ``Detector``.
 
@@ -86,6 +91,10 @@ class SpacyEntityDetector(Detector):
 
         if named_entities is None:
             named_entities = {'PERSON', 'PER', 'ORG'}
+
+        if expand_person_titles is True:
+            Doc.set_extension('person_titles', default=None, force=True)
+            self.expand_person_titles = True
 
         # Spacy NER are all upper cased
         self.named_entities = {entity.upper() for entity in named_entities}
@@ -120,6 +129,55 @@ class SpacyEntityDetector(Detector):
 
         # Only enable necessary pipes
         self.nlp.select_pipes(enable=["transformer", "tagger", "parser", "ner"])
+
+        # Add the expand person title component after the named entity recognizer
+        if expand_person_titles is True:
+            self.nlp.add_pipe('expand_person_entities', after='ner')
+
+    @Language.component("expand_person_entities")
+    def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
+        """
+        This is the spacy method for adding a label on top of the normal named entity labels.
+        This method preserves the existing labels as well as creating a new label for expanded person entities.
+        The expanded person entities can be retrieved by using the list doc._.person_titles.
+        Each item in the list doc._.person_titles is a spacy.tokens.span.Span,
+        which contains the start and end locations.
+
+        :return: spacy doc obj
+        """
+
+        person_titles = ['mr', 'mister', 'mrs', 'misses', 'ms', 'miss', 'dr', 'doctor', 'prof', 'professor', 'lord',
+                         'lady',
+                         'rev', 'reverend', 'hon', 'honourable', 'honorable', 'judge', 'sir', 'madam']
+        n_tokens = int(3)
+
+        if doc._.person_titles is None:
+            doc._.person_titles = []
+
+        for token in doc:
+            # if the token is a title
+            if token.text.lower() in person_titles:
+                # span of title plus n tokens to inspect
+                span_obj = []
+                try:
+                    for span_token in doc[token.i:token.i + n_tokens]:
+
+                        if span_token.dep_ != "punct" and span_token.tag_ in ("NNP", "NN", "NNPS") \
+                                and span_token.is_stop == False:
+                            span_obj.append(span_token.i)
+
+                except ValueError:
+                    for span_token in doc[token.i]:
+                        if span_token.dep_ != "punct" and span_token.tag_ in ("NNP", "NN", "NNPS") \
+                                and span_token.is_stop == False:
+                            span_obj.append(span_token.i)
+
+                if len(span_obj) > 1:
+                    # create slice with spacy span to include new entity
+                    entity = Span(doc, min(span_obj), max(span_obj) + 1, label="PERSON")
+                    # update spacy ents to include the new entity
+                    doc._.person_titles.append(entity)
+        return doc
 
     @staticmethod
     def check_spacy_version() -> bool:
@@ -230,6 +288,20 @@ class SpacyEntityDetector(Detector):
                     yield filth_class(
                         beg=ent.start_char,
                         end=ent.end_char,
+                        text=ent.text,
+                        document_name=(str(doc_name) if doc_name else None),  # None if no doc_name provided
+                        detector_name=self.name,
+                        locale=self.locale,
+                    )
+
+            if self.expand_person_titles is True:
+                for ent in doc._.person_titles:
+                    if ent.label_ not in self.named_entities:
+                        continue
+                    filth_class = self.filth_cls_map.get(ent.label_, Filth)
+                    yield filth_class(
+                        beg=ent.start,
+                        end=ent.end,
                         text=ent.text,
                         document_name=(str(doc_name) if doc_name else None),  # None if no doc_name provided
                         detector_name=self.name,
