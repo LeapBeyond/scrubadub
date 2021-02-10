@@ -410,7 +410,7 @@ class BIOTokenSklearnDetector(SklearnDetector):
         'ADD': AddressFilth,
     }
 
-    def __init__(self, minimum_ntokens: int = 5, maximum_token_distance: int = 4, b_token_required: bool = True,
+    def __init__(self, minimum_ntokens: int = 5, maximum_token_distance: int = 10, b_token_required: bool = True,
                  **kwargs):
         super(BIOTokenSklearnDetector, self).__init__(**kwargs)
         self.minimum_ntokens = minimum_ntokens
