@@ -9,6 +9,7 @@ flake8
 coveralls
 nose
 mypy
+tox
 
 # for documentation
 sphinx>=3
@@ -19,3 +20,7 @@ chardet
 cchardet
 pandas
 click
+python-magic
+python-dotenv
+azure-storage-blob
+xlrd<2
