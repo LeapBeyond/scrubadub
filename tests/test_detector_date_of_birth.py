@@ -1,4 +1,5 @@
 import faker
+import random
 import unittest
 import scrubadub
 from scrubadub.filth import DateOfBirthFilth
@@ -58,6 +59,7 @@ class DoBTestCase(unittest.TestCase, BaseTestCase):
     def test_generate(self):
         fake = faker.Faker()
         faker.Faker.seed(4321)
+        random.seed(4321)
 
         # I think this could fail just after midnight, because the generated date it relative to today's date and the
         # generated timedelta will unlikly be an integer number of days.
@@ -65,7 +67,7 @@ class DoBTestCase(unittest.TestCase, BaseTestCase):
         self.assertIn(
             DateOfBirthFilth.generate(faker=fake),
             [
-                str(datetime.date.today() - datetime.timedelta(days=29729)),
-                str(datetime.date.today() - datetime.timedelta(days=29729 + 1)),
+                (datetime.date.today() - datetime.timedelta(days=29729)).strftime('%a %d %b %Y'),
+                (datetime.date.today() - datetime.timedelta(days=29729 + 1)).strftime('%a %d %b %Y'),
             ]
         )
