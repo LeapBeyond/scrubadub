@@ -69,7 +69,7 @@ class PostalCodesTestCase(unittest.TestCase):
         if not zip_location.exists():
             url = 'https://api.os.uk/downloads/v1/products/CodePointOpen/downloads?area=GB&format=CSV&redirect'
             r = requests.get(url, allow_redirects=True)
-            with open(zip_location.name, 'wb') as f:
+            with open(zip_location.absolute(), 'wb') as f:
                 f.write(r.content)
 
         detector = scrubadub.detectors.PostalCodeDetector(locale='en_GB')
