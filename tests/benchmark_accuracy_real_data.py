@@ -24,6 +24,8 @@ import scrubadub
 from scrubadub.comparison import get_filth_classification_report, KnownFilthItem, get_filth_dataframe
 from scrubadub.filth.base import Filth
 
+IGNORE_CASE_IN_KNOWN_FILTH_TYPES = ('email', 'address', 'organization', 'phone', 'postalcode', 'url')
+
 
 def get_blob_service(connection_string: Optional[str] = None) -> azure.storage.blob.BlobServiceClient:
     if connection_string is None:
@@ -232,6 +234,9 @@ def load_known_pii(known_pii_locations: List[str],
                     del item[sub_item]
                 elif isinstance(item[sub_item], str) and len(item[sub_item].strip()) == 0:
                     del item[sub_item]
+        if 'ignore_case' not in item:
+            item['ignore_case'] = item['filth_type'] in IGNORE_CASE_IN_KNOWN_FILTH_TYPES
+
 
     end_time = time.time()
     click.echo("Loaded Known Filth in {:.2f}s".format(end_time-start_time))

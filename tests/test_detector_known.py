@@ -16,6 +16,25 @@ class PredefinedTestCase(unittest.TestCase):
         self.assertEquals(matches[0].beg, 10)
         self.assertEquals(matches[0].end, 14)
 
+    def test_simple(self):
+        """test a matching, ignoring case"""
+
+        test_str = 'this is a test string'
+        detector = scrubadub.detectors.KnownFilthDetector([
+            {'match': 'Test', 'filth_type': 'test', 'ignore_case': True},
+        ])
+
+        matches = list(detector.iter_filth(test_str))
+        self.assertEquals(10, matches[0].beg)
+        self.assertEquals(14, matches[0].end)
+
+        detector = scrubadub.detectors.KnownFilthDetector([
+            {'match': 'Test', 'filth_type': 'test', 'ignore_case': False},
+        ])
+
+        matches = list(detector.iter_filth(test_str))
+        self.assertEquals(0, len(matches))
+
     def test_empty(self):
         """test a simple matching"""
 

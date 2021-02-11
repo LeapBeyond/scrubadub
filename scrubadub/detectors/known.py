@@ -12,7 +12,13 @@ from ..filth.known import KnownFilth
 
 KnownFilthItem = TypedDict(
     'KnownFilthItem',
-    {'match': str, 'match_end': Optional[str], 'limit': Optional[int], 'filth_type': str},
+    {
+        'match': str,
+        'match_end': Optional[str],
+        'limit': Optional[int],
+        'ignore_case': Optional[bool],
+        'filth_type': str
+    },
     total=False,
 )
 
@@ -88,7 +94,7 @@ class KnownFilthDetector(Detector):
                     raise ValueError("The value of 'match_end' in each KnownItem should be a string. "
                                      "Current value: " + item['match_end'].__repr__())
             for key in item.keys():
-                if key not in ['match', 'match_end', 'limit', 'filth_type']:
+                if key not in ['match', 'match_end', 'limit', 'filth_type', 'ignore_case']:
                     raise KeyError("Unexpected key '{}' in the known filth item.".format(key))
 
         self._known_filth_items = known_filth_items
@@ -98,9 +104,14 @@ class KnownFilthDetector(Detector):
             text: str,
             substr: str,
             comparison_type: Optional[str] = None,
-            document_name: Optional[str] = None
+            document_name: Optional[str] = None,
+            ignore_case: bool = False,
     ) -> Generator[KnownFilth, None, None]:
         """Yield filth for each match to substr in text."""
+        if ignore_case:
+            text = text.lower()
+            substr = substr.lower()
+
         substr_len = len(substr)
         start_location = text.find(substr)
 
@@ -126,12 +137,18 @@ class KnownFilthDetector(Detector):
             substr_end: str,
             limit: int = 150,
             comparison_type: Optional[str] = None,
-            document_name: Optional[str] = None
+            document_name: Optional[str] = None,
+            ignore_case: bool = False,
     ) -> Generator[KnownFilth, None, None]:
         """Yield filth for text between (and including)
         substr_start and substr_end, but only if the text
         between the two is less than limit characters.
         """
+        if ignore_case:
+            text = text.lower()
+            substr_start = substr_start.lower()
+            substr_end = substr_end.lower()
+
         substr_start_len = len(substr_start)
         substr_end_len = len(substr_end)
         start_location = text.find(substr_start)
@@ -174,7 +191,10 @@ class KnownFilthDetector(Detector):
         """
         for pii_item in self._known_filth_items:
             # could also implement other types in here too
-            if 'match' in pii_item and 'match_end' in pii_item and pii_item['match_end'] is not None:
+            ignore_case = pii_item.get('ignore_case', None)
+            ignore_case = ignore_case if ignore_case is not None else False
+            if 'match' in pii_item and 'match_end' in pii_item and pii_item['match_end'] is not None \
+                    and len(pii_item['match_end']) > 0:
                 yield from self._find_all_between(
                         text,
                         pii_item['match'],
@@ -182,6 +202,7 @@ class KnownFilthDetector(Detector):
                         limit=int(pii_item.get('limit', 150) or 150),
                         comparison_type=pii_item.get('filth_type', None),
                         document_name=document_name,
+                        ignore_case=ignore_case,
                 )
             elif 'match' in pii_item:
                 yield from self._find_all(
@@ -189,6 +210,7 @@ class KnownFilthDetector(Detector):
                         pii_item['match'],
                         comparison_type=pii_item.get('filth_type', None),
                         document_name=document_name,
+                        ignore_case=ignore_case,
                 )
             else:
                 raise ValueError(
