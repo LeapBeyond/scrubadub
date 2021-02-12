@@ -11,7 +11,6 @@ import dotenv
 # try a new chardet package, its a drop in replacement based on a mozilla project.
 import cchardet as chardet
 import logging
-import warnings
 import posixpath
 import azure.storage.blob
 
@@ -103,14 +102,15 @@ def load_azure_files(url: str, storage_connection_string: Optional[str] = None) 
 
 def decode_text(documents: Dict[str, bytes]) -> Dict[str, str]:
     decoded_documents = {}  # type: Dict[str, str]
+    logger = logging.getLogger('scrubadub.tests.benchmark_accuracy_real_data.decode_text')
     for name, value in documents.items():
         text = ""
         mime_type = magic.from_buffer(value, mime=True)
         if mime_type in ('application/x-empty'):
-            warnings.warn(f"The file '{name}' is empty, skipping.")
+            logger.warning(f"The file '{name}' is empty, skipping.")
             continue
         if mime_type not in ('text/plain', 'application/octet-stream'):
-            warnings.warn(f"The file '{name}' has mime type '{mime_type}', opening as plain text anyway.")
+            logger.warning(f"The file '{name}' has mime type '{mime_type}', opening as plain text anyway.")
         charset = chardet.detect(value)
         encoding = charset.get('encoding', 'utf-8')
 
@@ -130,7 +130,6 @@ def decode_text(documents: Dict[str, bytes]) -> Dict[str, str]:
 
         # If the decoded text is blank, but the encoded text isn't blank
         if len(text) == 0 and len(value) > 0:
-            logger = logging.getLogger('scrubadub.tests.benchmark_accuracy_real_data')
             logger.warning("Skipping file, unable to decode: {} (detected {})".format(name, encoding))
             continue
 
@@ -157,6 +156,8 @@ def load_known_pii(known_pii_locations: List[str],
 
     import pandas as pd
     known_pii = []
+
+    logger = logging.getLogger('scrubadub.tests.benchmark_accuracy_real_data.load_known_pii')
 
     target_cols = {'match', 'filth_type'}
     target_cols_optional = {'match_end', 'limit'}
@@ -213,13 +214,14 @@ def load_known_pii(known_pii_locations: List[str],
 
             if pd.isnull(dataframe['match']).sum() > 0:
                 dataframe = dataframe.dropna(axis='index', subset=['match'])
-                warnings.warn(
+
+                logger.warning(
                     f"The KnownFilth column 'match' contains some null/blank entries in '{file_name}'. "
                     f"Skipping these rows."
                 )
             if pd.isnull(dataframe['filth_type']).sum() > 0:
                 dataframe = dataframe.dropna(axis='index', subset=['filth_type'])
-                warnings.warn(
+                logger.warning(
                     f"The KnownFilth column 'filth_type' contains some null/blank entries in '{file_name}'. "
                     f"Skipping these rows."
                 )
