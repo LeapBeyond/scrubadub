@@ -16,7 +16,6 @@ sphinx>=3
 sphinx_rtd_theme>=0.5
 
 # This is for the tests/benchmark_accuracy_real_data.py script
-chardet
 cchardet
 pandas
 click
