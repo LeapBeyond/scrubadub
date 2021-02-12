@@ -63,3 +63,4 @@ target/
 ..bfg-report
 libpostal/
 tests/code_point_uk_post_codes.zip
+.ipynb_checkpoints/
