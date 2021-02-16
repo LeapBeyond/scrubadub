@@ -14,7 +14,20 @@ class FilthTypeReplacer(PostProcessor):
         filths = [filth]
         if isinstance(filth, MergedFilth):
             filths = filth.filths
-        label = separator.join([getattr(f, 'type', None) for f in filths if getattr(f, 'type', None) is not None])
+
+        replacements = set()
+        for f in filths:
+            filth_type = getattr(f, 'type', None)
+            if filth_type is None:
+                continue
+            if filth_type == 'known':
+                filth_comparison_type = getattr(f, 'comparison_type', None)
+                if filth_comparison_type is not None:
+                    filth_type += '_' + filth_comparison_type
+            replacements.add(filth_type)
+
+        # print(filths, replacements)
+        label = separator.join(replacements)
         if upper:
             label = label.upper()
         return label
