@@ -1,4 +1,5 @@
 import sys
+import copy
 
 from typing import Optional, List, Generator
 
@@ -108,6 +109,8 @@ class KnownFilthDetector(Detector):
             ignore_case: bool = False,
     ) -> Generator[KnownFilth, None, None]:
         """Yield filth for each match to substr in text."""
+
+        text_orig = copy.copy(text)
         if ignore_case:
             text = text.lower()
             substr = substr.lower()
@@ -119,7 +122,7 @@ class KnownFilthDetector(Detector):
             yield KnownFilth(
                 start_location,
                 start_location + substr_len,
-                text[start_location:start_location + substr_len],
+                text_orig[start_location:start_location + substr_len],
                 comparison_type=comparison_type,
                 detector_name=self.name,
                 document_name=document_name,
@@ -144,6 +147,7 @@ class KnownFilthDetector(Detector):
         substr_start and substr_end, but only if the text
         between the two is less than limit characters.
         """
+        text_orig = copy.copy(text)
         if ignore_case:
             text = text.lower()
             substr_start = substr_start.lower()
@@ -163,7 +167,7 @@ class KnownFilthDetector(Detector):
                 yield KnownFilth(
                     start_location,
                     end_location + substr_end_len,
-                    text[start_location:end_location + substr_end_len],
+                    text_orig[start_location:end_location + substr_end_len],
                     comparison_type=comparison_type,
                     detector_name=self.name,
                     document_name=document_name,
