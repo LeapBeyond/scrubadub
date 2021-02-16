@@ -21,13 +21,13 @@ except ImportError as e:
         )
 
 from . import register_detector
-from ..filth import Filth, NameFilth, OrganizationFilth, LocationFilth
-from ..utils import CanonicalStringSet
+from ..filth import Filth, NameFilth
+from .base import Detector, RegexDetector
 from .spacy import SpacyEntityDetector
 
 
 class SpacyExpandPersonTitle(SpacyEntityDetector):
-    """Use spaCy's named entity recognition to identify possible ``Filth``.
+    """Use spaCy's named entity recognition to identify and expand ``NameFilth``.
 
     This detector is made to work with v3 of spaCy, since the NER model has been significantly improved in this
     version.
@@ -51,28 +51,9 @@ class SpacyExpandPersonTitle(SpacyEntityDetector):
     named entity label and the type of scrubadub ``Filth``, while the ``named_entities`` argument sets which named
     entities are considered ``Filth`` by the ``SpacyEntityDetector``.
     """
-    filth_cls_map = {
-        'FAC': LocationFilth,      # Buildings, airports, highways, bridges, etc.
-        'GPE': LocationFilth,      # Countries, cities, states.
-        'LOC': LocationFilth,      # Non-GPE locations, mountain ranges, bodies of water.
-        'PERSON': NameFilth,       # People, including fictional.
-        'PER': NameFilth,          # Bug in french model
-        'ORG': OrganizationFilth,  # Companies, agencies, institutions, etc.
-    }
-    name = 'spacy'
-    language_to_model = {
-        "zh": "zh_core_web_trf",
-        "nl": "nl_core_news_trf",
-        "en": "en_core_web_trf",
-        "fr": "fr_dep_news_trf",
-        "de": "de_dep_news_trf",
-        "es": "es_dep_news_trf",
-    }
 
-    disallowed_nouns = CanonicalStringSet(["skype"])
-
-    def __init__(self, named_entities: Optional[Iterable[str]] = None,
-                 model: Optional[str] = None, **kwargs):
+    def __init__(self, model: Optional[str] = None,
+                 **kwargs):
         """Initialise the ``Detector``.
 
         :param named_entities: Limit the named entities to those in this list, defaults to ``{'PERSON', 'PER', 'ORG'}``
@@ -86,61 +67,29 @@ class SpacyExpandPersonTitle(SpacyEntityDetector):
                        underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
         :type locale: str, optional
         """
-        super(SpacyEntityDetector, self).__init__(**kwargs)
 
-        if named_entities is None:
-            named_entities = {'PERSON', 'PER', 'ORG'}
+        super(SpacyEntityDetector).__init__(**kwargs)
+        #
+        self.model = model
+        self.nlp = spacy.load(self.model)
 
         Doc.set_extension('person_titles', default=None, force=True)
         self.expand_person_titles = True
-
-        # Spacy NER are all upper cased
-        self.named_entities = {entity.upper() for entity in named_entities}
-
-        # Fixes a warning message from transformers that is pulled in via spacy
-        os.environ['TOKENIZERS_PARALLELISM'] = 'false'
-        self.check_spacy_version()
-
-        if model is not None:
-            self.model = model
-        else:
-            if self.language in self.language_to_model:
-                self.model = self.language_to_model[self.language]
-            else:
-                self.model = "{}_core_news_lg".format(self.language)
-
-        self.preprocess_text = self.model.endswith('_trf')
-
-        if not self.check_spacy_model(self.model):
-            raise ValueError("Unable to find spacy model '{}'. Is your language supported? "
-                             "Check the list of models available here: "
-                             "https://github.com/explosion/spacy-models ".format(self.model))
-
-        self.nlp = spacy.load(self.model)
-
-        # If the model doesn't support named entity recognition
-        if 'ner' not in [step[0] for step in self.nlp.pipeline]:
-            raise ValueError(
-                "The spacy model '{}' doesn't support named entity recognition, "
-                "please choose another model.".format(self.model)
-            )
-
-        # Only enable necessary pipes
-        self.nlp.select_pipes(enable=["transformer", "tagger", "parser", "ner"])
 
         # Add the expand person title component after the named entity recognizer
         self.nlp.add_pipe('expand_person_entities', after='ner')
 
     @Language.component("expand_person_entities")
     def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
-        """
+        """ Expand person entity by person title.
+
         This is the spacy method for adding a label on top of the normal named entity labels.
         This method preserves the existing labels as well as creating a new label for expanded person entities.
         The expanded person entities can be retrieved by using the list doc._.person_titles.
         Each item in the list doc._.person_titles is a spacy.tokens.span.Span,
         which contains the start and end locations.
 
-        :return: spacy doc obj
+        :return: spacy doc object
         """
 
         person_titles = ['mr', 'mister', 'mrs', 'misses', 'ms', 'miss', 'dr', 'doctor', 'prof', 'professor', 'lord',
@@ -175,70 +124,25 @@ class SpacyExpandPersonTitle(SpacyEntityDetector):
                     doc._.person_titles.append(entity)
         return doc
 
-    @staticmethod
-    def check_spacy_version() -> bool:
-        """Ensure that the version od spaCy is v3."""
-        spacy_version = spacy.__version__  # spacy_info.get('spaCy version', spacy_info.get('spacy_version', None))
-        spacy_major = 0
-
-        if spacy_version is None:
-            raise ImportError('Spacy v3 needs to be installed. Unable to detect spacy version.')
-        try:
-            spacy_major = int(spacy_version.split('.')[0])
-        except Exception:
-            raise ImportError('Spacy v3 needs to be installed. Spacy version {} is unknown.'.format(spacy_version))
-        if spacy_major != 3:
-            raise ImportError('Spacy v3 needs to be installed. Detected version {}.'.format(spacy_version))
-
-        return True
-
-    @staticmethod
-    def check_spacy_model(model) -> bool:
-        """Ensure that the spaCy model is installed."""
-        try:
-            spacy_info = spacy.info()
-        except TypeError:
-            # There is a forgotten default argument in spacy.info in version 3rc3, this try except should be removed
-            # in the future. Fixed in spacy v3rc5.
-            spacy_info = spacy.info(exclude=[])
-        models = list(spacy_info.get('pipelines', spacy_info.get('models', None)).keys())
-        if models is None:
-            raise ValueError('Unable to detect spacy models.')
-
-        if model not in models:
-            msg.info("Downloading spacy model {}".format(model))
-            spacy.cli.download(model)
-            importlib.import_module(model)
-            # spacy.info() doesnt update after a spacy.cli.download, so theres no point checking it
-            models.append(model)
-
-        # Always returns true, if it fails to download, spacy sys.exit()s
-        return model in models
-
-    @staticmethod
-    def _preprocess_text(document_list: List[str]) -> List[str]:
-        whitespace_regex = re.compile(r'\s+')
-        for i_doc, text in enumerate(document_list):
-            document_list[i_doc] = re.sub(whitespace_regex, ' ', text)
-        return document_list
-
     def iter_filth_documents(self, document_list: Sequence[str],
                              document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
+            #-> Sequence[Optional[str]]:
         """Yields discovered filth in a list of documents.
 
         :param document_list: A list of documents to clean.
         :type document_list: List[str]
         :param document_names: A list containing the name of each document.
         :type document_names: List[str]
-        :return: An iterator to the discovered :class:`Filth`
-        :rtype: Iterator[:class:`Filth`]
+        :return: A list containing all the spacy doc
+        :rtype: Sequence[Optional[str]]
         """
+
         preprocessed_docs = list(copy.copy(document_list))
         # If the model is a transformer model, we need to transform our data a little to avoid a maximum width of the
         # transformer. Lots of spaces causes lots of tokens to be made and passed to the transformer which makes an
         # index go out of range and so we remove excess whitespace.
-        if self.preprocess_text:
-            preprocessed_docs = self._preprocess_text(preprocessed_docs)
+        if SpacyEntityDetector._preprocess_text:
+            preprocessed_docs = SpacyEntityDetector._preprocess_text(preprocessed_docs)
 
         i = 0
         spacy_docs = []
@@ -260,41 +164,53 @@ class SpacyExpandPersonTitle(SpacyEntityDetector):
             i += 1
             spacy_docs.append(spacy_doc)
 
-        yielded_filth = set()
-        for doc_name, doc, text in zip(document_names, spacy_docs, document_list):
-            for ent in doc._.person_titles:
-                if ent.label_ not in self.named_entities:
-                    continue
-                filth_class = self.filth_cls_map.get(ent.label_, Filth)
-                if self.preprocess_text:
-                    # When yielding the filth we need to yield filth as found in the original un-preprocessed text.
-                    # This section searches for text with the inverse of the preprocessing step.
-                    if ent.text in yielded_filth:
+    #     return spacy_docs
+    #
+    # def yield_filth_from_documents(self, document_list: Sequence[str],
+    #                                document_names: Sequence[Optional[str]],
+    #                                spacy_docs: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
+    #     """Yields discovered filth in a list of documents.
+    #
+    #     :param document_list: A list of documents to clean.
+    #     :type document_list: List[str]
+    #     :param document_names: A list containing the name of each document.
+    #     :type document_names: List[str]
+    #     :param spacy_docs: A list containing the spacy doc of each document.
+    #     :type spacy_docs: List[str]
+    #     :return: An iterator to the discovered :class:`Filth`
+    #     :rtype: Iterator[:class:`Filth`]
+    #     """
+
+            yielded_filth = set()
+            for doc_name, doc, text in zip(document_names, spacy_docs, document_list):
+                for ent in doc._.person_titles:
+                    if ent.label_ not in self.named_entities:
                         continue
-                    yielded_filth.add(ent.text)
+                    filth_class = self.filth_cls_map.get(ent.label_, Filth)
+                    if self.preprocess_text:
+                        # When yielding the filth we need to yield filth as found in the original un-preprocessed text.
+                        # This section searches for text with the inverse of the preprocessing step.
+                        if ent.text in yielded_filth:
+                            continue
+                        yielded_filth.add(ent.text)
 
-                else:
-                    # If we didn't pre-process, just return the filth as it was found.
-                    yield filth_class(
-                        beg=ent.start_char,
-                        end=ent.end_char,
-                        text=ent.text,
-                        document_name=(str(doc_name) if doc_name else None),  # None if no doc_name provided
-                        detector_name=self.name,
-                        locale=self.locale,
-                    )
+                        class SpacyEntDetector(RegexDetector):
+                            filth_cls = filth_class
+                            regex = re.compile(re.escape(ent.text).replace('\\ ', r'\s+'))
 
-    def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
-        """Yields discovered filth in the provided ``text``.
+                        regex_detector = SpacyEntDetector(name=self.name, locale=self.locale)
+                        yield from regex_detector.iter_filth(text, document_name=doc_name)
 
-        :param text: The dirty text to clean.
-        :type text: str
-        :param document_name: The name of the document to clean.
-        :type document_name: str, optional
-        :return: An iterator to the discovered :class:`Filth`
-        :rtype: Iterator[:class:`Filth`]
-        """
-        yield from self.iter_filth_documents(document_list=[text], document_names=[document_name])
+                    else:
+                        # If we didn't pre-process, just return the filth as it was found.
+                        yield filth_class(
+                            beg=ent.start_char,
+                            end=ent.end_char,
+                            text=ent.text,
+                            document_name=(str(doc_name) if doc_name else None),  # None if no doc_name provided
+                            detector_name=self.name,
+                            locale=self.locale,
+                        )
 
     @classmethod
     def supported_locale(cls, locale: str) -> bool:
@@ -306,7 +222,9 @@ class SpacyExpandPersonTitle(SpacyEntityDetector):
         :return: ``True`` if the locale is supported, otherwise ``False``
         :rtype: bool
         """
-        return True
+
+        language, region = cls.locale_split(locale)
+        return language == 'en'
 
 
 register_detector(SpacyExpandPersonTitle, autoload=False)
