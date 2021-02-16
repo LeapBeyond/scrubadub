@@ -23,7 +23,8 @@ import scrubadub
 from scrubadub.comparison import get_filth_classification_report, KnownFilthItem, get_filth_dataframe
 from scrubadub.filth.base import Filth
 
-IGNORE_CASE_IN_KNOWN_FILTH_TYPES = ('email', 'address', 'organization', 'phone', 'postalcode', 'url')
+IGNORE_CASE_IN_KNOWN_FILTH_TYPES = ('email', 'address', 'organization', 'phone', 'postalcode', 'url', 'name', 'vehicle_licence_plate')
+# IGNORE_CASE_IN_KNOWN_FILTH_TYPES = tuple()
 
 
 def get_blob_service(connection_string: Optional[str] = None) -> azure.storage.blob.BlobServiceClient:
