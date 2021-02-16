@@ -483,7 +483,8 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
 
     if debug_log is not None:
         root_logger = logging.getLogger()
-        root_logger.removeHandler(root_logger.handlers[0])
+        for handler in root_logger.handlers:
+            root_logger.removeHandler(handler)
         root_logger.setLevel(logging.WARNING)
 
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
