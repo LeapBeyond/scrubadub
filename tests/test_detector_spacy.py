@@ -59,6 +59,15 @@ class SpacyDetectorTestCase(unittest.TestCase, BaseTestCase):
 
         self._assert_filth_type_and_pos(doc_list, beg_end_list, NameFilth)
 
+    def test_expand_names(self):
+        doc_list = ["The name is Mrs Nasrin Muhib.",
+                    "Can you please ask Mr lan Chase?",
+                    "Please see Dr Alex Smith in room 1."]
+        beg_end_list = [(12, 28),
+                        (19, 31),
+                        (11, 24)]
+        self._assert_filth_type_and_pos(doc_list, beg_end_list, NameFilth)
+
     def test_organisations(self):
         doc_list = ["She started working for Apple this year",
                     "But used to work for Google"]
