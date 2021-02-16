@@ -264,25 +264,13 @@ class Scrubber(object):
         # This is needed for some operations within the PostProcesssors.
         # It could be improved if we know which post processors need collated Filths.
         filth_list = []  # type: Sequence[Filth]
-        if isinstance(documents, list):
-            filth_list = [
-                filth
-                for name, document in enumerate(documents)
-                for filth in self.iter_filth(document, document_name=str(name))
-            ]
-        elif isinstance(documents, dict):
-            filth_list = [
-                filth
-                for name, document in documents.items()
-                for filth in self.iter_filth(document, document_name=name)
-            ]
+        if isinstance(documents, (list, dict)):
+            filth_list = list(self.iter_filth_documents(documents=documents, run_post_processors=True))
         else:
             raise TypeError(
                 'documents type should be one of: list of strings or a dict of strings with the key as the '
                 'document title.'
             )
-
-        filth_list = self._post_process_filth_list(filth_list)
 
         if isinstance(documents, list):
             clean_documents = [
@@ -298,11 +286,9 @@ class Scrubber(object):
         return clean_documents
 
     def _replace_text(
-            self, text: str, filth_list: Sequence[Filth], document_name: Optional[str] = None, **kwargs
+            self, text: str, filth_list: Sequence[Filth], document_name: Optional[str], **kwargs
     ) -> str:
-        if document_name is not None:
-            filth_list = [filth for filth in filth_list if filth.document_name == document_name]
-
+        filth_list = [filth for filth in filth_list if filth.document_name == document_name]
         filth_list = self._sort_filths(filth_list)  # TODO: expensive sort may not be needed
         clean_chunks = []
         filth = Filth()
