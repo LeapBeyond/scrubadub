@@ -69,7 +69,7 @@ class SpacyExpandPersonTitle(SpacyEntityDetector):
         """
 
         super(SpacyEntityDetector).__init__(**kwargs)
-        #
+
         self.model = model
         self.nlp = spacy.load(self.model)
 
@@ -126,7 +126,6 @@ class SpacyExpandPersonTitle(SpacyEntityDetector):
 
     def iter_filth_documents(self, document_list: Sequence[str],
                              document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
-            #-> Sequence[Optional[str]]:
         """Yields discovered filth in a list of documents.
 
         :param document_list: A list of documents to clean.
@@ -163,23 +162,6 @@ class SpacyExpandPersonTitle(SpacyEntityDetector):
                 break
             i += 1
             spacy_docs.append(spacy_doc)
-
-    #     return spacy_docs
-    #
-    # def yield_filth_from_documents(self, document_list: Sequence[str],
-    #                                document_names: Sequence[Optional[str]],
-    #                                spacy_docs: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
-    #     """Yields discovered filth in a list of documents.
-    #
-    #     :param document_list: A list of documents to clean.
-    #     :type document_list: List[str]
-    #     :param document_names: A list containing the name of each document.
-    #     :type document_names: List[str]
-    #     :param spacy_docs: A list containing the spacy doc of each document.
-    #     :type spacy_docs: List[str]
-    #     :return: An iterator to the discovered :class:`Filth`
-    #     :rtype: Iterator[:class:`Filth`]
-    #     """
 
             yielded_filth = set()
             for doc_name, doc, text in zip(document_names, spacy_docs, document_list):
