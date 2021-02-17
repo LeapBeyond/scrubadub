@@ -246,9 +246,9 @@ class Scrubber(object):
         # We are collating all Filths so that they can all be passed to the post processing step together.
         # This is needed for some operations within the PostProcesssors.
         # It could be improved if we know which post processors need collated Filths.
-        filth_list = list(self.iter_filth(text))  # type: Sequence[Filth]
+        filth_list = list(self.iter_filth(text, document_name=None))  # type: Sequence[Filth]
         filth_list = self._post_process_filth_list(filth_list)
-        return self._replace_text(text=text, filth_list=filth_list, **kwargs)
+        return self._replace_text(text=text, filth_list=filth_list, document_name=None, **kwargs)
 
     def clean_documents(self, documents: Union[Sequence[str], Dict[str, str]], **kwargs) -> \
             Union[Dict[str, str], Sequence[str]]:
