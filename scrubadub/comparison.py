@@ -98,7 +98,12 @@ def get_filth_classification_report(
     detected_classes = results_df.loc[:, detected_columns].values
     # Take the detected_columns above and find their associated known counterparts
     known_cols = [(x[0], filth_module.KnownFilth.type, x[2]) for x in detected_columns]
-    true_classes = results_df.loc[:, known_cols].values
+    try:
+        true_classes = results_df.loc[:, known_cols].values
+    except KeyError:
+        raise KeyError(f"Unable to find known filths with types: {known_cols}\n"
+                       f"Available types are {results_df.columns.tolist()}\n"
+                       f"Could there be a mismatch in locales?")
 
     # Then no true classes were found
     if detected_classes.shape[1] == 0:
