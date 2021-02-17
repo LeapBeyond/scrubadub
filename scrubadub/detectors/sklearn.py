@@ -1,6 +1,9 @@
 import re
 import nltk
 import copy
+import numpy as np
+import scipy.sparse as sp
+import pickle
 import pathlib
 import warnings
 
@@ -9,8 +12,10 @@ from nltk.tokenize.api import TokenizerI
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
 
-from typing import Optional, List, Dict, Any, Generator, Union, Collection, NamedTuple, Sequence
+from typing import Optional, List, Dict, Any, Generator, Union, Collection, NamedTuple, Sequence, Type
 
 from .base import Detector
 from ..filth.base import Filth
@@ -19,6 +24,7 @@ from ..filth.address import AddressFilth
 from ..modelling.serialisation import estimator_from_json, estimator_to_json
 
 DocumentName = Optional[Union[str, int]]
+ModelTypes = Union[RandomForestClassifier, LogisticRegression, XGBClassifier]
 
 
 class TokenPosition(NamedTuple):
@@ -89,22 +95,22 @@ class SklearnDetector(Detector):
 
         self.dict_vectorizer_json_path = dict_vectorizer_json_path
         if self.dict_vectorizer_json_path is None:
-            self.dict_vectorizer_json_path = str(pathlib.Path(self.model_path_prefix) / 'dict_vectorizer.json')
+            self.dict_vectorizer_json_path = str(pathlib.Path(self.model_path_prefix) / 'dict_vectorizer.pickle')
 
         self.label_encoder_json_path = label_encoder_json_path
         if self.label_encoder_json_path is None:
-            self.label_encoder_json_path = str(pathlib.Path(self.model_path_prefix) / 'label_encoder.json')
+            self.label_encoder_json_path = str(pathlib.Path(self.model_path_prefix) / 'label_encoder.pickle')
 
         self.model_json_path = model_json_path
         if self.model_json_path is None:
-            self.model_json_path = str(pathlib.Path(self.model_path_prefix) / 'model.json')
+            self.model_json_path = str(pathlib.Path(self.model_path_prefix) / 'model.pickle')
 
         self.n_prev_tokens = 3
         self.n_next_tokens = 5
 
         self.tokeniser = None  # type: Optional[TokenizerI]
         self.dict_vectorizer = None  # type: Optional[DictVectorizer]
-        self.model = None  # type: Optional[LogisticRegression]
+        self.model = None  # type: Optional[ModelTypes]
         self.label_encoder = None  # type: Optional[LabelEncoder]
 
         try:
@@ -224,23 +230,35 @@ class SklearnDetector(Detector):
 
     def load_model(self) -> None:
         if self.dict_vectorizer is None and self.dict_vectorizer_json_path is not None:
-            self.dict_vectorizer = estimator_from_json(self.dict_vectorizer_json_path)
+            with open(self.dict_vectorizer_json_path, 'rb') as f:
+                self.dict_vectorizer = pickle.load(f)
+            # self.dict_vectorizer = estimator_from_json(self.dict_vectorizer_json_path)
 
         if self.model is None and self.model_json_path is not None:
-            self.model = estimator_from_json(self.model_json_path)
+            with open(self.model_json_path, 'rb') as f:
+                self.model = pickle.load(f)
+            # self.model = estimator_from_json(self.model_json_path)
 
         if self.label_encoder is None and self.label_encoder_json_path is not None:
-            self.label_encoder = estimator_from_json(self.label_encoder_json_path)
+            with open(self.label_encoder_json_path, 'rb') as f:
+                self.label_encoder = pickle.load(f)
+            # self.label_encoder = estimator_from_json(self.label_encoder_json_path)
 
     def save_model(self) -> None:
         if self.dict_vectorizer is not None and self.dict_vectorizer_json_path is not None:
-            estimator_to_json(self.dict_vectorizer, self.dict_vectorizer_json_path)
+            with open(self.dict_vectorizer_json_path, 'wb') as f:
+                pickle.dump(self.dict_vectorizer, f)
+            # estimator_to_json(self.dict_vectorizer, self.dict_vectorizer_json_path)
 
         if self.model is not None and self.model_json_path is not None:
-            estimator_to_json(self.model, self.model_json_path)
+            with open(self.model_json_path, 'wb') as f:
+                pickle.dump(self.model, f)
+            # estimator_to_json(self.model, self.model_json_path)
 
         if self.label_encoder is not None and self.label_encoder_json_path is not None:
-            estimator_to_json(self.label_encoder, self.label_encoder_json_path)
+            with open(self.label_encoder_json_path, 'wb') as f:
+                pickle.dump(self.label_encoder, f)
+            # estimator_to_json(self.label_encoder, self.label_encoder_json_path)
 
     @staticmethod
     def _add_labels_to_tokens(token_tuples: Collection[Union[TokenTuple, TokenTupleWithLabel]],
@@ -328,16 +346,21 @@ class SklearnDetector(Detector):
 
     def train(self, document_list: Collection[str], known_filth_items: Collection[KnownFilth],
               document_names: Optional[Collection[DocumentName]] = None, dict_vectorizer_kwargs: Optional[Dict] = None,
-              logistic_regression_kwargs: Optional[Dict] = None) -> List[TokenTupleWithLabel]:
+              model_kwargs: Optional[Dict] = None, model_cls: Optional[Type[ModelTypes]] = None,
+        ) -> List[TokenTupleWithLabel]:
 
         if len(document_list) == 0:
             raise ValueError('Must pass some documnts to train on')
+
+        if model_cls is None:
+            model_cls = LogisticRegression
 
         if document_names is None or len(document_names) != len(document_list):
             document_names = [x for x in range(len(document_list))]
 
         self.dict_vectorizer = DictVectorizer(**(dict_vectorizer_kwargs if dict_vectorizer_kwargs else {}))
-        self.model = LogisticRegression(**(logistic_regression_kwargs if logistic_regression_kwargs else {}))
+
+        self.model = model_cls(**(model_kwargs if model_kwargs else {}))
         self.label_encoder = LabelEncoder()
 
         text_tokens = [
