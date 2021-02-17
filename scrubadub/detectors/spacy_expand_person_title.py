@@ -29,6 +29,8 @@ from .spacy import SpacyEntityDetector
 class SpacyExpandPersonTitle(SpacyEntityDetector):
     """Use spaCy's named entity recognition to identify and expand ``NameFilth``.
 
+    This looks up tokens that are in a list of person titles, and check the subsequent tokens for any nouns.
+    If nouns are found, append the title along with the noun tokens to create a new doc._.person_title entity.
     This detector is made to work with v3 of spaCy, since the NER model has been significantly improved in this
     version.
 
@@ -52,7 +54,7 @@ class SpacyExpandPersonTitle(SpacyEntityDetector):
     entities are considered ``Filth`` by the ``SpacyEntityDetector``.
     """
 
-    def __init__(self, model: Optional[str] = None,
+    def __init__(self, model: str,
                  **kwargs):
         """Initialise the ``Detector``.
 
@@ -68,7 +70,7 @@ class SpacyExpandPersonTitle(SpacyEntityDetector):
         :type locale: str, optional
         """
 
-        super(SpacyEntityDetector).__init__(**kwargs)
+        super(SpacyExpandPersonTitle, self).__init__(**kwargs)
 
         self.model = model
         self.nlp = spacy.load(self.model)
@@ -163,36 +165,41 @@ class SpacyExpandPersonTitle(SpacyEntityDetector):
             i += 1
             spacy_docs.append(spacy_doc)
 
-            yielded_filth = set()
-            for doc_name, doc, text in zip(document_names, spacy_docs, document_list):
-                for ent in doc._.person_titles:
-                    if ent.label_ not in self.named_entities:
+        yielded_filth = set()
+        for doc_name, doc, text in zip(document_names, spacy_docs, document_list):
+
+            for ent in doc._.person_titles:
+
+                if ent.label_ not in self.named_entities:
+                    continue
+                filth_class = self.filth_cls_map.get(ent.label_, Filth)
+
+                if self.preprocess_text:
+
+                    # When yielding the filth we need to yield filth as found in the original un-preprocessed text.
+                    # This section searches for text with the inverse of the preprocessing step.
+                    if ent.text in yielded_filth:
                         continue
-                    filth_class = self.filth_cls_map.get(ent.label_, Filth)
-                    if self.preprocess_text:
-                        # When yielding the filth we need to yield filth as found in the original un-preprocessed text.
-                        # This section searches for text with the inverse of the preprocessing step.
-                        if ent.text in yielded_filth:
-                            continue
-                        yielded_filth.add(ent.text)
+                    yielded_filth.add(ent.text)
 
-                        class SpacyEntDetector(RegexDetector):
-                            filth_cls = filth_class
-                            regex = re.compile(re.escape(ent.text).replace('\\ ', r'\s+'))
+                    class SpacyEntDetector(RegexDetector):
+                        filth_cls = filth_class
+                        regex = re.compile(re.escape(ent.text).replace('\\ ', r'\s+'))
 
-                        regex_detector = SpacyEntDetector(name=self.name, locale=self.locale)
-                        yield from regex_detector.iter_filth(text, document_name=doc_name)
+                    regex_detector = SpacyEntDetector(name=self.name, locale=self.locale)
+                    yield from regex_detector.iter_filth(text, document_name=doc_name)
 
-                    else:
-                        # If we didn't pre-process, just return the filth as it was found.
-                        yield filth_class(
-                            beg=ent.start_char,
-                            end=ent.end_char,
-                            text=ent.text,
-                            document_name=(str(doc_name) if doc_name else None),  # None if no doc_name provided
-                            detector_name=self.name,
-                            locale=self.locale,
-                        )
+                else:
+                    # If we didn't pre-process, just return the filth as it was found.
+                    yield filth_class(
+                        beg=ent.start_char,
+                        end=ent.end_char,
+                        text=ent.text,
+                        document_name=(str(doc_name) if doc_name else None),  # None if no doc_name provided
+                        detector_name=self.name,
+                        locale=self.locale,
+                    )
+
 
     @classmethod
     def supported_locale(cls, locale: str) -> bool:

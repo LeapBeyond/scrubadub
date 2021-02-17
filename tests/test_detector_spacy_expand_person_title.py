@@ -40,8 +40,7 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
     def _assert_filth_type_and_pos(self, doc_list, beg_end_list, filth_class):
         doc_names = [str(x) for x in range(len(doc_list))]
 
-        filth_list = list(self.detector.iter_filth_documents(document_list=doc_names, document_names=doc_list))
-
+        filth_list = list(self.detector.iter_filth_documents(document_list=doc_list, document_names=doc_names))
         for filth, beg_end in zip(filth_list, beg_end_list):
             self.assertIsInstance(filth, filth_class)
             self.assertEqual((filth.beg, filth.end), beg_end)
