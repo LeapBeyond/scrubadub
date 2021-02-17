@@ -115,6 +115,21 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
         'mon', 'tue', 'wed', 'weds', 'thurs', 'fri', 'sat', 'sun',
     ]
 
+    POSTCODE_START = re.compile(r"""
+        (?:[Ww][Cc][0-9][abehmnprvwxyABEHMNPRVWXY])|
+        (?:[Ee][Cc][1-4][abehmnprvwxyABEHMNPRVWXY])|
+        (?:[Nn][Ww]1[Ww])|
+        (?:[Ss][Ee]1[Pp])|
+        (?:[Ss][Ww]1[abehmnprvwxyABEHMNPRVWXY])|
+        (?:[EeNnWw]1[a-hjkpstuwA-HJKPSTUW])|
+        (?:[BbEeGgLlMmNnSsWw][0-9][0-9]?)|
+        (?:[a-pr-uwyzA-PR-UWYZ][a-hk-yxA-HK-XY][0-9][0-9]?)
+    """, re.VERBOSE)
+
+    POSTCODE_END = re.compile(r"""[0-9][abd-hjlnp-uw-zABD-HJLNP-UW-Z]{2}""", re.VERBOSE)
+
+
+
     def __init__(self, model_path_prefix: Optional[str] = None, b_token_required: bool = True, **kwargs):
 
         if model_path_prefix is None:
@@ -136,6 +151,8 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
         place_suffix = sum(token.endswith(suffix) for suffix in SklearnAddressDetector.PLACE_SUFFIXES)
         country_word = token.lower() in SklearnAddressDetector.COUNTRY_WORDS
         date_word = token.lower() in SklearnAddressDetector.DATE_WORDS
+        postcode_start = re.match(SklearnAddressDetector.POSTCODE_START, token) is not None
+        postcode_end = re.match(SklearnAddressDetector.POSTCODE_END, token) is not None
 
         features = {
             prefix + 'capitalised': token.istitle(),
@@ -151,9 +168,11 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
             prefix + 'place_suffix': place_suffix,
             prefix + 'country_word': country_word,
             prefix + 'date_word': date_word,
-            # prefix + 'length': len(token),
+            prefix + 'length': len(token),
             prefix + 'length_short': len(token) <= 4,
             prefix + 'length_long': len(token) > 20,
+            prefix + 'postcode_start': postcode_start,
+            prefix + 'postcode_end': postcode_end,
         }
         return features
 
