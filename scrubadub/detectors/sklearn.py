@@ -21,7 +21,7 @@ from .base import Detector
 from ..filth.base import Filth
 from ..filth.known import KnownFilth
 from ..filth.address import AddressFilth
-from ..modelling.serialisation import estimator_from_json, estimator_to_json
+# from ..modelling.serialisation import estimator_from_json, estimator_to_json
 
 DocumentName = Optional[Union[str, int]]
 ModelTypes = Union[RandomForestClassifier, LogisticRegression, XGBClassifier]
@@ -349,10 +349,11 @@ class SklearnDetector(Detector):
 
         return new_token_tuples
 
-    def train(self, document_list: Collection[str], known_filth_items: Collection[KnownFilth],
-              document_names: Optional[Collection[DocumentName]] = None, dict_vectorizer_kwargs: Optional[Dict] = None,
-              model_kwargs: Optional[Dict] = None, model_cls: Optional[Type[ModelTypes]] = None,
-        ) -> List[TokenTupleWithLabel]:
+    def train(
+        self, document_list: Collection[str], known_filth_items: Collection[KnownFilth],
+        document_names: Optional[Collection[DocumentName]] = None, dict_vectorizer_kwargs: Optional[Dict] = None,
+        model_kwargs: Optional[Dict] = None, model_cls: Optional[Type[ModelTypes]] = None,
+    ) -> List[TokenTupleWithLabel]:
 
         if len(document_list) == 0:
             raise ValueError('Must pass some documnts to train on')
@@ -399,9 +400,9 @@ class SklearnDetector(Detector):
         del targets, datasets
         print("Now training on:", target.shape, text_data.shape)
         self.model = self.model.fit(text_data, target)
-        text_prediction = self.model.predict(text_data)
-        text_labels = self.label_encoder.inverse_transform(text_prediction)
-
+        # text_prediction = self.model.predict(text_data)
+        # text_labels = self.label_encoder.inverse_transform(text_prediction)
+        del text_data, target
         return []
         # # TODO: return both predited and true labels
         # text_tokens_with_labels = self._add_labels_to_tokens(text_tokens_with_labels, text_labels)
