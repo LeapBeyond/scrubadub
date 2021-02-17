@@ -128,8 +128,6 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
 
     POSTCODE_END = re.compile(r"""[0-9][abd-hjlnp-uw-zABD-HJLNP-UW-Z]{2}""", re.VERBOSE)
 
-
-
     def __init__(self, model_path_prefix: Optional[str] = None, b_token_required: bool = True, **kwargs):
 
         if model_path_prefix is None:
