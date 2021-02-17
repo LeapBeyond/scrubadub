@@ -94,17 +94,25 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
     PLACE_SUFFIXES = [
         'town', 'ton', 'land', 'lands', 'ville', 'berg', 'burgh', 'brough', 'borough', 'bury', 'view', 'port',
         'stad', 'stead', 'furt', 'chester', 'mouth', 'fort', 'haven', 'side', 'shire', 'city', 'by',
-        'cester', 'ford', 'ham', 'worth',
+        'cester', 'ford', 'ham', 'worth', 'berry'
     ]
 
     PLACE_PREFIXES = [
         # Include rivers here
-        'thames', 'severn', 'trent', 'wye', 'ouse', 'tyne', 'mersey', 'avon',
+        'thames', 'severn', 'trent', 'wye', 'ouse', 'tyne', 'mersey', 'avon', 'aber',
     ]
 
     COUNTRY_WORDS = [
         'united', 'kingdom', 'britain', 'england', 'ni', 'uk', 'gb', 'gbr', 'scotland', 'ireland', 'wales',
         'cymry', 'cymru', 'alba'
+    ]
+
+    # Added as dates looked similar to addresses
+    DATE_WORDS = [
+        'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november',
+        'december', 'jan', 'feb', 'mar', 'apr', 'jun', 'jul', 'aug', 'sep', 'sept', 'oct', 'nov', 'dec',
+        'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
+        'mon', 'tue', 'wed', 'weds', 'thurs', 'fri', 'sat', 'sun',
     ]
 
     def __init__(self, model_path_prefix: Optional[str] = None, b_token_required: bool = True, **kwargs):
@@ -124,9 +132,10 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
         street_word = token.lower() in SklearnAddressDetector.STREET_WORDS
         building_word = token.lower() in SklearnAddressDetector.BUILDING_WORDS
         direction_word = token.lower() in SklearnAddressDetector.DIRECTION_WORDS
-        place_prefix = any(token.startswith(prefix) for prefix in SklearnAddressDetector.PLACE_PREFIXES)
-        place_suffix = any(token.endswith(suffix) for suffix in SklearnAddressDetector.PLACE_SUFFIXES)
+        place_prefix = sum(token.startswith(prefix) for prefix in SklearnAddressDetector.PLACE_PREFIXES)
+        place_suffix = sum(token.endswith(suffix) for suffix in SklearnAddressDetector.PLACE_SUFFIXES)
         country_word = token.lower() in SklearnAddressDetector.COUNTRY_WORDS
+        date_word = token.lower() in SklearnAddressDetector.DATE_WORDS
 
         features = {
             prefix + 'capitalised': token.istitle(),
@@ -141,7 +150,10 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
             prefix + 'place_prefix': place_prefix,
             prefix + 'place_suffix': place_suffix,
             prefix + 'country_word': country_word,
-            prefix + 'length': len(token),
+            prefix + 'date_word': date_word,
+            # prefix + 'length': len(token),
+            prefix + 'length_short': len(token) <= 4,
+            prefix + 'length_long': len(token) > 20,
         }
         return features
 
