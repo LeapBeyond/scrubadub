@@ -53,6 +53,7 @@ class SpacyExpandPersonTitle(SpacyEntityDetector):
     named entity label and the type of scrubadub ``Filth``, while the ``named_entities`` argument sets which named
     entities are considered ``Filth`` by the ``SpacyEntityDetector``.
     """
+    name = "spacy_expand_person_title"
 
     def __init__(self, model: str,
                  **kwargs):
