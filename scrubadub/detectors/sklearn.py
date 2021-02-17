@@ -331,10 +331,15 @@ class SklearnDetector(Detector):
                 except IndexError:
                     prev_label = None
                 new_label = self._get_label(matching_known_items[0], prev_label)
+
                 if len(matching_known_items) > 1:
-                    multi_types = [ki.comparison_type for ki in known_filth_items].__repr__()
-                    warnings.warn(f"Token '{token}' in '{doc_name}' has been labelled as multiple types of filth: "
-                                  f"{multi_types}")
+                    # If theres more than one, lets do a more detailed check to ensure that we're not possibly
+                    # mislabelling something
+                    matching_labels = {self._get_label(ki, prev_label) for ki in matching_known_items}
+                    if len(matching_labels) > 1:
+                        multi_types = matching_labels.__repr__()
+                        warnings.warn(f"Token '{token}' in '{doc_name}' has been labelled as multiple types of filth: "
+                                      f"{multi_types}. Using the first filth type: '{new_label}'")
 
             new_token_tuples.append(
                 TokenTupleWithLabel(
