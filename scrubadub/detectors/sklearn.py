@@ -368,27 +368,45 @@ class SklearnDetector(Detector):
         self.model = model_cls(**(model_kwargs if model_kwargs else {}))
         self.label_encoder = LabelEncoder()
 
-        text_tokens = [
-            token_tuple
-            for doc_name, text in zip(document_names, document_list)
-            for token_tuple in self.word_tokenize_with_positions(text=text, document_name=doc_name)
-        ]
-        text_tokens_with_labels = self._add_labels_to_tokens_using_known_filth(text_tokens, known_filth_items)
-        del text_tokens
+        targets = []
+        datasets = []
+        for i, (doc_name, text) in enumerate(zip(document_names, document_list)):
 
-        text_features = self.create_features(text_tokens_with_labels,
-                                             n_prev_tokens=self.n_prev_tokens, n_next_tokens=self.n_next_tokens)
+            text_tokens = [
+                token_tuple
+                for token_tuple in self.word_tokenize_with_positions(text=text, document_name=doc_name)
+            ]
+            text_tokens_with_labels = self._add_labels_to_tokens_using_known_filth(text_tokens, known_filth_items)
+            del text_tokens
 
-        target = self.label_encoder.fit_transform([x[3] for x in text_tokens_with_labels])
-        text_data = self.dict_vectorizer.fit_transform(text_features)
+            text_features = self.create_features(
+                text_tokens_with_labels,
+                n_prev_tokens=self.n_prev_tokens,
+                n_next_tokens=self.n_next_tokens
+            )
+
+            # TODO: if all labels/features aren't in the first doc then bad things will happen
+            if i == 0:
+                targets.append(self.label_encoder.fit_transform([x[3] for x in text_tokens_with_labels]))
+                datasets.append(self.dict_vectorizer.fit_transform(text_features))
+            else:
+                targets.append(self.label_encoder.transform([x[3] for x in text_tokens_with_labels]))
+                datasets.append(self.dict_vectorizer.transform(text_features))
+            del text_features, text_tokens_with_labels
+
+        target = np.concatenate(targets)
+        text_data = sp.vstack(datasets, format='csr')
+        del targets, datasets
+        print("Now training on:", target.shape, text_data.shape)
         self.model = self.model.fit(text_data, target)
         text_prediction = self.model.predict(text_data)
         text_labels = self.label_encoder.inverse_transform(text_prediction)
 
-        # TODO: return both predited and true labels
-        text_tokens_with_labels = self._add_labels_to_tokens(text_tokens_with_labels, text_labels)
-
-        return text_tokens_with_labels
+        return []
+        # # TODO: return both predited and true labels
+        # text_tokens_with_labels = self._add_labels_to_tokens(text_tokens_with_labels, text_labels)
+        #
+        # return text_tokens_with_labels
 
     def _yield_filth(self, token_tuple_list: Collection[TokenTupleWithLabel]) -> Generator[Filth, None, None]:
         for i_token, (doc_name, token, span, *additional_vars) in enumerate(token_tuple_list):
@@ -407,10 +425,10 @@ class SklearnDetector(Detector):
                 )
                 yield filth
 
-    def iter_filth_documents(self, document_list: Sequence[str],
-                             document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
-        token_tuple_list = self.predict(document_list=document_list, document_names=document_names)
-        yield from self._yield_filth(token_tuple_list=token_tuple_list)
+    # def iter_filth_documents(self, document_list: Sequence[str],
+    #                          document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
+    #     token_tuple_list = self.predict(document_list=document_list, document_names=document_names)
+    #     yield from self._yield_filth(token_tuple_list=token_tuple_list)
 
     def iter_filth(self, text: str, document_name: Optional[DocumentName] = None) -> Generator[Filth, None, None]:
         yield from self.iter_filth_documents(
