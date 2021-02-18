@@ -21,8 +21,8 @@ PostProcessorConfigurationItem = TypedDict(
 post_processor_configuration = {
     # PostProcessors that are not automatically loaded by scrubadub
     NumericReplacer.name: {'post_processor': NumericReplacer, 'autoload': False, 'index': 0},
-    PrefixSuffixReplacer.name: {'post_processor': PrefixSuffixReplacer, 'autoload': True, 'index': 1},
-    FilthTypeReplacer.name: {'post_processor': FilthTypeReplacer, 'autoload': True, 'index': 0},
+    PrefixSuffixReplacer.name: {'post_processor': PrefixSuffixReplacer, 'autoload': False, 'index': 1},
+    FilthTypeReplacer.name: {'post_processor': FilthTypeReplacer, 'autoload': False, 'index': 0},
     HashReplacer.name: {'post_processor': HashReplacer, 'autoload': False, 'index': 0},
     FilthRemover.name: {'post_processor': FilthRemover, 'autoload': False, 'index': 0},
 }  # type: Dict[str, PostProcessorConfigurationItem]
