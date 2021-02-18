@@ -63,7 +63,8 @@ class AddressTokeniser(nltk.tokenize.destructive.NLTKWordTokenizer):
         for regexp in self.CONTRACTIONS3:
             text = regexp.sub(r" \1 \2 ", text)
 
-        return text if return_str else [x for x in text.split() if x != '']
+        # Only splitting by spaces to get newlines as tokens
+        return text if return_str else [x for x in text.split(' ') if x != '']
 
 
 class SklearnAddressDetector(BIOTokenSklearnDetector):
