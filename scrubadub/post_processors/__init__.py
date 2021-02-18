@@ -18,6 +18,10 @@ PostProcessorConfigurationItem = TypedDict(
     {'post_processor': Type[PostProcessor], 'autoload': bool, 'index': int}
 )
 
+# For now we use the old replacement code unless specifically told to use the new one.
+# There are a couple of things that are not implemented in the new system, like anonymising urls but keeping
+# the domain and showing separate usernames and passwords.
+
 post_processor_configuration = {
     # PostProcessors that are not automatically loaded by scrubadub
     NumericReplacer.name: {'post_processor': NumericReplacer, 'autoload': False, 'index': 0},
