@@ -31,44 +31,176 @@ class SklearnTestCase(unittest.TestCase):
                'business including big.'
 
         token_test_cases = [
-            # TODO: convert these tests cases to new format
-
-            # (
-            #     [(0, 5), (8, 10), (25, 26), ],
-            #     ["B-ADD", "I-ADD", "I-ADD", ],
-            #     {"minimum_ntokens": 1, "maximum_token_distance": 5, "b_token_required": False},
-            #     (
-            #         [(0, 10), (25, 26), ],
-            #         ["ADD", "ADD", ],
-            #     ),
-            # ),
-            # (
-            #     [(0, 5), (8, 10), (25, 26), ],
-            #     ["B-ADD", "I-ADD", "I-ADD", ],
-            #     {"minimum_ntokens": 1, "maximum_token_distance": 20, "b_token_required": False},
-            #     (
-            #         [(0, 26), ],
-            #         ["ADD", ],
-            #     ),
-            # ),
-            # (
-            #     [(0, 5), (8, 10), (25, 26), ],
-            #     ["B-ADD", "I-ADD", "I-ADD", ],
-            #     {"minimum_ntokens": 1, "maximum_token_distance": 4, "b_token_required": True},
-            #     (
-            #         [(0, 10), ],
-            #         ["ADD", ],
-            #     ),
-            # ),
-            # (
-            #     [(0, 5), (8, 10), (25, 26), ],
-            #     ["B-ADD", "I-ADD", "I-ADD", ],
-            #     {"minimum_ntokens": 2, "maximum_token_distance": 4, "b_token_required": False},
-            #     (
-            #         [(0, 10), ],
-            #         ["ADD", ],
-            #     ),
-            # ),
+            (
+                [
+                    TokenTupleWithLabel('a.txt', text[0:5], TokenPosition(0, 5), 'B-ADD'),
+                    TokenTupleWithLabel('a.txt', text[8:10], TokenPosition(8, 10), 'I-ADD'),
+                    TokenTupleWithLabel('a.txt', text[25:26], TokenPosition(25, 26), 'I-ADD'),
+                ],
+                {
+                    "document_list": [text],
+                    "document_names": ['a.txt'],
+                    "minimum_ntokens": 1,
+                    "number_missing_tokens_allowed": None,
+                    "number_missing_characters_allowed": 5,
+                    "b_token_required": True,
+                },
+                [
+                    TokenTupleWithLabel('a.txt', text[0:10], TokenPosition(0, 10), 'ADD'),
+                ],
+            ),
+            (
+                [
+                    TokenTupleWithLabel('a.txt', text[0:5], TokenPosition(0, 5), 'B-ADD'),
+                    TokenTupleWithLabel('a.txt', text[8:10], TokenPosition(8, 10), 'I-ADD'),
+                    TokenTupleWithLabel('a.txt', text[25:26], TokenPosition(25, 26), 'I-ADD'),
+                ],
+                {
+                    "document_list": [text],
+                    "document_names": ['a.txt'],
+                    "minimum_ntokens": 1,
+                    "number_missing_tokens_allowed": None,
+                    "number_missing_characters_allowed": 20,
+                    "b_token_required": False,
+                },
+                [
+                    TokenTupleWithLabel('a.txt', text[0:26], TokenPosition(0, 26), 'ADD'),
+                ],
+            ),
+            (
+                [
+                    TokenTupleWithLabel('a.txt', text[0:5], TokenPosition(0, 5), 'B-ADD'),
+                    TokenTupleWithLabel('a.txt', text[8:10], TokenPosition(8, 10), 'I-ADD'),
+                    TokenTupleWithLabel('a.txt', text[25:26], TokenPosition(25, 26), 'I-ADD'),
+                ],
+                {
+                    "document_list": [text],
+                    "document_names": ['a.txt'],
+                    "minimum_ntokens": 1,
+                    "number_missing_tokens_allowed": None,
+                    "number_missing_characters_allowed": 4,
+                    "b_token_required": True,
+                },
+                [
+                    TokenTupleWithLabel('a.txt', text[0:10], TokenPosition(0, 10), 'ADD'),
+                ],
+            ),
+            (
+                [
+                    TokenTupleWithLabel('a.txt', text[0:5], TokenPosition(0, 5), 'B-ADD'),
+                    TokenTupleWithLabel('a.txt', text[8:10], TokenPosition(8, 10), 'I-ADD'),
+                    TokenTupleWithLabel('a.txt', text[25:26], TokenPosition(25, 26), 'I-ADD'),
+                ],
+                {
+                    "document_list": [text],
+                    "document_names": ['a.txt'],
+                    "minimum_ntokens": 2,
+                    "number_missing_tokens_allowed": None,
+                    "number_missing_characters_allowed": 4,
+                    "b_token_required": False,
+                },
+                [
+                    TokenTupleWithLabel('a.txt', text[0:10], TokenPosition(0, 10), 'ADD'),
+                ],
+            ),
+            (
+                [
+                    TokenTupleWithLabel('a.txt', text[0:5], TokenPosition(0, 5), 'B-ADD'),
+                    TokenTupleWithLabel('a.txt', text[8:10], TokenPosition(8, 10), 'I-ADD'),
+                    TokenTupleWithLabel('a.txt', text[12:15], TokenPosition(12, 15), 'O'),
+                    TokenTupleWithLabel('a.txt', text[16:17], TokenPosition(16, 17), 'O'),
+                    TokenTupleWithLabel('a.txt', text[25:27], TokenPosition(25, 27), 'I-ADD'),
+                ],
+                {
+                    "document_list": [text],
+                    "document_names": ['a.txt'],
+                    "minimum_ntokens": 1,
+                    "number_missing_tokens_allowed": 0,
+                    "number_missing_characters_allowed": None,
+                    "b_token_required": False,
+                },
+                [
+                    TokenTupleWithLabel('a.txt', text[0:10], TokenPosition(0, 10), 'ADD'),
+                    TokenTupleWithLabel('a.txt', text[25:27], TokenPosition(25, 27), 'ADD'),
+                ],
+            ),
+            (
+                [
+                    TokenTupleWithLabel('a.txt', text[0:5], TokenPosition(0, 5), 'B-ADD'),
+                    TokenTupleWithLabel('a.txt', text[8:10], TokenPosition(8, 10), 'I-ADD'),
+                    TokenTupleWithLabel('a.txt', text[12:15], TokenPosition(11, 14), 'O'),
+                    TokenTupleWithLabel('a.txt', text[16:17], TokenPosition(15, 17), 'I-ADD'),
+                ],
+                {
+                    "document_list": [text],
+                    "document_names": ['a.txt'],
+                    "minimum_ntokens": 2,
+                    "number_missing_tokens_allowed": 0,
+                    "number_missing_characters_allowed": 6,
+                    "b_token_required": False,
+                },
+                [
+                    TokenTupleWithLabel('a.txt', text[0:10], TokenPosition(0, 10), 'ADD'),
+                ],
+            ),
+            (
+                [
+                    TokenTupleWithLabel('a.txt', text[0:5], TokenPosition(0, 5), 'B-ADD'),
+                    TokenTupleWithLabel('a.txt', text[8:10], TokenPosition(8, 10), 'I-ADD'),
+                    TokenTupleWithLabel('a.txt', text[12:15], TokenPosition(11, 14), 'O'),
+                    TokenTupleWithLabel('a.txt', text[16:17], TokenPosition(15, 17), 'I-ADD'),
+                ],
+                {
+                    "document_list": [text],
+                    "document_names": ['a.txt'],
+                    "minimum_ntokens": 2,
+                    "number_missing_tokens_allowed": 1,
+                    "number_missing_characters_allowed": 3,
+                    "b_token_required": False,
+                },
+                [
+                    TokenTupleWithLabel('a.txt', text[0:10], TokenPosition(0, 10), 'ADD'),
+                ],
+            ),
+            (
+                [
+                    TokenTupleWithLabel('a.txt', text[0:5], TokenPosition(0, 5), 'B-ADD'),
+                    TokenTupleWithLabel('a.txt', text[8:10], TokenPosition(8, 10), 'I-ADD'),
+                    TokenTupleWithLabel('a.txt', text[12:15], TokenPosition(11, 14), 'O'),
+                    TokenTupleWithLabel('a.txt', text[16:17], TokenPosition(15, 17), 'I-ADD'),
+                ],
+                {
+                    "document_list": [text],
+                    "document_names": ['a.txt'],
+                    "minimum_ntokens": 2,
+                    "number_missing_tokens_allowed": 1,
+                    "number_missing_characters_allowed": 6,
+                    "b_token_required": False,
+                },
+                [
+                    TokenTupleWithLabel('a.txt', text[0:17], TokenPosition(0, 17), 'ADD'),
+                ],
+            ),
+            (
+                [
+                    TokenTupleWithLabel('a.txt', text[0:5], TokenPosition(0, 5), 'B-ADD'),
+                    TokenTupleWithLabel('a.txt', text[8:10], TokenPosition(8, 10), 'I-ADD'),
+                    TokenTupleWithLabel('a.txt', text[12:15], TokenPosition(12, 15), 'O'),
+                    TokenTupleWithLabel('a.txt', text[16:17], TokenPosition(16, 17), 'O'),
+                    TokenTupleWithLabel('a.txt', text[25:26], TokenPosition(25, 26), 'I-ADD'),
+                ],
+                {
+                    "document_list": [text],
+                    "document_names": ['a.txt'],
+                    "minimum_ntokens": 1,
+                    "number_missing_tokens_allowed": 2,
+                    "number_missing_characters_allowed": None,
+                    "b_token_required": False,
+                },
+                [
+                    TokenTupleWithLabel('a.txt', text[0:26], TokenPosition(0, 26), 'ADD'),
+                ],
+            ),
             (
                 [
                     TokenTupleWithLabel('a.txt', text[0:5], TokenPosition(0, 5), 'B-ADD'),
@@ -83,8 +215,9 @@ class SklearnTestCase(unittest.TestCase):
                     "document_list": [text],
                     "document_names": ['a.txt'],
                     "minimum_ntokens": 2,
-                    "maximum_token_distance": 4,
-                    "b_token_required": True
+                    "number_missing_tokens_allowed": None,
+                    "number_missing_characters_allowed": 4,
+                    "b_token_required": True,
                 },
                 [
                     TokenTupleWithLabel('a.txt', text[0:10], TokenPosition(0, 10), 'ADD'),

@@ -149,14 +149,16 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
     POSTCODE_END = re.compile(r"""[0-9sS][abd-hjlnp-uw-zABD-HJLNP-UW-Z5]{2}""", re.VERBOSE)
 
     def __init__(self, model_path_prefix: Optional[str] = None, b_token_required: bool = False,
-                 minimum_ntokens: int = 1, maximum_token_distance: int = 10, **kwargs):
+                 minimum_ntokens: int = 4, number_missing_tokens_allowed: Optional[int] = 3,
+                 number_missing_characters_allowed: Optional[int] = None, **kwargs):
 
         if model_path_prefix is None:
             model_path_prefix = str(pathlib.Path(__file__).parent / 'models' / 'sklearn_address')
 
         super(SklearnAddressDetector, self).__init__(
             model_path_prefix=model_path_prefix, b_token_required=b_token_required, minimum_ntokens=minimum_ntokens,
-            maximum_token_distance=maximum_token_distance, **kwargs
+            number_missing_tokens_allowed=number_missing_tokens_allowed,
+            number_missing_characters_allowed=number_missing_characters_allowed, **kwargs
         )
         self.tokeniser = AddressTokeniser()
 

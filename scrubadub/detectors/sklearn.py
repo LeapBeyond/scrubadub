@@ -85,7 +85,7 @@ class SklearnDetector(Detector):
 
     def __init__(self, model_path_prefix: Optional[str] = None, dict_vectorizer_json_path: Optional[str] = None,
                  label_encoder_json_path: Optional[str] = None, model_json_path: Optional[str] = None,
-                 number_minimum_tokens: int = 5, number_skippable_tokens: int = 2, Start: int = 2, **kwargs):
+                 **kwargs):
         super(SklearnDetector, self).__init__(**kwargs)
 
         # model paths
@@ -469,11 +469,13 @@ class BIOTokenSklearnDetector(SklearnDetector):
         'ADD': AddressFilth,
     }
 
-    def __init__(self, minimum_ntokens: int = 5, maximum_token_distance: int = 10, b_token_required: bool = True,
+    def __init__(self, minimum_ntokens: int = 5, number_missing_characters_allowed: Optional[int] = None,
+                 number_missing_tokens_allowed: Optional[int] = None, b_token_required: bool = True,
                  **kwargs):
         super(BIOTokenSklearnDetector, self).__init__(**kwargs)
         self.minimum_ntokens = minimum_ntokens
-        self.maximum_token_distance = maximum_token_distance
+        self.number_missing_characters_allowed = number_missing_characters_allowed
+        self.number_missing_tokens_allowed = number_missing_tokens_allowed
         self.b_token_required = b_token_required
 
     @staticmethod
@@ -532,31 +534,42 @@ class BIOTokenSklearnDetector(SklearnDetector):
     def _combine_iob_tokens(
         document_list: Sequence[str], document_names: Sequence[Optional[str]],
         text_tokens: Collection[TokenTupleWithLabel], minimum_ntokens: int,
-        maximum_token_distance: int, b_token_required: bool
+        b_token_required: bool, number_missing_tokens_allowed: Optional[int] = None,
+        number_missing_characters_allowed: Optional[int] = None,
     ) -> List[TokenTupleWithLabel]:
         """Combines The B-XXX and I-XXX tags into single objects that are labelled simply as XXX."""
-        # TODO: maximum_token_distance should be in tokens not chars
+
         final_tokens = []
 
         combined_filth_location = None  # type: Optional[TokenPosition]
         combined_filth_label = None  # type: Optional[str]
+        combined_filth_last_index = None  # type: Optional[int]
         combined_filth_doc_name = None  # Type: Optional[DocumentName]
         combined_filth_ntokens = 0
 
-        for token in text_tokens:
+        for i_token, token in enumerate(text_tokens):
             if BIOTokenSklearnDetector.get_iob_from_label(token.label) == 'O':
                 continue
 
-            if combined_filth_location is not None and combined_filth_label is not None:
-                max_start_position = combined_filth_location[1] + maximum_token_distance
-                if token.span.beg <= max_start_position \
-                        and BIOTokenSklearnDetector.remove_iob_from_label(token.label) == combined_filth_label\
-                        and token.doc_name == combined_filth_doc_name:
+            if combined_filth_location is not None and combined_filth_label is not None and \
+                    combined_filth_last_index is not None:
+
+                character_check = number_missing_characters_allowed is None or \
+                    token.span.beg <= (combined_filth_location[1] + number_missing_characters_allowed)
+
+                token_check = number_missing_tokens_allowed is None or \
+                    i_token <= (combined_filth_last_index + number_missing_tokens_allowed + 1)
+
+                same_token_check = BIOTokenSklearnDetector.remove_iob_from_label(token.label) == combined_filth_label \
+                    and token.doc_name == combined_filth_doc_name
+
+                if same_token_check and character_check and token_check:
                     # Extend existing filth
                     combined_filth_location = TokenPosition(
                         min([combined_filth_location.beg, token.span.beg]),
                         max([combined_filth_location.end, token.span.end]),
                     )
+                    combined_filth_last_index = i_token
                     combined_filth_ntokens += 1
                     continue
 
@@ -578,6 +591,7 @@ class BIOTokenSklearnDetector(SklearnDetector):
 
             # Reset
             combined_filth_location = None
+            combined_filth_last_index = None
             combined_filth_label = None
             combined_filth_doc_name = None
             combined_filth_ntokens = 0
@@ -589,6 +603,7 @@ class BIOTokenSklearnDetector(SklearnDetector):
             combined_filth_location = TokenPosition(token.span.beg, token.span.end)
             combined_filth_label = BIOTokenSklearnDetector.remove_iob_from_label(token.label)
             combined_filth_doc_name = token.doc_name
+            combined_filth_last_index = i_token
             combined_filth_ntokens = 1
 
         if combined_filth_ntokens >= minimum_ntokens and combined_filth_location is not None \
@@ -627,7 +642,8 @@ class BIOTokenSklearnDetector(SklearnDetector):
             document_names=document_names,
             text_tokens=text_tokens,
             minimum_ntokens=self.minimum_ntokens,
-            maximum_token_distance=self.maximum_token_distance,
+            number_missing_characters_allowed=self.number_missing_characters_allowed,
+            number_missing_tokens_allowed=self.number_missing_tokens_allowed,
             b_token_required=self.b_token_required,
         )
         yield from self._yield_filth(token_tuple_list=text_tokens)
