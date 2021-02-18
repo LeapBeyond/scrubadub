@@ -91,21 +91,35 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
 
     # TODO: Include these prefixes/suffixes
     # https://en.wikipedia.org/wiki/List_of_generic_forms_in_place_names_in_Ireland_and_the_United_Kingdom
-    PLACE_SUFFIXES = [
+    PLACE_WORDS = {
         'town', 'ton', 'land', 'lands', 'ville', 'berg', 'burgh', 'brough', 'borough', 'bury', 'view', 'port',
-        'stad', 'stead', 'furt', 'chester', 'mouth', 'fort', 'haven', 'side', 'shire', 'city', 'by',
-        'cester', 'ford', 'ham', 'worth', 'berry'
-    ]
-
-    PLACE_PREFIXES = [
+        'stad', 'stead', 'furt', 'chester', 'mouth', 'fort', 'haven', 'side', 'shire', 'city', 'cum',
+        'cester', 'ford', 'ham', 'worth', 'berry', 'field', 'church,'
         # Include rivers here
         'thames', 'severn', 'trent', 'wye', 'ouse', 'tyne', 'mersey', 'avon', 'aber',
-    ]
+        'upon'
+    }
 
-    COUNTRY_WORDS = [
+    COUNTY_WORDS = {
+        'bedfordshire', 'buckinghamshire', 'cambridgeshire', 'cheshire', 'cleveland', 'cornwall', 'cumbria',
+        'derbyshire', 'devon', 'dorset', 'durham', 'sussex', 'essex', 'gloucestershire', 'greater', 'london',
+        'manchester', 'hampshire', 'hertfordshire', 'kent', 'lancashire', 'leicestershire', 'lincolnshire',
+        'merseyside', 'norfolk', 'yorkshire', 'northamptonshire', 'northumberland', 'nottinghamshire', 'oxfordshire',
+        'shropshire', 'somerset', 'staffordshire', 'suffolk', 'surrey', 'tyne', 'wear', 'warwickshire',
+        'berkshire', 'midlands', 'sussex', 'wiltshire', 'worcestershire', 'flintshire', 'glamorgan', 'merionethshire',
+        'monmouthshire', 'montgomeryshire', 'pembrokeshire', 'radnorshire', 'anglesey', 'breconshire',
+        'caernarvonshire', 'cardiganshire', 'carmarthenshire', 'denbighshire', 'aberdeen', 'aberdeenshire', 'angus',
+        'argyll', 'bute', 'edinburgh', 'clackmannanshire', 'dumfries', 'galloway', 'dundee', 'ayrshire',
+        'dunbartonshire', 'lothian', 'renfrewshire', 'eilean', 'siar', 'falkirk', 'fife', 'glasgow', 'highland',
+        'inverclyde', 'midlothian', 'moray', 'ayrshire', 'lanarkshire', 'orkney', 'perth', 'kinross', 'renfrewshire',
+        'borders', 'shetland', 'ayrshire', 'lanarkshire', 'stirling', 'dunbartonshire', 'lothian', 'antrim', 'armagh',
+        'fermanagh', 'derry', 'londonderry', 'tyrone'
+    }
+
+    COUNTRY_WORDS = {
         'united', 'kingdom', 'britain', 'england', 'ni', 'uk', 'gb', 'gbr', 'scotland', 'ireland', 'wales',
         'cymry', 'cymru', 'alba'
-    ]
+    }
 
     # Added as dates looked similar to addresses
     DATE_WORDS = [
@@ -115,18 +129,19 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
         'mon', 'tue', 'wed', 'weds', 'thurs', 'fri', 'sat', 'sun',
     ]
 
+    # Regexs allow for 5 <-> S errors in OCR
     POSTCODE_START = re.compile(r"""
-        (?:[Ww][Cc][0-9][abehmnprvwxyABEHMNPRVWXY])|
+        (?:[Ww][Cc][0-9sS][abehmnprvwxyABEHMNPRVWXY])|
         (?:[Ee][Cc][1-4][abehmnprvwxyABEHMNPRVWXY])|
         (?:[Nn][Ww]1[Ww])|
         (?:[Ss][Ee]1[Pp])|
         (?:[Ss][Ww]1[abehmnprvwxyABEHMNPRVWXY])|
-        (?:[EeNnWw]1[a-hjkpstuwA-HJKPSTUW])|
-        (?:[BbEeGgLlMmNnSsWw][0-9][0-9]?)|
-        (?:[a-pr-uwyzA-PR-UWYZ][a-hk-yxA-HK-XY][0-9][0-9]?)
+        (?:[EeNnWw]1[a-hjkpstuwA-HJKPSTUW5])|
+        (?:[BbEeGgLlMmNnSsWw][0-9sS][0-9sS]?)|
+        (?:[a-pr-uwyzA-PR-UWYZ5][a-hk-yxA-HK-XY5][0-9sS][0-9sS]?)
     """, re.VERBOSE)
 
-    POSTCODE_END = re.compile(r"""[0-9][abd-hjlnp-uw-zABD-HJLNP-UW-Z]{2}""", re.VERBOSE)
+    POSTCODE_END = re.compile(r"""[0-9sS][abd-hjlnp-uw-zABD-HJLNP-UW-Z5]{2}""", re.VERBOSE)
 
     def __init__(self, model_path_prefix: Optional[str] = None, b_token_required: bool = True, **kwargs):
 
@@ -145,8 +160,8 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
         street_word = token.lower() in SklearnAddressDetector.STREET_WORDS
         building_word = token.lower() in SklearnAddressDetector.BUILDING_WORDS
         direction_word = token.lower() in SklearnAddressDetector.DIRECTION_WORDS
-        place_prefix = sum(token.startswith(prefix) for prefix in SklearnAddressDetector.PLACE_PREFIXES)
-        place_suffix = sum(token.endswith(suffix) for suffix in SklearnAddressDetector.PLACE_SUFFIXES)
+        place_word = sum(word in token.lower() for word in SklearnAddressDetector.PLACE_WORDS)
+        county_word = token.lower() in SklearnAddressDetector.COUNTY_WORDS
         country_word = token.lower() in SklearnAddressDetector.COUNTRY_WORDS
         date_word = token.lower() in SklearnAddressDetector.DATE_WORDS
         postcode_start = re.match(SklearnAddressDetector.POSTCODE_START, token) is not None
@@ -162,8 +177,8 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
             prefix + 'building_word': building_word,
             prefix + 'direction_word': direction_word,
             prefix + 'street_word': street_word,
-            prefix + 'place_prefix': place_prefix,
-            prefix + 'place_suffix': place_suffix,
+            prefix + 'place_word': place_word,
+            prefix + 'county_word': county_word,
             prefix + 'country_word': country_word,
             prefix + 'date_word': date_word,
             prefix + 'length': len(token),
