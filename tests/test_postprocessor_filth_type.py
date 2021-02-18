@@ -19,7 +19,7 @@ class FilthTypeReplacerTestCase(unittest.TestCase):
 
         self.assertEqual(
             FilthTypeReplacer.filth_label(merged),
-            'TEST_TYPE+EMAIL'
+            'EMAIL+TEST_TYPE'
         )
 
         merged = MergedFilth(EmailFilth(0, 2, 'ab'), TestFilth(1, 2, 'b'))
