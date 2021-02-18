@@ -27,7 +27,7 @@ class FilthTypeReplacer(PostProcessor):
             replacements.add(filth_type)
 
         # print(filths, replacements)
-        label = separator.join(replacements)
+        label = separator.join(sorted(replacements))
         if upper:
             label = label.upper()
         return label
