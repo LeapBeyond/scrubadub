@@ -1,6 +1,6 @@
-from typing import Sequence, Optional
+from typing import Sequence
 
-from ...filth import Filth, MergedFilth
+from ...filth import Filth
 from ..base import PostProcessor
 
 
@@ -11,5 +11,6 @@ class FilthRemover(PostProcessor):
         for filth_item in filth_list:
             filth_item.replacement_string = ''
         return filth_list
+
 
 __all__ = ['FilthRemover']
