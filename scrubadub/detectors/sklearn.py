@@ -162,7 +162,7 @@ class SklearnDetector(Detector):
         for search, replace in tokenisation_replacements:
             pattern = re.sub(search, replace, pattern)
 
-        pattern.replace("\\'\\'", "(\\'\\'|)")
+        pattern.replace("\\'\\'", "(\\'\\'|\")")
 
         match = re.match(pattern, text, re.DOTALL)
         if match is None:
