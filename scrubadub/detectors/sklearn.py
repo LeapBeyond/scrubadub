@@ -21,7 +21,7 @@ from .base import Detector
 from ..filth.base import Filth
 from ..filth.known import KnownFilth
 from ..filth.address import AddressFilth
-# from ..modelling.serialisation import estimator_from_json, estimator_to_json
+from ..modelling.serialisation import estimator_from_json, estimator_to_json
 
 DocumentName = Optional[Union[str, int]]
 ModelTypes = Union[RandomForestClassifier, LogisticRegression, XGBClassifier]
@@ -228,37 +228,49 @@ class SklearnDetector(Detector):
             )
         return all_features
 
-    def load_model(self) -> None:
+    def load_model(self, use_pickle: bool = False) -> None:
         if self.dict_vectorizer is None and self.dict_vectorizer_json_path is not None:
-            with open(self.dict_vectorizer_json_path, 'rb') as f:
-                self.dict_vectorizer = pickle.load(f)
-            # self.dict_vectorizer = estimator_from_json(self.dict_vectorizer_json_path)
+            if use_pickle:
+                with open(self.dict_vectorizer_json_path, 'rb') as f:
+                    self.dict_vectorizer = pickle.load(f)
+            else:
+                self.dict_vectorizer = estimator_from_json(self.dict_vectorizer_json_path)
 
         if self.model is None and self.model_json_path is not None:
-            with open(self.model_json_path, 'rb') as f:
-                self.model = pickle.load(f)
-            # self.model = estimator_from_json(self.model_json_path)
+            if use_pickle:
+                with open(self.model_json_path, 'rb') as f:
+                    self.model = pickle.load(f)
+            else:
+                self.model = estimator_from_json(self.model_json_path)
 
         if self.label_encoder is None and self.label_encoder_json_path is not None:
-            with open(self.label_encoder_json_path, 'rb') as f:
-                self.label_encoder = pickle.load(f)
-            # self.label_encoder = estimator_from_json(self.label_encoder_json_path)
+            if use_pickle:
+                with open(self.label_encoder_json_path, 'rb') as f:
+                    self.label_encoder = pickle.load(f)
+            else:
+                self.label_encoder = estimator_from_json(self.label_encoder_json_path)
 
-    def save_model(self) -> None:
+    def save_model(self, use_pickle: bool = False) -> None:
         if self.dict_vectorizer is not None and self.dict_vectorizer_json_path is not None:
-            with open(self.dict_vectorizer_json_path, 'wb') as f:
-                pickle.dump(self.dict_vectorizer, f)
-            # estimator_to_json(self.dict_vectorizer, self.dict_vectorizer_json_path)
+            if use_pickle:
+                with open(self.dict_vectorizer_json_path, 'wb') as f:
+                    pickle.dump(self.dict_vectorizer, f)
+            else:
+                estimator_to_json(self.dict_vectorizer, self.dict_vectorizer_json_path)
 
         if self.model is not None and self.model_json_path is not None:
-            with open(self.model_json_path, 'wb') as f:
-                pickle.dump(self.model, f)
-            # estimator_to_json(self.model, self.model_json_path)
+            if use_pickle:
+                with open(self.model_json_path, 'wb') as f:
+                    pickle.dump(self.model, f)
+            else:
+                estimator_to_json(self.model, self.model_json_path)
 
         if self.label_encoder is not None and self.label_encoder_json_path is not None:
-            with open(self.label_encoder_json_path, 'wb') as f:
-                pickle.dump(self.label_encoder, f)
-            # estimator_to_json(self.label_encoder, self.label_encoder_json_path)
+            if use_pickle:
+                with open(self.label_encoder_json_path, 'wb') as f:
+                    pickle.dump(self.label_encoder, f)
+            else:
+                estimator_to_json(self.label_encoder, self.label_encoder_json_path)
 
     @staticmethod
     def _add_labels_to_tokens(token_tuples: Collection[Union[TokenTuple, TokenTupleWithLabel]],
