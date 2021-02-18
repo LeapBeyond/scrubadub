@@ -545,14 +545,14 @@ class BIOTokenSklearnDetector(SklearnDetector):
         combined_filth_label = None  # type: Optional[str]
         combined_filth_last_index = None  # type: Optional[int]
         combined_filth_doc_name = None  # Type: Optional[DocumentName]
-        combined_filth_ntokens = 0
+        combined_filth_first_index = None  # type: Optional[int]
 
         for i_token, token in enumerate(text_tokens):
             if BIOTokenSklearnDetector.get_iob_from_label(token.label) == 'O':
                 continue
 
             if combined_filth_location is not None and combined_filth_label is not None and \
-                    combined_filth_last_index is not None:
+                    combined_filth_last_index is not None and combined_filth_first_index is not None:
 
                 character_check = number_missing_characters_allowed is None or \
                     token.span.beg <= (combined_filth_location[1] + number_missing_characters_allowed)
@@ -570,10 +570,11 @@ class BIOTokenSklearnDetector(SklearnDetector):
                         max([combined_filth_location.end, token.span.end]),
                     )
                     combined_filth_last_index = i_token
-                    combined_filth_ntokens += 1
                     continue
 
-            if combined_filth_ntokens >= minimum_ntokens and combined_filth_location is not None:
+            if combined_filth_location is not None and combined_filth_last_index is not None \
+                    and combined_filth_first_index is not None \
+                    and (combined_filth_last_index - combined_filth_first_index + 1) >= minimum_ntokens:
                 # Issue the collected new filth
                 text = BIOTokenSklearnDetector._get_doc_text(
                     document_name=combined_filth_doc_name,
@@ -594,7 +595,7 @@ class BIOTokenSklearnDetector(SklearnDetector):
             combined_filth_last_index = None
             combined_filth_label = None
             combined_filth_doc_name = None
-            combined_filth_ntokens = 0
+            combined_filth_first_index = None
 
             if b_token_required and not token.label.startswith('B-'):
                 continue
@@ -604,10 +605,11 @@ class BIOTokenSklearnDetector(SklearnDetector):
             combined_filth_label = BIOTokenSklearnDetector.remove_iob_from_label(token.label)
             combined_filth_doc_name = token.doc_name
             combined_filth_last_index = i_token
-            combined_filth_ntokens = 1
+            combined_filth_first_index = i_token
 
-        if combined_filth_ntokens >= minimum_ntokens and combined_filth_location is not None \
-                and combined_filth_label is not None:
+        if combined_filth_last_index is not None and combined_filth_first_index is not None \
+                and combined_filth_location is not None and combined_filth_label is not None \
+                and (combined_filth_last_index - combined_filth_first_index + 1) >= minimum_ntokens:
             # Issue the collected new filth
             text = BIOTokenSklearnDetector._get_doc_text(
                 document_name=combined_filth_doc_name,
