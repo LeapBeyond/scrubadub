@@ -81,8 +81,8 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
     # models / sklearn_address
 
     BUILDING_WORDS = [
-        # TODO: look at thesaurous
-        'flat', 'building', 'bldg', 'bld', 'apartment', 'apt', 'house', 'studio', 'suite', 'room', 'office', 'tower',
+        'flat', 'flats', 'building', 'buildings', 'bldg', 'bld', 'apartment', 'apartments', 'apt', 'house', 'houses',
+        'studio', 'studios', 'suite', 'suites', 'room', 'rooms', 'centre', 'penthouse', 'residence', 'office', 'tower',
     ]
 
     DIRECTION_WORDS = [
