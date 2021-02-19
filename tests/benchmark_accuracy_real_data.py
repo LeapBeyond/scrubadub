@@ -296,7 +296,7 @@ def load_complicated_detectors() -> Dict[str, bool]:
         'address': False,
         'address_sklearn': False,
         'spacy': False,
-        'spacy_expand_person_title': False,
+        'spacy_name_title': False,
         'stanford': False,
         'text_blob': False,
     }
@@ -364,34 +364,34 @@ def load_complicated_detectors() -> Dict[str, bool]:
         scrubadub.detectors.register_detector(SpacyEnLgDetector, autoload=True)
         scrubadub.detectors.register_detector(SpacyEnTrfDetector, autoload=True)
     try:
-        import scrubadub.detectors.spacy_expand_person_title
+        import scrubadub.detectors.spacy_name_title
         detector_available['spacy_expand_person_title'] = True
     except ImportError:
         pass
     # Disable spacy due to thinc.config.ConfigValidationError
-    if detector_available['spacy_expand_person_title']:
+    if detector_available['spacy_name_title']:
         del scrubadub.detectors.detector_configuration[
-            scrubadub.detectors.spacy_expand_person_title.SpacyExpandPersonTitle.name
+            scrubadub.detectors.spacy_name_title.SpacyNameTitleDetector.name
         ]
 
         # TODO: this only supports english models for spacy, this should be improved
-        class SpacyTitleEnSmDetector(scrubadub.detectors.spacy_expand_person_title.SpacyExpandPersonTitle):
-            name = 'spacy_title_en_core_web_sm'
+        class SpacyTitleEnSmDetector(scrubadub.detectors.spacy_name_title.SpacyNameTitleDetector):
+            name = 'spacy_name_title_en_core_web_sm'
             def __init__(self, **kwargs):
                 super(SpacyTitleEnSmDetector, self).__init__(model='en_core_web_sm', **kwargs)
 
-        class SpacyTitleEnMdDetector(scrubadub.detectors.spacy_expand_person_title.SpacyExpandPersonTitle):
-            name = 'spacy_title_en_core_web_md'
+        class SpacyTitleEnMdDetector(scrubadub.detectors.spacy_name_title.SpacyNameTitleDetector):
+            name = 'spacy_name_title_en_core_web_md'
             def __init__(self, **kwargs):
                 super(SpacyTitleEnMdDetector, self).__init__(model='en_core_web_md', **kwargs)
 
-        class SpacyTitleEnLgDetector(scrubadub.detectors.spacy_expand_person_title.SpacyExpandPersonTitle):
-            name = 'spacy_title_en_core_web_lg'
+        class SpacyTitleEnLgDetector(scrubadub.detectors.spacy_name_title.SpacyNameTitleDetector):
+            name = 'spacy_name_title_en_core_web_lg'
             def __init__(self, **kwargs):
                 super(SpacyTitleEnLgDetector, self).__init__(model='en_core_web_lg', **kwargs)
 
-        class SpacyTitleEnTrfDetector(scrubadub.detectors.spacy_expand_person_title.SpacyExpandPersonTitle):
-            name = 'spacy_title_en_core_web_trf'
+        class SpacyTitleEnTrfDetector(scrubadub.detectors.spacy_name_title.SpacyNameTitleDetector):
+            name = 'spacy_name_title_en_core_web_trf'
             def __init__(self, **kwargs):
                 super(SpacyTitleEnTrfDetector, self).__init__(model='en_core_web_trf', **kwargs)
 
