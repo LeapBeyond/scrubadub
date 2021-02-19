@@ -46,8 +46,8 @@ def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
             span_obj = [
                 span_token.i
                 for span_token in doc[token.i:token.i + SpacyNameTitleDetector.TOKENS_AFTER_TITLE]
-                if span_token.dep_ != "punct" and span_token.tag_ in ("NNP", "NN", "NNPS",) and
-                   span_token.is_stop is False
+                if (span_token.dep_ != "punct" and span_token.tag_ in ("NNP", "NN", "NNPS",) and
+                    span_token.is_stop is False)
             ]
 
             if len(span_obj) > 1:
