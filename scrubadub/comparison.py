@@ -239,7 +239,8 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
 
 def make_fake_document(
         paragraphs: int = 20, locale: str = 'en_US', seed: Optional[int] = None, faker: Optional[Faker] = None,
-        filth_types: Optional[List[str]] = None, fake_text_function: Optional[Callable] = None
+        filth_types: Optional[List[str]] = None, fake_text_function: Optional[Callable] = None,
+        additional_filth_types: Optional[List[Filth]] = None,
 ) -> Tuple[str, List[KnownFilthItem]]:
     """Creates a fake document containing `Filth` that needs to be removed. Also returns the list of known filth
     items that are needed byt the `KnownFilthDetector`\\ .
@@ -299,6 +300,8 @@ def make_fake_document(
         filth_module.TwitterFilth,
         filth_module.UrlFilth,
     ]
+    if additional_filth_types is not None:
+        possible_filth += additional_filth_types
 
     if filth_types is not None:
         possible_filth = [filth for filth in possible_filth if filth.type in filth_types]
