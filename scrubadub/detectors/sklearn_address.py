@@ -170,7 +170,7 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
     @staticmethod
     def create_features_single_token(token: str, prefix: str = '') -> Dict:
         token = token.strip(' \t\r\v\f')
-        address_punctuation = token.lower() in ('\n', '.', ',')
+        address_punctuation = any(punct in token.lower() for punct in ('\n', ','))
         street_word = token.lower() in SklearnAddressDetector.STREET_WORDS
         building_word = token.lower() in SklearnAddressDetector.BUILDING_WORDS
         direction_word = token.lower() in SklearnAddressDetector.DIRECTION_WORDS
@@ -186,7 +186,7 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
             prefix + 'capitalised': token.istitle(),
             prefix + 'lower': token.islower(),
             prefix + 'upper': token.isupper(),
-            prefix + 'numeric': token.isdigit(),
+            prefix + 'numeric': any(c.isdigit() for c in token),
             prefix + 'alphanumeric': any(c.isdigit() for c in token) and any(c.isalpha() for c in token),
             prefix + 'address_punctuation': address_punctuation,
             prefix + 'building_word': building_word,
