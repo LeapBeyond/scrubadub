@@ -83,6 +83,11 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
     BUILDING_WORDS = [
         'flat', 'flats', 'building', 'buildings', 'bldg', 'bld', 'apartment', 'apartments', 'apt', 'house', 'houses',
         'studio', 'studios', 'suite', 'suites', 'room', 'rooms', 'centre', 'penthouse', 'residence', 'office', 'tower',
+        'court',
+    ]
+
+    PO_BOX_WORDS = [
+        'po', 'box', 'p.o', 'p.o.'
     ]
 
     DIRECTION_WORDS = [
@@ -173,6 +178,7 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
         county_word = token.lower() in SklearnAddressDetector.COUNTY_WORDS
         country_word = token.lower() in SklearnAddressDetector.COUNTRY_WORDS
         date_word = token.lower() in SklearnAddressDetector.DATE_WORDS
+        po_box_word = token.lower() in SklearnAddressDetector.PO_BOX_WORDS
         postcode_start = re.match(SklearnAddressDetector.POSTCODE_START, token) is not None
         postcode_end = re.match(SklearnAddressDetector.POSTCODE_END, token) is not None
 
@@ -187,6 +193,7 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
             prefix + 'direction_word': direction_word,
             prefix + 'street_word': street_word,
             prefix + 'place_word': place_word,
+            prefix + 'po_box_word': po_box_word,
             prefix + 'county_word': county_word,
             prefix + 'country_word': country_word,
             prefix + 'date_word': date_word,
