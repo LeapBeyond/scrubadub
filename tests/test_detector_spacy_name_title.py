@@ -23,7 +23,6 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
                 ((sys.version_info.major, sys.version_info.minor) < (3, 6)) or
                 ((sys.version_info.major, sys.version_info.minor) >= (3, 9))
         )
-        print("HERE")
         if unsupported_python_version:
             print("SKIPPED")
             self.skipTest(
@@ -35,23 +34,24 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
             )
         else:
             from scrubadub.detectors.spacy_name_title import SpacyNameTitleDetector
-            self.detector = SpacyNameTitleDetector(model='en_core_web_sm')
-
-    def _assert_filth_type_and_pos(self, doc_list, beg_end_list, filth_class):
-        doc_names = [str(x) for x in range(len(doc_list))]
-
-        filth_list = list(self.detector.iter_filth_documents(document_list=doc_list, document_names=doc_names))
-        for filth, beg_end in zip(filth_list, beg_end_list):
-            self.assertIsInstance(filth, filth_class)
-            self.assertEqual((filth.beg, filth.end), beg_end)
+            self.detector = SpacyNameTitleDetector()
 
     def test_expand_names(self):
-        doc_list = ["Mr Nadhim Zahawi said the measures would help our economy.",
-                    "The name is Mrs Nasrin Muhib.",
-                    "Can you please ask Mr lan Chase?",
-                    "Please see Dr Alex Smith in room 1."]
-        beg_end_list = [(0, 16),
-                        (12, 28),
-                        (19, 31),
-                        (11, 24)]
-        self._assert_filth_type_and_pos(doc_list, beg_end_list, NameFilth)
+        doc_list = [
+            "Mr Jake Doe said the measures would help our economy.",
+            "The name is Mrs Nasrin Muhib.",
+            "Can you please ask Mr lan Chase?",
+            "Please see Dr Alex Smith in room 1."
+        ]
+        beg_end_list = [
+            (0, 11),
+            (12, 28),
+            (19, 31),
+            (11, 24)
+        ]
+        for doc, beg_end in zip(doc_list, beg_end_list):
+            filth_list = list(self.detector.iter_filth(doc))
+            print(filth_list)
+            self.assertLessEqual(1, len(filth_list), doc)
+            self.assertIsInstance(filth_list[0], NameFilth, doc)
+            self.assertEqual((filth_list[0].beg, filth_list[0].end), beg_end, doc)
