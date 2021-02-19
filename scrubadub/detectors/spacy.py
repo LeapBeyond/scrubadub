@@ -171,7 +171,9 @@ class SpacyEntityDetector(Detector):
             document_list[i_doc] = re.sub(whitespace_regex, ' ', text)
         return document_list
 
-    def _run_spacy(self, document_list: Sequence[str], document_names: Sequence[Optional[str]]) -> List[spacy.tokens.doc.Doc]:
+    def _run_spacy(
+            self, document_list: Sequence[str], document_names: Sequence[Optional[str]]
+    ) -> List[spacy.tokens.doc.Doc]:
         i = 0
         spacy_docs = []  # type: List[spacy.tokens.doc.Doc]
         generator = self.nlp.pipe(document_list)
@@ -194,16 +196,19 @@ class SpacyEntityDetector(Detector):
 
         return spacy_docs
 
-    def _yield_filth(self, doc_name: str, text: str, ent: spacy.tokens.span.Span) -> Generator[Filth, None, None]:
+    def _yield_filth(
+            self, doc_name: Optional[str], text: str, ent: spacy.tokens.span.Span
+    ) -> Generator[Filth, None, None]:
         if ent.label_ not in self.named_entities:
             return
         filth_class = self.filth_cls_map.get(ent.label_, Filth)
         if self.preprocess_text:
             # When yielding the filth we need to yield filth as found in the original un-preprocessed text.
             # This section searches for text with the inverse of the preprocessing step.
-            if ent.text in self.yielded_filth:
-                return
-            self.yielded_filth.add(ent.text)
+            if self.yielded_filth is not None:
+                if ent.text in self.yielded_filth:
+                    return
+                self.yielded_filth.add(ent.text)
 
             class SpacyEntDetector(RegexDetector):
                 filth_cls = filth_class
