@@ -1,6 +1,6 @@
 import copy
 
-from typing import Generator, Optional, Sequence, List
+from typing import Generator, Optional, Sequence
 
 try:
     import spacy
@@ -20,6 +20,44 @@ from ..filth import Filth
 from .spacy import SpacyEntityDetector
 
 
+@Language.component("expand_person_entities")
+def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
+    """ Expand person entity by person title.
+
+    This is the spacy method for adding a label on top of the normal named entity labels.
+    This method preserves the existing labels as well as creating a new label for expanded person entities.
+    The expanded person entities can be retrieved by using the list doc._.person_titles.
+    Each item in the list doc._.person_titles is a spacy.tokens.span.Span,
+    which contains the start and end locations.
+
+    :return: spacy doc object
+    """
+
+    if doc._.person_titles is None:
+        doc._.person_titles = []
+
+    if doc.lang_ not in SpacyNameTitleDetector.NAME_TITLES:
+        raise NotImplementedError(f"Language {doc.lang_} is not supported by SpacyNameTitleDetector")
+
+    for token in doc:
+        # if the token is a title
+        if token.text.lower() in SpacyNameTitleDetector.NAME_TITLES[doc.lang_]:
+            # span of title plus n tokens to inspect
+            span_obj = [
+                span_token.i
+                for span_token in doc[token.i:token.i + SpacyNameTitleDetector.TOKENS_AFTER_TITLE]
+                if span_token.dep_ != "punct" and span_token.tag_ in ("NNP", "NN", "NNPS",) and
+                   span_token.is_stop is False
+            ]
+
+            if len(span_obj) > 1:
+                # create slice with spacy span to include new entity
+                entity = Span(doc, min(span_obj), max(span_obj) + 1, label="PERSON")
+                # update spacy ents to include the new entity
+                doc._.person_titles.append(entity)
+    return doc
+
+
 class SpacyNameTitleDetector(SpacyEntityDetector):
     """Add an extension to the spacy detector to detect titles infront of people's names, eg Mrs J Doe.
 
@@ -29,10 +67,10 @@ class SpacyNameTitleDetector(SpacyEntityDetector):
 
     >>> import scrubadub, scrubadub.detectors.spacy_name_title
     >>> scrubadub.detectors.spacy_name_title.SpacyNameTitleDetector.NAME_TITLES['de'] = ['frau', 'herr']
-    >>> detector = scrubadub.detectors.spacy_name_title.SpacyNameTitleDetector()
+    >>> detector = scrubadub.detectors.spacy_name_title.SpacyNameTitleDetector(locale='de_DE', model='de_core_news_sm')
     >>> scrubber = scrubadub.Scrubber(detector_list=[detector], locale='de_DE')
-    >>> scrubber.clean("Komm her Frau Schmidt!")
-    'Komm her {{NAME}}!!'
+    >>> scrubber.clean("bleib dort Frau Schmidt")
+    'bleib dort {{NAME+NAME}}'
     """
     name = "spacy_name_title"
 
@@ -66,44 +104,6 @@ class SpacyNameTitleDetector(SpacyEntityDetector):
 
         # Add the expand person title component after the named entity recognizer
         self.nlp.add_pipe('expand_person_entities', after='ner')
-
-    @Language.component("expand_person_entities")
-    @staticmethod
-    def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
-        """ Expand person entity by person title.
-
-        This is the spacy method for adding a label on top of the normal named entity labels.
-        This method preserves the existing labels as well as creating a new label for expanded person entities.
-        The expanded person entities can be retrieved by using the list doc._.person_titles.
-        Each item in the list doc._.person_titles is a spacy.tokens.span.Span,
-        which contains the start and end locations.
-
-        :return: spacy doc object
-        """
-
-        if doc._.person_titles is None:
-            doc._.person_titles = []
-
-        if doc.lang_ not in SpacyNameTitleDetector.NAME_TITLES:
-            raise NotImplementedError(f"Language {doc.lang_} is not supported by SpacyNameTitleDetector")
-
-        for token in doc:
-            # if the token is a title
-            if token.text.lower() in SpacyNameTitleDetector.NAME_TITLES[doc.lang_]:
-                # span of title plus n tokens to inspect
-                span_obj = [
-                    span_token.i
-                    for span_token in doc[token.i:token.i + SpacyNameTitleDetector.TOKENS_AFTER_TITLE]
-                    if span_token.dep_ != "punct" and span_token.tag_ in ("NNP", "NN", "NNPS") \
-                        and span_token.is_stop is False
-                ]
-
-                if len(span_obj) > 1:
-                    # create slice with spacy span to include new entity
-                    entity = Span(doc, min(span_obj), max(span_obj) + 1, label="PERSON")
-                    # update spacy ents to include the new entity
-                    doc._.person_titles.append(entity)
-        return doc
 
     def iter_filth_documents(self, document_list: Sequence[str],
                              document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
