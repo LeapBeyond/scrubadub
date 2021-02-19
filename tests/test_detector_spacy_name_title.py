@@ -14,8 +14,8 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
     def setUp(self):
         unsupported_spacy_version = False
         try:
-            from scrubadub.detectors.spacy_expand_person_title import SpacyExpandPersonTitle
-            SpacyExpandPersonTitle.check_spacy_version()
+            from scrubadub.detectors.spacy_name_title import SpacyNameTitleDetector
+            SpacyNameTitleDetector.check_spacy_version()
         except (ImportError, NameError):
             unsupported_spacy_version = True
 
@@ -34,8 +34,8 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
                 "Need spacy version >= 3"
             )
         else:
-            from scrubadub.detectors.spacy_expand_person_title import SpacyExpandPersonTitle
-            self.detector = SpacyExpandPersonTitle(model='en_core_web_sm')
+            from scrubadub.detectors.spacy_name_title import SpacyNameTitleDetector
+            self.detector = SpacyNameTitleDetector(model='en_core_web_sm')
 
     def _assert_filth_type_and_pos(self, doc_list, beg_end_list, filth_class):
         doc_names = [str(x) for x in range(len(doc_list))]
