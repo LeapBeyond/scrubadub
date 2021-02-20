@@ -197,7 +197,8 @@ class SklearnAddressDetector(BIOTokenSklearnDetector):
             prefix + 'county_word': county_word,
             prefix + 'country_word': country_word,
             prefix + 'date_word': date_word,
-            prefix + 'length': len(token),
+            # Limit to 5 to prevent ML from learning fingerprint of common addresses
+            prefix + 'length': len(token) if len(token) <= 5 else 5,
             prefix + 'length_short': len(token) <= 4,
             prefix + 'length_long': len(token) > 20,
             prefix + 'postcode_start': postcode_start,
