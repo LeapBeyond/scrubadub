@@ -12,19 +12,19 @@ from ..filth import AddressFilth
 
 class AddressTokeniser(nltk.tokenize.destructive.NLTKWordTokenizer):
     PUNCTUATION = [
-        (re.compile(r'([^\.])(\.)([\]\)}>"\'' u"»”’ " r"]*)[\t\r\f\v]*$", re.U), r"\1 \2 \3 "),
+        (re.compile(r'([^\.]{2,})(\.)([\]\)}>"\'' u"»”’ " r"]*)[\t\r\f\v]*$", re.U), r"\1 \2 \3 "),
         (re.compile(r"([:,])([^\d])"), r" \1 \2"),
         (re.compile(r"([:,])$"), r" \1 "),
         (re.compile(r"([:\n])"), r" \1 "),
         (re.compile(r"\.{2,}", re.U), r" \g<0> "),  # See https://github.com/nltk/nltk/pull/2322
         (re.compile(r"[;@#$%&]"), r" \g<0> "),
         (
-            re.compile(r'([^\.])(\.)([\]\)}>"\']*)[\t\r\f\v]*$'),
+            re.compile(r'([^\.]{2,})(\.)([\]\)}>"\']*)[\t\r\f\v]*$'),
             r"\1 \2\3 ",
         ),  # Handles the final period.
         # Earlier we put a space before the full-stop, if there is something in the format X.X.X .
         # transform this back to X.X.X.
-        (re.compile(r'(?<!\w)(\w(?:\.\w)+) +(\.)'), r'\1\2'),
+        # (re.compile(r'(?<!\w)(\w(?:\.\w)+) +(\.)'), r'\1\2'),
         # Remove special whitespace by replacing anything that's not (^) not whitespace (\S) and that's not a newline
         # This is the same as removing whitespace (\s) except newlines (\n)
         (re.compile(r"[^\S\n]+"), " "),
