@@ -172,6 +172,8 @@ def load_known_pii(known_pii_locations: List[str],
             pandas_reader = pd.read_csv
             if mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
                 pandas_reader = pd.read_excel
+            else:
+                data = decode_text({file_name: data})[file_name].encode('utf-8')
 
             dataframe = None  # type: Optional[DataFrame]
             for i in range(10):
