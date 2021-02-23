@@ -85,8 +85,10 @@ class SklearnDetector(Detector):
 
     def __init__(self, model_path_prefix: Optional[str] = None, dict_vectorizer_json_path: Optional[str] = None,
                  label_encoder_json_path: Optional[str] = None, model_json_path: Optional[str] = None,
-                 **kwargs):
+                 use_pickled_model: bool = True, **kwargs):
         super(SklearnDetector, self).__init__(**kwargs)
+
+        self.use_pickled_model = use_pickled_model
 
         # model paths
         self.model_path_prefix = model_path_prefix
@@ -228,7 +230,10 @@ class SklearnDetector(Detector):
             )
         return all_features
 
-    def load_model(self, use_pickle: bool = False) -> None:
+    def load_model(self, use_pickle: Optional[bool] = None) -> None:
+        if use_pickle is None:
+            use_pickle = self.use_pickled_model
+
         if self.dict_vectorizer is None and self.dict_vectorizer_json_path is not None:
             if use_pickle:
                 with open(self.dict_vectorizer_json_path, 'rb') as f:
@@ -250,7 +255,10 @@ class SklearnDetector(Detector):
             else:
                 self.label_encoder = estimator_from_json(self.label_encoder_json_path)
 
-    def save_model(self, use_pickle: bool = False) -> None:
+    def save_model(self, use_pickle: Optional[bool] = None) -> None:
+        if use_pickle is None:
+            use_pickle = self.use_pickled_model
+
         if self.dict_vectorizer is not None and self.dict_vectorizer_json_path is not None:
             if use_pickle:
                 with open(self.dict_vectorizer_json_path, 'wb') as f:
