@@ -301,7 +301,7 @@ def make_fake_document(
         filth_module.UrlFilth,
     ]
     if additional_filth_types is not None:
-        possible_filth += additional_filth_types
+        possible_filth += list(additional_filth_types)
 
     if filth_types is not None:
         possible_filth = [filth for filth in possible_filth if filth.type in filth_types]
