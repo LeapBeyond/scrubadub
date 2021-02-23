@@ -1,6 +1,6 @@
 import copy
 
-from typing import Generator, Optional, Sequence
+from typing import Generator, Optional, Sequence, List
 
 try:
     import spacy
@@ -32,60 +32,96 @@ def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
 
     :return: spacy doc object
     """
-
     if doc._.person_titles is None:
         doc._.person_titles = []
 
-    if doc.lang_ not in SpacyNameTitleDetector.NAME_TITLES:
+    if (doc.lang_ not in SpacyNameDetector.NAME_PREFIXES and doc.lang_ not in SpacyNameDetector.NAME_PREFIXES) or \
+            doc.lang_ not in SpacyNameDetector.NOUN_TAGS:
         raise NotImplementedError(f"Language {doc.lang_} is not supported by SpacyNameTitleDetector")
 
+    noun_tags = SpacyNameDetector.NOUN_TAGS[doc.lang_]
+
     for token in doc:
-        # if the token is a title
-        if token.text.lower() in SpacyNameTitleDetector.NAME_TITLES[doc.lang_]:
-            # span of title plus n tokens to inspect
+        # if the token is a prefix
+        span_obj = []  # type: List[int]
+        tokens_ids_in_sentance = [span_token.i for span_token in token.sent]
+        if doc.lang_ in SpacyNameDetector.NAME_PREFIXES and \
+                token.text.lower() in SpacyNameDetector.NAME_PREFIXES[doc.lang_]:
             span_obj = [
                 span_token.i
-                for span_token in doc[token.i:token.i + SpacyNameTitleDetector.TOKENS_AFTER_TITLE]
-                if (span_token.dep_ != "punct" and span_token.tag_ in ("NNP", "NN", "NNPS",) and
-                    span_token.is_stop is False)
+                for span_token in doc[token.i:token.i + SpacyNameDetector.TOKEN_SEARCH_DISTANCE + 1]
+                if (span_token.dep_ != "punct" and span_token.tag_ in noun_tags and
+                    not span_token.is_stop and span_token.i in tokens_ids_in_sentance)
             ]
 
-            if len(span_obj) > 1:
-                # create slice with spacy span to include new entity
-                entity = Span(doc, min(span_obj), max(span_obj) + 1, label="PERSON")
-                # update spacy ents to include the new entity
-                doc._.person_titles.append(entity)
+        if doc.lang_ in SpacyNameDetector.NAME_SUFIXES and \
+                token.text.lower() in SpacyNameDetector.NAME_SUFIXES[doc.lang_]:
+            span_obj = [
+                span_token.i
+                for span_token in doc[token.i - SpacyNameDetector.TOKEN_SEARCH_DISTANCE:token.i + 1]
+                if (span_token.dep_ != "punct" and span_token.tag_ in noun_tags and
+                    not span_token.is_stop and span_token.i in tokens_ids_in_sentance)
+            ]
+
+        if len(span_obj) >= SpacyNameDetector.MINIMUM_NAME_LENGTH:
+            # create slice with spacy span to include new entity
+            entity = Span(doc, min(span_obj), max(span_obj) + 1, label="PERSON")
+            # update spacy ents to include the new entity
+            doc._.person_titles.append(entity)
     return doc
 
 
-class SpacyNameTitleDetector(SpacyEntityDetector):
-    """Add an extension to the spacy detector to detect titles infront of people's names, eg Mrs J Doe.
+class SpacyNameDetector(SpacyEntityDetector):
+    """Add an extension to the spacy detector to look for tokens that often occur before or after names of people's
+    names, a prefix might be Hello as in "Hello Jane", or Mrs as in "Mrs Jane Smith" and a suffix could be PhD as
+    in "Jane Smith PhD".
 
-    See the ``SpacyDetector`` for further info on how to use this detector.
+    See the ``SpacyDetector`` for further info on how to use this detector as it shares many similar options.
 
-    Currently only english titles are supported, but other language titles can be easily added, as in the example below:
+    Currently only english prefixes and sufixes are supported, but other language titles can be easily added, as in
+    the example below:
 
     >>> import scrubadub, scrubadub.detectors.spacy_name_title
-    >>> scrubadub.detectors.spacy_name_title.SpacyNameTitleDetector.NAME_TITLES['de'] = ['frau', 'herr']
-    >>> detector = scrubadub.detectors.spacy_name_title.SpacyNameTitleDetector(locale='de_DE', model='de_core_news_sm')
+    >>> scrubadub.detectors.spacy_name_title.SpacyNameDetector.NOUN_TAGS['de'] = ['NN', 'NE', 'NNE']
+    >>> scrubadub.detectors.spacy_name_title.SpacyNameDetector.NAME_PREFIXES['de'] = ['frau', 'herr']
+    >>> detector = scrubadub.detectors.spacy_name_title.SpacyNameDetector(locale='de_DE', model='de_core_news_sm')
     >>> scrubber = scrubadub.Scrubber(detector_list=[detector], locale='de_DE')
     >>> scrubber.clean("bleib dort Frau Schmidt")
     'bleib dort {{NAME+NAME}}'
     """
-    name = "spacy_name_title"
+    name = "spacy_name"
 
-    NAME_TITLES = {
-        "en": ['mr', 'mister', 'mrs', 'misses', 'ms', 'miss', 'dr', 'doctor', 'prof', 'professor', 'lord',
-               'lady', 'rev', 'reverend', 'hon', 'honourable', 'honorable', 'judge', 'sir', 'madam']
+    NAME_PREFIXES = {
+        "en": [
+            # Titles
+            'mr', 'mr.', 'mister', 'mrs', 'mrs.', 'misses', 'ms', 'ms.', 'miss', 'dr', 'dr.', 'doctor', 'prof',
+            'prof.', 'professor', 'lord', 'lady', 'rev', 'rev.', 'reverend', 'hon', 'hon.', 'honourable',
+            'honorable', 'judge', 'sir', 'madam',
+            # Greetings
+            'hello', 'dear', 'hi', 'hey',
+        ],
+    }
+
+    NAME_SUFIXES = {
+        "en": ['phd', 'bsc', 'msci', 'ba', 'md', 'qc', 'mba'],
+    }
+
+    NOUN_TAGS = {
+        'en': ["NNP", "NN", "NNPS"],
     }
 
     # This is the number of tokens to look for a name after the title
-    TOKENS_AFTER_TITLE = 3
+    TOKEN_SEARCH_DISTANCE = 3
 
-    def __init__(self, **kwargs):
+    # This is the minimum number of tokens that is considered a name
+    MINIMUM_NAME_LENGTH = 1
+
+    def __init__(self, affixes_only: bool = False, **kwargs):
         """Initialise the ``Detector``.
 
-        :param named_entities: Limit the named entities to those in this list, defaults to ``{'PERSON', 'PER', 'ORG'}``
+        :param affixes_only: Only find items that have the required prefix or suffix.
+        :type affixes_only: bool, default, False
+        :param named_entities: Limit the named entities to those in this list, defaults to ``{'PERSON', 'PER', 'ORG'}``.
         :type named_entities: Iterable[str], optional
         :param model: The name of the spacy model to use, it must contain a 'ner' step in the model pipeline (most
             do, but not all).
@@ -96,14 +132,12 @@ class SpacyNameTitleDetector(SpacyEntityDetector):
                        underscore and the two letter upper-case country code, eg "en_GB" or "de_CH".
         :type locale: str, optional
         """
-
-        super(SpacyNameTitleDetector, self).__init__(**kwargs)
-
         Doc.set_extension('person_titles', default=None, force=True)
-        self.expand_person_titles = True
+        super(SpacyNameDetector, self).__init__(**kwargs)
 
         # Add the expand person title component after the named entity recognizer
         self.nlp.add_pipe('expand_person_entities', after='ner')
+        self.affixes_only = affixes_only
 
     def iter_filth_documents(self, document_list: Sequence[str],
                              document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
@@ -127,10 +161,12 @@ class SpacyNameTitleDetector(SpacyEntityDetector):
 
         self.yielded_filth = set()
         for doc_name, doc, text in zip(document_names, spacy_docs, document_list):
+            if not self.affixes_only:
+                for ent in doc.ents:
+                    yield from self._yield_filth(doc_name, text, ent)
             for ent in doc._.person_titles:
                 yield from self._yield_filth(doc_name, text, ent)
-            for ent in doc.ents:
-                yield from self._yield_filth(doc_name, text, ent)
+
         self.yielded_filth = None
 
     @classmethod
@@ -145,9 +181,10 @@ class SpacyNameTitleDetector(SpacyEntityDetector):
         """
 
         language, region = cls.locale_split(locale)
-        return language in SpacyNameTitleDetector.NAME_TITLES
+        return (language in SpacyNameDetector.NAME_PREFIXES or language in SpacyNameDetector.NAME_SUFIXES) and \
+               language in SpacyNameDetector.NOUN_TAGS
 
 
-register_detector(SpacyNameTitleDetector, autoload=False)
+register_detector(SpacyNameDetector, autoload=False)
 
-__all__ = ['SpacyNameTitleDetector']
+__all__ = ['SpacyNameDetector']

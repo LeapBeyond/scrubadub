@@ -14,8 +14,8 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
     def setUp(self):
         unsupported_spacy_version = False
         try:
-            from scrubadub.detectors.spacy_name_title import SpacyNameTitleDetector
-            SpacyNameTitleDetector.check_spacy_version()
+            from scrubadub.detectors.spacy_name_title import SpacyNameDetector
+            SpacyNameDetector.check_spacy_version()
         except (ImportError, NameError):
             unsupported_spacy_version = True
 
@@ -33,25 +33,28 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
                 "Need spacy version >= 3"
             )
         else:
-            from scrubadub.detectors.spacy_name_title import SpacyNameTitleDetector
-            self.detector = SpacyNameTitleDetector()
+            from scrubadub.detectors.spacy_name_title import SpacyNameDetector
+            self.detector = SpacyNameDetector(affixes_only=True)
 
     def test_expand_names(self):
         doc_list = [
             "Mr Jake Doe said the measures would help our economy.",
             "The name is Mrs Nasrin Muhib.",
             "Can you please ask Mr lan Chase?",
-            "Please see Dr Alex Smith in room 1."
+            "Please see Dr Alex Smith in room 1.",
+            "He was greeted by Jane Eckles PhD in his room.",
+            "Hello Johny Jake!",
         ]
         beg_end_list = [
             (0, 11),
             (12, 28),
             (19, 31),
-            (11, 24)
+            (11, 24),
+            (18, 33),
+            (6, 16),
         ]
         for doc, beg_end in zip(doc_list, beg_end_list):
             filth_list = list(self.detector.iter_filth(doc))
-            print(filth_list)
-            self.assertLessEqual(1, len(filth_list), doc)
-            self.assertIsInstance(filth_list[0], NameFilth, doc)
-            self.assertEqual((filth_list[0].beg, filth_list[0].end), beg_end, doc)
+            self.assertEqual(1, len(filth_list), doc)
+            self.assertIsInstance(filth_list[0], NameFilth)
+            self.assertEqual(beg_end, (filth_list[0].beg, filth_list[0].end))

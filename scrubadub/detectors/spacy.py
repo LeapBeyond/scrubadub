@@ -119,9 +119,6 @@ class SpacyEntityDetector(Detector):
                 "please choose another model.".format(self.model)
             )
 
-        # Only enable necessary pipes
-        self.nlp.select_pipes(enable=["transformer", "tagger", "parser", "ner"])
-
         self.yielded_filth = None  # type: Optional[Set[str]]
 
     @staticmethod
