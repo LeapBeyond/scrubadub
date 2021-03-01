@@ -184,7 +184,7 @@ def load_known_pii(known_pii_locations: List[str],
                     'pii_start': str,
                     'pii_end': str,
                     'pii_type': str,
-                })
+                }).rename(columns=lambda x: x.strip())
                 if (set(dataframe.columns.to_list()) & target_cols) == target_cols:
                     break
                 elif (set(dataframe.columns.to_list()) & target_cols_alt) == target_cols_alt:
