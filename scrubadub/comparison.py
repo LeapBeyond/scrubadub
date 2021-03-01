@@ -6,9 +6,9 @@ from faker import Faker
 
 from . import filth as filth_module
 from .filth import Filth
-from .detectors.known import KnownFilthItem
+from .detectors.tagged import KnownFilthItem
 
-from typing import List, Dict, Union, Optional, Tuple, Callable
+from typing import List, Dict, Union, Optional, Tuple, Callable, Iterable, Type
 import pandas as pd
 import sklearn.metrics
 
@@ -241,7 +241,7 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
 def make_fake_document(
         paragraphs: int = 20, locale: str = 'en_US', seed: Optional[int] = None, faker: Optional[Faker] = None,
         filth_types: Optional[List[str]] = None, fake_text_function: Optional[Callable] = None,
-        additional_filth_types: Optional[List[Filth]] = None,
+        additional_filth_types: Optional[Iterable[Type[Filth]]] = None,
 ) -> Tuple[str, List[KnownFilthItem]]:
     """Creates a fake document containing `Filth` that needs to be removed. Also returns the list of known filth
     items that are needed byt the `KnownFilthDetector`\\ .

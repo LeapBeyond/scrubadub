@@ -45,8 +45,12 @@ def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
         # if the token is a prefix
         span_obj = []  # type: List[int]
         tokens_ids_in_sentance = [span_token.i for span_token in token.sent]
+        text = token.text
+        if text == ':':
+            text = doc[token.i - 1].text + ':'
+
         if doc.lang_ in SpacyNameDetector.NAME_PREFIXES and \
-                token.text.lower() in SpacyNameDetector.NAME_PREFIXES[doc.lang_]:
+                text.lower() in SpacyNameDetector.NAME_PREFIXES[doc.lang_]:
             span_obj = [
                 span_token.i
                 for span_token in doc[token.i:token.i + SpacyNameDetector.TOKEN_SEARCH_DISTANCE + 1]
@@ -55,7 +59,7 @@ def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
             ]
 
         if doc.lang_ in SpacyNameDetector.NAME_SUFIXES and \
-                token.text.lower() in SpacyNameDetector.NAME_SUFIXES[doc.lang_]:
+                text.lower() in SpacyNameDetector.NAME_SUFIXES[doc.lang_]:
             span_obj = [
                 span_token.i
                 for span_token in doc[token.i - SpacyNameDetector.TOKEN_SEARCH_DISTANCE:token.i + 1]
@@ -99,11 +103,13 @@ class SpacyNameDetector(SpacyEntityDetector):
             'honorable', 'judge', 'sir', 'madam',
             # Greetings
             'hello', 'dear', 'hi', 'hey',
+            # emails
+            'to:', 'from:', 'sender:',
         ],
     }
 
     NAME_SUFIXES = {
-        "en": ['phd', 'bsc', 'msci', 'ba', 'md', 'qc', 'mba'],
+        "en": ['phd', 'bsc', 'msci', 'ba', 'md', 'qc', 'ma', 'mba'],
     }
 
     NOUN_TAGS = {
@@ -181,8 +187,10 @@ class SpacyNameDetector(SpacyEntityDetector):
         """
 
         language, region = cls.locale_split(locale)
-        return (language in SpacyNameDetector.NAME_PREFIXES or language in SpacyNameDetector.NAME_SUFIXES) and \
-               language in SpacyNameDetector.NOUN_TAGS
+        return (
+            (language in SpacyNameDetector.NAME_PREFIXES or language in SpacyNameDetector.NAME_SUFIXES) and
+            language in SpacyNameDetector.NOUN_TAGS
+        )
 
 
 register_detector(SpacyNameDetector, autoload=False)
