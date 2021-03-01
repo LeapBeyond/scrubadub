@@ -250,8 +250,8 @@ class Scrubber(object):
         filth_list = self._post_process_filth_list(filth_list)
         return self._replace_text(text=text, filth_list=filth_list, document_name=None, **kwargs)
 
-    def clean_documents(self, documents: Union[Sequence[str], Dict[str, str]], **kwargs) -> \
-            Union[Dict[str, str], Sequence[str]]:
+    def clean_documents(self, documents: Union[Sequence[str], Dict[Optional[str], str]], **kwargs) -> \
+            Union[Dict[Optional[str], str], Sequence[str]]:
         """This is the master method that cleans all of the filth out of the
         dirty dirty ``text``. All keyword arguments to this function are passed
         through to the  ``Filth.replace_with`` method to fine-tune how the
@@ -276,7 +276,7 @@ class Scrubber(object):
             clean_documents = [
                 self._replace_text(text=text, filth_list=filth_list, document_name=str(name), **kwargs)
                 for name, text in enumerate(documents)
-            ]  # type: Union[Dict[str, str], Sequence[str]]
+            ]  # type: Union[Dict[Optional[str], str], Sequence[str]]
         elif isinstance(documents, dict):
             clean_documents = {
                 name: self._replace_text(text=text, filth_list=filth_list, document_name=name, **kwargs)
