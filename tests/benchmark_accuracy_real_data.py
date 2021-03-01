@@ -327,6 +327,13 @@ def load_complicated_detectors(user_supplied_pii: Optional[Sequence[str]] = None
         detector_available['address'] = True
     except ImportError:
         pass
+    try:
+        import scrubadub.detectors.date_of_birth
+        detector_available['date_of_birth'] = True
+        detector_name = scrubadub.detectors.date_of_birth.DateOfBirthDetector.name
+        scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
+    except ImportError:
+        pass
     # try:
     #     import scrubadub.detectors.text_blob
     #     detector_name = scrubadub.detectors.text_blob.TextBlobNameDetector.name
