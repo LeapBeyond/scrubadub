@@ -56,6 +56,33 @@ class TaggedEvaluationFilthDetector(Detector):
                             weighted avg       1.00      1.00      1.00         1
     <BLANKLINE>
 
+    This detector takes a list of dictonaires (reffered to as known filth items). These specify what to look for in
+    the text to label as tagged filth. The dictionary should contain the following keys:
+
+        * ``match`` (`str`) - a string value that will be searched for in the text
+        * ``filth_type`` (`str`) - a string value that indicates the type of Filth, should be set to ``Filth.name``.
+          An example of these could be 'name' or 'phone' for name and phone filths respectively.
+
+    The known filth item dictionary may also optionally contain:
+
+        * ``match_end`` (`str`) - if specified will search for Filth starting with the value of match and ending with
+          the value of ``match_end``
+        * ``limit`` (`int`) - an integer describing the maximum number of characters between match and match_end,
+          defaults to 150
+        * ``ignore_case`` (`bool`) - Ignore case when searching for the tagged filth
+        * ``ignore_whitespace`` (`bool`) - Ignore whitespace when matching ("asd qwe" can also match "asd\\\\nqwe")
+        * ``ignore_partial_word_matches`` (`bool`) - Ignore matches that are only partial words (if you're looking
+          for "Eve", this flag ensure it wont match "Evening")
+
+    Examples of this:
+
+        * ``{'match': 'aaa', 'filth_type': 'name'}`` - will search for an exact match to aaa and return it as a
+          ``NameFilth``
+        * ``{'match': 'aaa', 'match_end': 'zzz', 'filth_type': 'name'}`` - will search for `aaa` followed by up to 150
+          characters followed by `zzz`, which would match both `aaabbbzzz` and `aaazzz`.
+        * ``{'match': '012345', 'filth_type': 'phone', 'ignore_partial_word_matches': True}`` - will search for an
+          exact match to 012345, ignoring any partial matches and return it as a ``PhoneFilth``
+
     This detector is not enabled by default (since you need to supply a list of known filths) and so you must always
     add it to your scrubber with a ``scrubber.add_detector(detector)`` call or by adding it to the ``detector_list``
     inialising a ``Scrubber``.
@@ -67,15 +94,10 @@ class TaggedEvaluationFilthDetector(Detector):
     def __init__(self, known_filth_items: List[KnownFilthItem], **kwargs):
         """Initialise the ``Detector``.
 
-        :param known_filth_items: A list of dictionaries that describe items to be searched for in the dirty text. The
-            dictionary should contain the following keys: 'match' (with a string value that will be searched for in the
-            text) and 'filth_type' (with a string value that indicates the type of Filth, should be set to
-            ``Filth.name``). Optionally the dictionary may also contain: 'match_end' (if specified will search for
-            Filth starting with the value of match and ending with the value of match_end) and 'limit' (an integer
-            describing the maximum number of characters between match and match_end, defaults to 150). A dictionary
-            ``{'match': 'aaa', 'filth_type': 'name'}`` will search for an exact match to aaa and return it as a
-            ``NameFilth``, where as ``{'match': 'aaa', 'match_end': 'zzz', 'filth_type': 'name'}`` will search for
-            `aaa` followed by up to 150 characters followed by `zzz`, which would match both `aaabbbzzz` and `aaazzz`.
+        :param known_filth_items: A list of dictionaries that describe items to be searched for in the dirty text.
+            The keys `match` and `filth_type` are required, which give the text to be searched for and the type of
+            filth that the `match` string represents.
+            See the class docstring for further details of available flags in this dictionary.
         :type known_filth_items: list of dicts
         :param tagged_filth: Whether the filth has been tagged and should be used as truth when calculating filth
             finding accuracies.
