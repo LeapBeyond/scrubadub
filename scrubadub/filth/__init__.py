@@ -4,7 +4,7 @@ from .credential import CredentialFilth
 from .credit_card import CreditCardFilth
 from .drivers_licence import DriversLicenceFilth
 from .email import EmailFilth
-from .known import KnownFilth
+from .tagged import TaggedEvaluationFilth
 from .location import LocationFilth
 from .name import NameFilth
 # from .named_entity import NamedEntityFilth

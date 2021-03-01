@@ -27,7 +27,7 @@ def get_filth_classification_report(
         >>> import scrubadub, scrubadub.comparison, scrubadub.detectors.text_blob
         >>> scrubber = scrubadub.Scrubber(detector_list=[
         ...     scrubadub.detectors.TextBlobNameDetector(name='name_detector'),
-        ...     scrubadub.detectors.KnownFilthDetector([
+        ...     scrubadub.detectors.TaggedEvaluationFilthDetector([
         ...         {'match': 'Tom', 'filth_type': 'name'},
         ...         {'match': 'tom@example.com', 'filth_type': 'email'},
         ...     ]),
@@ -64,8 +64,9 @@ def get_filth_classification_report(
 
         results_row = {}
         for sub_filth in sub_filths:
-            if isinstance(sub_filth, filth_module.KnownFilth) and sub_filth.comparison_type is not None:
-                col_name = '{}:{}:{}'.format(sub_filth.comparison_type, filth_module.KnownFilth.type, sub_filth.locale)
+            if isinstance(sub_filth, filth_module.TaggedEvaluationFilth) and sub_filth.comparison_type is not None:
+                col_name = '{}:{}:{}'.format(sub_filth.comparison_type, filth_module.TaggedEvaluationFilth.type,
+                                             sub_filth.locale)
                 results_row[col_name] = 1
             else:
                 try:
@@ -89,15 +90,15 @@ def get_filth_classification_report(
     )
 
     # Find filth types that have some known filth
-    known_types = [x[0] for x in results_df.columns if x[1] == filth_module.KnownFilth.type]
+    known_types = [x[0] for x in results_df.columns if x[1] == filth_module.TaggedEvaluationFilth.type]
     # Select columns for filth that have related known filth, but that are not known filth
     detected_columns = [
         x for x in results_df.columns
-        if x[1] != filth_module.KnownFilth.type and x[0] in known_types
+        if x[1] != filth_module.TaggedEvaluationFilth.type and x[0] in known_types
     ]
     detected_classes = results_df.loc[:, detected_columns].values
     # Take the detected_columns above and find their associated known counterparts
-    known_cols = [(x[0], filth_module.KnownFilth.type, x[2]) for x in detected_columns]
+    known_cols = [(x[0], filth_module.TaggedEvaluationFilth.type, x[2]) for x in detected_columns]
     try:
         true_classes = results_df.loc[:, known_cols].values
     except KeyError:
@@ -166,7 +167,7 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
         >>> import scrubadub, scrubadub.comparison, scrubadub.detectors.text_blob
         >>> scrubber = scrubadub.Scrubber(detector_list=[
         ...     scrubadub.detectors.TextBlobNameDetector(name='name_detector'),
-        ...     scrubadub.detectors.KnownFilthDetector([
+        ...     scrubadub.detectors.TaggedEvaluationFilthDetector([
         ...         {'match': 'Tom', 'filth_type': 'name'},
         ...         {'match': 'tom@example.com', 'filth_type': 'email'},
         ...     ]),
@@ -208,7 +209,7 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
                 'beg': sub_filth.beg,
                 'end': sub_filth.end,
                 'locale': sub_filth.locale,
-                'known_filth': isinstance(sub_filth, filth_module.KnownFilth),
+                'known_filth': isinstance(sub_filth, filth_module.TaggedEvaluationFilth),
                 'comparison_type': getattr(sub_filth, 'comparison_type', float('nan')),
             })
 
@@ -252,7 +253,9 @@ def make_fake_document(
         >>> import scrubadub, scrubadub.comparison
         >>> document, known_filth_items = scrubadub.comparison.make_fake_document(paragraphs=1, seed=1)
         >>> scrubber = scrubadub.Scrubber()
-        >>> scrubber.add_detector(scrubadub.detectors.KnownFilthDetector(known_filth_items=known_filth_items))
+        >>> scrubber.add_detector(scrubadub.detectors.TaggedEvaluationFilthDetector(
+        ...     known_filth_items=known_filth_items
+        ... ))
         >>> filth_list = list(scrubber.iter_filth(document))
         >>> print(scrubadub.comparison.get_filth_classification_report(filth_list))
         filth     detector     locale    precision    recall  f1-score   support

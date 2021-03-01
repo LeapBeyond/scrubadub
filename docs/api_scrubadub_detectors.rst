@@ -113,11 +113,6 @@ scrubadub.detectors.DateOfBirthDetector
 
 .. autoclass:: scrubadub.detectors.DateOfBirthDetector
 
-scrubadub.detectors.KnownFilthDetector
---------------------------------------
-
-.. autoclass:: scrubadub.detectors.KnownFilthDetector
-
 scrubadub.detectors.SkypeDetector
 ---------------------------------
 
@@ -133,7 +128,17 @@ scrubadub.detectors.StanfordEntityDetector
 
 .. autoclass:: scrubadub.detectors.StanfordEntityDetector
 
+scrubadub.detectors.TaggedEvaluationFilthDetector
+-------------------------------------------------
+
+.. autoclass:: scrubadub.detectors.TaggedEvaluationFilthDetector
+
 scrubadub.detectors.TextBlobNameDetector
 ----------------------------------------
 
 .. autoclass:: scrubadub.detectors.TextBlobNameDetector
+
+scrubadub.detectors.UserSuppliedFilthDetector
+---------------------------------------------
+
+.. autoclass:: scrubadub.detectors.UserSuppliedFilthDetector

@@ -34,7 +34,7 @@ class DateOfBirthDetector(Detector):
     >>> import scrubadub, scrubadub.detectors.date_of_birth
     >>> scrubber = scrubadub.Scrubber(detector_list=[
     ...     scrubadub.detectors.TextBlobNameDetector(name='name_detector'),
-    ...     scrubadub.detectors.KnownFilthDetector([
+    ...     scrubadub.detectors.TaggedEvaluationFilthDetector([
     ...         {'match': 'Tom', 'filth_type': 'name'},
     ...         {'match': 'tom@example.com', 'filth_type': 'email'},
     ...     ]),

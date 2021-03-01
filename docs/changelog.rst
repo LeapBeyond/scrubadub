@@ -49,7 +49,8 @@ Detectors
 * New `CreditCardDetector`, which detects credit card numbers (based on the Detector in the `alphagov scrubadub fork <https://github.com/alphagov/scrubadub>`_).
 * New `DateOfBirthDetector`, which detects dates of birth (thanks to `@mirandachong <https://github.com/mirandachong>`_).
 * New `DriversLicenceDetector`, which detects GB drivers licence numbers.
-* New `KnownFilthDetector`, which is used to find bits of known Filth, such as human tagged Filth.
+* New `TaggedEvaluationFilthDetector`, which is used to tag real filth in text when you're evaluating the quality of your filth removal.
+* New `UserSuppliedFilthDetector`, which is used to find bits of Filth that you know will be in the text.
 * New `PostalCodeDetector`, which detects GB post codes.
 * New `SpacyEntityDetector`, which detects a `range of named entities <https://spacy.io/api/annotation#named-entities>`_, including names (thanks to `@aCampello <https://github.com/aCampello>`_).
 * New `StanfordEntityDetector`, which also detects `slightly different range of named entities <https://nlp.stanford.edu/software/CRF-NER.html#Models>`_, including names.

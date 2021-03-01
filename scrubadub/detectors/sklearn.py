@@ -19,7 +19,7 @@ from typing import Optional, List, Dict, Any, Generator, Union, Collection, Name
 
 from .base import Detector
 from ..filth.base import Filth
-from ..filth.known import KnownFilth
+from ..filth.tagged import TaggedEvaluationFilth
 from ..filth.address import AddressFilth
 from ..modelling.serialisation import estimator_from_json, estimator_to_json
 
@@ -319,7 +319,7 @@ class SklearnDetector(Detector):
     @staticmethod
     def _get_label(filth: Filth, prev_label: Optional[str] = None) -> str:
         """Returns the name of the label based on the filth type"""
-        if isinstance(filth, KnownFilth) and filth.comparison_type is not None:
+        if isinstance(filth, TaggedEvaluationFilth) and filth.comparison_type is not None:
             return filth.comparison_type.upper()
         elif filth.type not in (None, 'known'):
             return filth.type.upper()
@@ -327,11 +327,11 @@ class SklearnDetector(Detector):
 
     def _add_labels_to_tokens_using_known_filth(
             self, token_tuples: Collection[Union[TokenTuple, TokenTupleWithLabel]],
-            known_filth_items: Collection[KnownFilth]
+            known_filth_items: Collection[TaggedEvaluationFilth]
     ) -> List[TokenTupleWithLabel]:
         new_token_tuples = []  # type: List[TokenTupleWithLabel]
         current_doc_name = None  # type: Optional[Union[str, int]]
-        current_doc_known_items = None  # type: Optional[List[KnownFilth]]
+        current_doc_known_items = None  # type: Optional[List[TaggedEvaluationFilth]]
 
         for i_token, (doc_name, token, (token_start, token_end), *additional_vars) in enumerate(token_tuples):
 
@@ -370,7 +370,7 @@ class SklearnDetector(Detector):
         return new_token_tuples
 
     def train(
-        self, document_list: Collection[str], known_filth_items: Collection[KnownFilth],
+        self, document_list: Collection[str], known_filth_items: Collection[TaggedEvaluationFilth],
         document_names: Optional[Collection[DocumentName]] = None, dict_vectorizer_kwargs: Optional[Dict] = None,
         model_kwargs: Optional[Dict] = None, model_cls: Optional[Type[ModelTypes]] = None,
     ) -> List[TokenTupleWithLabel]:
@@ -502,7 +502,7 @@ class BIOTokenSklearnDetector(SklearnDetector):
 
     @staticmethod
     def _get_label(filth: Filth, prev_label: Optional[str] = None) -> str:
-        if isinstance(filth, KnownFilth) and filth.comparison_type is not None:
+        if isinstance(filth, TaggedEvaluationFilth) and filth.comparison_type is not None:
             new_label = filth.comparison_type.upper()
         elif filth.type not in (None, 'known'):
             new_label = filth.type.upper()

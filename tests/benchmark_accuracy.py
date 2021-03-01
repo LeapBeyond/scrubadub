@@ -34,7 +34,7 @@ def generate_and_scrub(locale, filth_list, detectors, n_docs: int = 50):
     scrubber_time = time.time()
     click.echo("Scrubbing with detectors: {}".format(', '.join(detectors)))
 
-    detectors.append(scrubadub.detectors.KnownFilthDetector(locale=locale, known_filth_items=known_pii))
+    detectors.append(scrubadub.detectors.TaggedEvaluationFilthDetector(locale=locale, known_filth_items=known_pii))
     scrubber = scrubadub.Scrubber(locale=locale, detector_list=detectors)
     found_filth = list(scrubber.iter_filth_documents(documents))
 

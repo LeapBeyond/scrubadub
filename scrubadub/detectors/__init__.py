@@ -13,7 +13,8 @@ from .credential import CredentialDetector
 from .credit_card import CreditCardDetector
 from .drivers_licence import DriversLicenceDetector
 from .email import EmailDetector
-from .known import KnownFilthDetector
+from .tagged import TaggedEvaluationFilthDetector
+from .user_supplied import UserSuppliedFilthDetector
 from .phone import PhoneDetector
 from .postalcode import PostalCodeDetector
 from .twitter import TwitterDetector
@@ -48,7 +49,7 @@ detector_configuration = {
     UrlDetector.name: {'detector': UrlDetector, 'autoload': True},
     VehicleLicencePlateDetector.name: {'detector': VehicleLicencePlateDetector, 'autoload': True},
     # Detectors that are not automatically loaded by scrubadub
-    KnownFilthDetector.name: {'detector': KnownFilthDetector, 'autoload': False},
+    TaggedEvaluationFilthDetector.name: {'detector': TaggedEvaluationFilthDetector, 'autoload': False},
 }  # type: Dict[str, DetectorConfigurationItem]
 
 

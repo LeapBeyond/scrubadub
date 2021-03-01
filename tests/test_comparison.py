@@ -4,7 +4,7 @@ import scrubadub
 import scrubadub.comparison
 from scrubadub.filth.base import MergedFilth, Filth
 from scrubadub.filth.phone import PhoneFilth
-from scrubadub.filth.known import KnownFilth
+from scrubadub.filth.tagged import TaggedEvaluationFilth
 from scrubadub.detectors.base import Detector
 
 class ComparisonTestCase(unittest.TestCase):
@@ -17,14 +17,14 @@ class ComparisonTestCase(unittest.TestCase):
         filths = [
             MergedFilth(
                 PhoneFilth(beg=0, end=4, text='1234', detector_name='phone'),
-                KnownFilth(beg=0, end=4, text='1234', comparison_type='phone'),
+                TaggedEvaluationFilth(beg=0, end=4, text='1234', comparison_type='phone'),
             ),
-            KnownFilth(beg=5, end=10, text='12345', comparison_type='phone'),
+            TaggedEvaluationFilth(beg=5, end=10, text='12345', comparison_type='phone'),
             MergedFilth(
                 PhoneFilth(beg=5, end=9, text='1234', detector_name='phone'),
-                KnownFilth(beg=5, end=9, text='1234', comparison_type='phone'),
+                TaggedEvaluationFilth(beg=5, end=9, text='1234', comparison_type='phone'),
             ),
-            KnownFilth(beg=15, end=20, text='12345', comparison_type='phone'),
+            TaggedEvaluationFilth(beg=15, end=20, text='12345', comparison_type='phone'),
         ]
 
         self.assertEquals(
@@ -45,14 +45,14 @@ class ComparisonTestCase(unittest.TestCase):
         filths = [
             MergedFilth(
                 PhoneFilth(beg=0, end=4, text='1234', detector_name='phone'),
-                KnownFilth(beg=0, end=4, text='1234', comparison_type='phone'),
+                TaggedEvaluationFilth(beg=0, end=4, text='1234', comparison_type='phone'),
             ),
-            KnownFilth(beg=5, end=10, text='12345', comparison_type='phone'),
+            TaggedEvaluationFilth(beg=5, end=10, text='12345', comparison_type='phone'),
             MergedFilth(
                 PhoneFilth(beg=5, end=9, text='1234', detector_name='phone'),
-                KnownFilth(beg=5, end=9, text='1234', comparison_type='phone'),
+                TaggedEvaluationFilth(beg=5, end=9, text='1234', comparison_type='phone'),
             ),
-            KnownFilth(beg=15, end=20, text='12345', comparison_type='phone'),
+            TaggedEvaluationFilth(beg=15, end=20, text='12345', comparison_type='phone'),
         ]
         text = scrubadub.comparison.get_filth_classification_report(
             filths,
@@ -74,12 +74,12 @@ class ComparisonTestCase(unittest.TestCase):
         """test with incorrect identification"""
         filths = [
             PhoneFilth(beg=0, end=4, text='1234', detector_name='phone_v1'),
-            KnownFilth(beg=5, end=10, text='12345', comparison_type='phone'),
+            TaggedEvaluationFilth(beg=5, end=10, text='12345', comparison_type='phone'),
             MergedFilth(
                 PhoneFilth(beg=5, end=9, text='1234', detector_name='phone_v1'),
-                KnownFilth(beg=5, end=9, text='1234', comparison_type='phone'),
+                TaggedEvaluationFilth(beg=5, end=9, text='1234', comparison_type='phone'),
             ),
-            KnownFilth(beg=15, end=20, text='12345', comparison_type='phone'),
+            TaggedEvaluationFilth(beg=15, end=20, text='12345', comparison_type='phone'),
         ]
 
         self.assertEquals(
@@ -108,14 +108,14 @@ class ComparisonTestCase(unittest.TestCase):
         filths = [
             MergedFilth(
                 PhoneFilth(beg=0, end=4, text='1234', detector_name='phone'),
-                KnownFilth(beg=0, end=4, text='1234', comparison_type='phone'),
+                TaggedEvaluationFilth(beg=0, end=4, text='1234', comparison_type='phone'),
             ),
-            KnownFilth(beg=5, end=10, text='12345', comparison_type='phone'),
+            TaggedEvaluationFilth(beg=5, end=10, text='12345', comparison_type='phone'),
             MergedFilth(
                 TempFilth(beg=5, end=9, text='1234', detector_name='temp'),
-                KnownFilth(beg=5, end=9, text='1234', comparison_type='temp'),
+                TaggedEvaluationFilth(beg=5, end=9, text='1234', comparison_type='temp'),
             ),
-            KnownFilth(beg=15, end=20, text='12345', comparison_type='temp'),
+            TaggedEvaluationFilth(beg=15, end=20, text='12345', comparison_type='temp'),
         ]
 
         self.assertEquals(
@@ -138,9 +138,9 @@ class ComparisonTestCase(unittest.TestCase):
         filths = [
             MergedFilth(
                 PhoneFilth(beg=0, end=4, text='John', detector_name='phone'),
-                KnownFilth(beg=0, end=4, text='John', comparison_type='phone')
+                TaggedEvaluationFilth(beg=0, end=4, text='John', comparison_type='phone')
             ),
-            KnownFilth(beg=5, end=10, text='Hello', comparison_type='word'),
+            TaggedEvaluationFilth(beg=5, end=10, text='Hello', comparison_type='word'),
         ]
 
         self.assertEquals(
@@ -164,14 +164,14 @@ class ComparisonTestCase(unittest.TestCase):
         filths = [
             MergedFilth(
                 PhoneFilth(beg=0, end=4, text='1234', detector_name='phone', locale='en_GB'),
-                KnownFilth(beg=0, end=4, text='1234', comparison_type='phone', locale='en_GB'),
+                TaggedEvaluationFilth(beg=0, end=4, text='1234', comparison_type='phone', locale='en_GB'),
             ),
-            KnownFilth(beg=5, end=10, text='12345', comparison_type='phone', locale='en_GB'),
+            TaggedEvaluationFilth(beg=5, end=10, text='12345', comparison_type='phone', locale='en_GB'),
             MergedFilth(
                 PhoneFilth(beg=5, end=9, text='1234', detector_name='phone', locale='en_US'),
-                KnownFilth(beg=5, end=9, text='1234', comparison_type='phone', locale='en_US'),
+                TaggedEvaluationFilth(beg=5, end=9, text='1234', comparison_type='phone', locale='en_US'),
             ),
-            KnownFilth(beg=15, end=20, text='12345', comparison_type='phone', locale='en_US'),
+            TaggedEvaluationFilth(beg=15, end=20, text='12345', comparison_type='phone', locale='en_US'),
         ]
 
         self.assertEquals(
@@ -195,14 +195,14 @@ class ComparisonTestCase(unittest.TestCase):
         filths = [
             MergedFilth(
                 PhoneFilth(beg=0, end=4, text='1234', detector_name='phone1', locale='en_GB'),
-                KnownFilth(beg=0, end=4, text='1234', comparison_type='phone', locale='en_GB'),
+                TaggedEvaluationFilth(beg=0, end=4, text='1234', comparison_type='phone', locale='en_GB'),
             ),
-            KnownFilth(beg=5, end=10, text='12345', comparison_type='phone', locale='en_GB'),
+            TaggedEvaluationFilth(beg=5, end=10, text='12345', comparison_type='phone', locale='en_GB'),
             MergedFilth(
                 PhoneFilth(beg=5, end=9, text='1234', detector_name='phone2', locale='en_US'),
-                KnownFilth(beg=5, end=9, text='1234', comparison_type='phone', locale='en_US'),
+                TaggedEvaluationFilth(beg=5, end=9, text='1234', comparison_type='phone', locale='en_US'),
             ),
-            KnownFilth(beg=15, end=20, text='12345', comparison_type='phone2', locale='en_US'),
+            TaggedEvaluationFilth(beg=15, end=20, text='12345', comparison_type='phone2', locale='en_US'),
         ]
 
         self.assertEquals(
@@ -230,9 +230,9 @@ class ComparisonTestCase(unittest.TestCase):
         filths = [
             MergedFilth(
                 PhoneFilth(beg=0, end=4, text='John', detector_name='phone'),
-                KnownFilth(beg=0, end=4, text='John', comparison_type='phone')
+                TaggedEvaluationFilth(beg=0, end=4, text='John', comparison_type='phone')
             ),
-            KnownFilth(beg=5, end=10, text='Hello', comparison_type='name'),
+            TaggedEvaluationFilth(beg=5, end=10, text='Hello', comparison_type='name'),
             # KnownFilth(beg=5, end=10, text='Hello', comparison_type='temp'),
             TempFilth(beg=100, end=103, text='123', detector_name='temp'),
         ]
@@ -269,14 +269,14 @@ class ComparisonTestCase(unittest.TestCase):
         filths = [
             MergedFilth(
                 PhoneFilth(beg=0, end=4, text='1234', detector_name='phone'),
-                KnownFilth(beg=0, end=4, text='1234', comparison_type='phone'),
+                TaggedEvaluationFilth(beg=0, end=4, text='1234', comparison_type='phone'),
             ),
-            KnownFilth(beg=5, end=10, text='12345', comparison_type='phone'),
+            TaggedEvaluationFilth(beg=5, end=10, text='12345', comparison_type='phone'),
             MergedFilth(
                 PhoneFilth(beg=4, end=9, text=' 1234', detector_name='phone'),
-                KnownFilth(beg=5, end=9, text='1234', comparison_type='phone'),
+                TaggedEvaluationFilth(beg=5, end=9, text='1234', comparison_type='phone'),
             ),
-            KnownFilth(beg=15, end=20, text='12345', comparison_type='phone'),
+            TaggedEvaluationFilth(beg=15, end=20, text='12345', comparison_type='phone'),
         ]
         dataframe = scrubadub.comparison.get_filth_dataframe(
             filths,

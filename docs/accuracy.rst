@@ -84,7 +84,7 @@ Measuring performance
 Read this section if you want to measure performance on your own data.
 
 First data must be obtained with PII in and then it must be tagged as known PII, usually by a human.
-The known PII should be tagged in a format that is compatible with the ``KnownFilthDetector``; an example of this is shown in `tests/example_real_data/known_pii.csv <https://github.com/LeapBeyond/scrubadub/blob/master/tests/example_real_data/known_pii.csv>`_.
+The known PII should be tagged in a format that is compatible with the ``TaggedFilthDetector``; an example of this is shown in `tests/example_real_data/known_pii.csv <https://github.com/LeapBeyond/scrubadub/blob/master/tests/example_real_data/known_pii.csv>`_.
 Together the known PII and original text documents can be loaded by a script to calculate the detector efficiencies; an example of such a script is given here
 `tests/benchmark_accuracy_real_data.py <https://github.com/LeapBeyond/scrubadub/blob/master/tests/benchmark_accuracy_real_data.py>`_
 A bare-bones version of the script is given below, where the documents and known filth is loaded, a ``Scrubber`` is initialised, the detectors are run and the classification report is printed.
@@ -110,7 +110,7 @@ This would need to be replaced with something to load real data such as in `the 
             }
         ]
         >>> scrubber = scrubadub.Scrubber()
-        >>> scrubber.add_detector(scrubadub.detectors.KnownFilthDetector(known_filth_items=known_filth_items))
+        >>> scrubber.add_detector(scrubadub.detectors.TaggedEvaluationFilthDetector(known_filth_items=known_filth_items))
         >>> filth_list = list(scrubber.iter_filth(document))
         >>> print(scrubadub.comparison.get_filth_classification_report(filth_list))
         filth     detector     locale    precision    recall  f1-score   support

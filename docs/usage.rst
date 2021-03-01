@@ -46,22 +46,22 @@ This is shown below:
 In the table below you can see which detectors are included by default and which ones arent.
 For more infomation about these detectors checkout :ref:`the detector documentation <api_scrubadub_detectors>`
 
-+----------------------------------------+-------------------------------+
-| Default detectors                      | Optional detectors            |
-+========================================+===============================+
-| | ``CredentialDetector``               | | ``AddressDetector``         |
-| | ``CreditCardDetector``               | | ``DateOfBirthDetector``     |
-| | ``DriversLicenceDetector``           | | ``KnownFilthDetector``      |
-| | ``EmailDetector``                    | | ``SkypeDetector``           |
-| | ``NationalInsuranceNumberDetector``  | | ``SpacyEntityDetector``     |
-| | ``PhoneDetector``                    | | ``StanfordEntityDetector``  |
-| | ``PostalCodeDetector``               | | ``TextBlobNameDetector``    |
-| | ``SocialSecurityNumberDetector``     | |                             |
-| | ``TaxReferenceNumberDetector``       | |                             |
-| | ``TwitterDetector``                  | |                             |
-| | ``UrlDetector``                      | |                             |
-| | ``VehicleLicencePlateDetector``      | |                             |
-+----------------------------------------+-------------------------------+
++----------------------------------------+----------------------------------------+
+| Default detectors                      | Optional detectors                     |
++========================================+========================================+
+| | ``CredentialDetector``               | | ``AddressDetector``                  |
+| | ``CreditCardDetector``               | | ``DateOfBirthDetector``              |
+| | ``DriversLicenceDetector``           | | ``SkypeDetector``                    |
+| | ``EmailDetector``                    | | ``SpacyEntityDetector``              |
+| | ``NationalInsuranceNumberDetector``  | | ``StanfordEntityDetector``           |
+| | ``PhoneDetector``                    | | ``TaggedEvaluationFilthDetector``    |
+| | ``PostalCodeDetector``               | | ``TextBlobNameDetector``             |
+| | ``SocialSecurityNumberDetector``     | | ``UserSuppliedFilthDetector``        |
+| | ``TaxReferenceNumberDetector``       | |                                      |
+| | ``TwitterDetector``                  | |                                      |
+| | ``UrlDetector``                      | |                                      |
+| | ``VehicleLicencePlateDetector``      | |                                      |
++----------------------------------------+----------------------------------------+
 
 Localisation
 ------------
