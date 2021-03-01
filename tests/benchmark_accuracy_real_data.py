@@ -20,6 +20,7 @@ from typing import List, Union, Sequence, Optional, Dict
 from urllib.parse import urlparse, unquote
 
 import scrubadub
+import scrubadub.detectors.user_supplied
 from scrubadub.comparison import get_filth_classification_report, KnownFilthItem, get_filth_dataframe
 from scrubadub.filth.base import Filth
 
@@ -293,14 +294,16 @@ def scrub_documents(documents: Dict[str, str], known_filth_items: List[KnownFilt
     return found_filth
 
 
-def load_complicated_detectors() -> Dict[str, bool]:
+def load_complicated_detectors(user_supplied_pii: Optional[Sequence[str]] = None) -> Dict[str, bool]:
     detector_available = {
         'address': False,
         'address_sklearn': False,
+        'date_of_birth': False,
         'spacy': False,
         'spacy_name_title': False,
         'stanford': False,
         'text_blob': False,
+        'user_supplied': False,
     }
 
     try:
@@ -402,6 +405,17 @@ def load_complicated_detectors() -> Dict[str, bool]:
         scrubadub.detectors.register_detector(SpacyTitleEnLgDetector, autoload=True)
         scrubadub.detectors.register_detector(SpacyTitleEnTrfDetector, autoload=True)
 
+    if user_supplied_pii is not None:
+        detector_available['user_supplied'] = True
+
+        class LoadedUserSuppliedFilthDetector(scrubadub.detectors.user_supplied.UserSuppliedFilthDetector):
+            name = scrubadub.detectors.user_supplied.UserSuppliedFilthDetector.name
+            def __init__(self, **kwargs):
+                known_filth_items = load_known_pii(user_supplied_pii)
+                super(LoadedUserSuppliedFilthDetector, self).__init__(known_filth_items=known_filth_items, **kwargs)
+
+        scrubadub.detectors.register_detector(LoadedUserSuppliedFilthDetector, autoload=True)
+
     return detector_available
 
 
@@ -482,8 +496,10 @@ def not_none_argument(ctx, param, value):
               help='Comma separated detectors to run')
 @click.option('--storage-connection-string', type=str, envvar='AZURE_STORAGE_CONNECTION_STRING', metavar='<string>',
               help='Connection string to azure bob storage (if needed)')
-@click.option('--known-pii', type=str, multiple=True, metavar='<file>', help="File containing known PII CSV",
-              callback=not_none_argument)
+@click.option('--tagged-pii', '--known-pii', type=str, multiple=True, metavar='<file>',
+              help="File containing tagged PII", callback=not_none_argument)
+@click.option('--user-supplied-pii', type=str, multiple=True, metavar='<file>',
+              help="File containing user-supplied PII")
 @click.option('--filth-matching-dataset', type=click.File('wt'),
               help="Location of csv file to save detailed matching information to")
 @click.option('--filth-matching-report', type=click.File('wt'),
@@ -492,9 +508,9 @@ def not_none_argument(ctx, param, value):
               help="Location of a log file for log messages that may contain PII")
 @click.argument('document', metavar='DOCUMENT', type=str, nargs=-1, callback=not_none_argument)
 def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_connection_string: Optional[str],
-         known_pii: Sequence[str], filth_matching_dataset: Optional[click.utils.LazyFile],
-         filth_matching_report: Optional[click.utils.LazyFile], debug_log: Optional[click.utils.LazyFile],
-         detectors: Optional[str] = None):
+         tagged_pii: Sequence[str], user_supplied_pii: Sequence[str],
+         filth_matching_dataset: Optional[click.utils.LazyFile], filth_matching_report: Optional[click.utils.LazyFile],
+         debug_log: Optional[click.utils.LazyFile], detectors: Optional[str] = None):
     """Test scrubadub accuracy using text DOCUMENT(s). Requires a CSV of known PII.
 
     DOCUMENT(s) can be specified as local paths or azure blob storage URLs in the form:
@@ -514,7 +530,7 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
 
     run_slow = not fast
     if run_slow:
-        load_complicated_detectors()
+        load_complicated_detectors(user_supplied_pii=user_supplied_pii)
 
     # Setup a logger that we can use to log things with possible PII data in that won't go to stdout
     logger = logging.getLogger('scrubadub')
@@ -533,7 +549,7 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
 
         root_logger.addHandler(file_handler)
 
-    known_pii_locations = list(known_pii)
+    known_pii_locations = list(tagged_pii)
     known_filth_items = load_known_pii(
         known_pii_locations=known_pii_locations, storage_connection_string=storage_connection_string
     )
