@@ -37,8 +37,8 @@ def clean(text: str, locale: Optional[str] = None, **kwargs) -> str:
     return scrubber.clean(text, **kwargs)
 
 
-def clean_documents(documents: Union[List[str], Dict[str, str]], locale: Optional[str] = None, **kwargs
-                    ) -> Union[Sequence[str], Dict[str, str]]:
+def clean_documents(documents: Union[Sequence[str], Dict[Optional[str], str]], locale: Optional[str] = None, **kwargs
+                    ) -> Union[Sequence[str], Dict[Optional[str], str]]:
     """Seaches for ``Filth`` in `documents` and replaces it with placeholders.
 
     `documents` can be in a dict, in the format of ``{'document_name': 'document'}``, or as a list of strings
