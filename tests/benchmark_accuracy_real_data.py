@@ -99,8 +99,10 @@ def load_azure_files(url: str, storage_connection_string: Optional[str] = None) 
     return file_content
 
 
-def decode_text(documents: Dict[str, bytes]) -> Dict[str, str]:
+def decode_text(documents: Dict[str, bytes], allowed_mime_types: Optional[List[str]] = None) -> Dict[str, str]:
     decoded_documents = {}  # type: Dict[str, str]
+    if allowed_mime_types is None:
+        allowed_mime_types = ['text/plain', 'application/octet-stream']
     logger = logging.getLogger('scrubadub.tests.benchmark_accuracy_real_data.decode_text')
     for name, value in documents.items():
         text = ""
@@ -108,7 +110,7 @@ def decode_text(documents: Dict[str, bytes]) -> Dict[str, str]:
         if mime_type in ('application/x-empty'):
             logger.warning(f"The file '{name}' is empty, skipping.")
             continue
-        if mime_type not in ('text/plain', 'application/octet-stream'):
+        if mime_type not in allowed_mime_types:
             logger.warning(f"The file '{name}' has mime type '{mime_type}', opening as plain text anyway.")
         charset = chardet.detect(value)
         encoding = charset.get('encoding', 'utf-8')
@@ -171,7 +173,7 @@ def load_known_pii(known_pii_locations: List[str],
             if mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
                 pandas_reader = pd.read_excel
             else:
-                data = decode_text({file_name: data})[file_name].encode('utf-8')
+                data = decode_text({file_name: data}, allowed_mime_types=['application/csv'])[file_name].encode('utf-8')
 
             dataframe = None  # type: Optional[DataFrame]
             for i in range(10):
