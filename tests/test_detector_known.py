@@ -56,6 +56,49 @@ class PredefinedTestCase(unittest.TestCase):
         self.assertEquals(matches[0].beg, 6)
         self.assertEquals(matches[0].end, 20)
 
+    def test_word_boundaires(self):
+        """test that word boundaries work as expected"""
+
+        test_str = 'hello this is a test string'
+        detector = scrubadub.detectors.TaggedEvaluationFilthDetector([
+            {'match': 'is', 'filth_type': 'test', 'ignore_partial_word_matches': False},
+        ])
+        matches = list(detector.iter_filth(test_str))
+
+        self.assertEquals(matches[0].beg, 8)
+        self.assertEquals(matches[0].end, 10)
+        self.assertEquals(matches[1].beg, 11)
+        self.assertEquals(matches[1].end, 13)
+        self.assertEquals(len(matches), 2)
+
+        detector = scrubadub.detectors.TaggedEvaluationFilthDetector([
+            {'match': 'is', 'filth_type': 'test', 'ignore_partial_word_matches': True},
+        ])
+        matches = list(detector.iter_filth(test_str))
+
+        self.assertEquals(matches[0].beg, 11)
+        self.assertEquals(matches[0].end, 13)
+        self.assertEquals(len(matches), 1)
+
+    def test_text_case(self):
+        """test that word boundaries work as expected"""
+
+        test_str = 'hello this is a test string'
+        detector = scrubadub.detectors.TaggedEvaluationFilthDetector([
+            {'match': 'This', 'filth_type': 'test', 'ignore_case': True},
+        ])
+        matches = list(detector.iter_filth(test_str))
+
+        self.assertEquals(matches[0].beg, 6)
+        self.assertEquals(matches[0].end, 10)
+        self.assertEquals(len(matches), 1)
+
+        detector = scrubadub.detectors.TaggedEvaluationFilthDetector([
+            {'match': 'This', 'filth_type': 'test', 'ignore_case': False},
+        ])
+        matches = list(detector.iter_filth(test_str))
+        self.assertEquals(len(matches), 0)
+
     def test_start_no_end(self):
         """text matches with a start and an invalid end"""
 
