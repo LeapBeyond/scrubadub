@@ -1,6 +1,7 @@
 import sys
 import unittest
 
+import scrubadub
 from scrubadub.filth import NameFilth
 from base import BaseTestCase
 
@@ -24,7 +25,6 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
                 ((sys.version_info.major, sys.version_info.minor) >= (3, 9))
         )
         if unsupported_python_version:
-            print("SKIPPED")
             self.skipTest(
                 "Spacy detector supported for 3.6 <= python version < 3.9"
             )
@@ -35,6 +35,7 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
         else:
             from scrubadub.detectors.spacy_name_title import SpacyNameDetector
             self.detector = SpacyNameDetector(affixes_only=True)
+            self.maxDiff = None
 
     def test_expand_names(self):
         doc_list = [
@@ -58,3 +59,26 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
             self.assertEqual(1, len(filth_list), doc)
             self.assertIsInstance(filth_list[0], NameFilth)
             self.assertEqual(beg_end, (filth_list[0].beg, filth_list[0].end))
+
+    def test_doc(self):
+        doc = """
+            Sender: Florence Barr
+            To: Florence Barr <example@example.com>
+            Dear Mrs Barr
+            
+            From: Florence Barr <example@example.com>
+            To: Florence Barr <example@example.com<mailto:example@example.com>>
+            Dear Mrs Barr
+        """
+        clean_doc = """
+            Sender: {{NAME}}
+            To: {{NAME}} <example@example.com>
+            Dear {{NAME}}
+            
+            From: {{NAME}} <example@example.com>
+            To: {{NAME}} <example@example.com<mailto:example@example.com>>
+            Dear {{NAME}}
+        """
+        scrubber = scrubadub.Scrubber(detector_list=[self.detector])
+        scrubbed_doc = scrubber.clean(doc)
+        self.assertEqual(clean_doc, scrubbed_doc)
