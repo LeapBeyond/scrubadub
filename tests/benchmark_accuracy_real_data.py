@@ -279,7 +279,7 @@ def scrub_documents(documents: Dict[str, str], known_filth_items: List[KnownFilt
 
     scrubber = scrubadub.Scrubber(locale=locale, detector_list=detector_list)
 
-    print(f"Running with detectors: {', '.join(scrubber._detectors.keys())}")
+    click.echo(f"Running with detectors: {', '.join(scrubber._detectors.keys())}")
 
     scrubber.add_detector(scrubadub.detectors.KnownFilthDetector(locale=locale, known_filth_items=known_filth_items))
     end_time = time.time()
