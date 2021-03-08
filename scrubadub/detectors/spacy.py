@@ -164,8 +164,11 @@ class SpacyEntityDetector(Detector):
     @staticmethod
     def _preprocess_text(document_list: List[str]) -> List[str]:
         whitespace_regex = re.compile(r'\s+')
+        url_regex = re.compile('http\S+')
         for i_doc, text in enumerate(document_list):
             document_list[i_doc] = re.sub(whitespace_regex, ' ', text)
+            document_list[i_doc] = re.sub(url_regex, 'xxxxxxx', text)
+        print(document_list)        #######
         return document_list
 
     def _run_spacy(
