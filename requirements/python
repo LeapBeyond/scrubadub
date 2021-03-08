@@ -7,4 +7,4 @@ typing_extensions
 wasabi
 python-stdnum
 faker
-dateparser
+dateparser @ git+https://github.com/scrapinghub/dateparser.git
