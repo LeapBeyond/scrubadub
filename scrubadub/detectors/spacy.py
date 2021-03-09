@@ -3,6 +3,7 @@ import re
 import copy
 import logging
 import importlib
+from . import url
 
 from wasabi import msg
 from typing import Generator, Iterable, Optional, Sequence, List, Set
@@ -166,6 +167,7 @@ class SpacyEntityDetector(Detector):
         whitespace_regex = re.compile(r'\s+')
         for i_doc, text in enumerate(document_list):
             document_list[i_doc] = re.sub(whitespace_regex, ' ', text)
+            document_list[i_doc] = re.sub(url.UrlDetector.regex, '', text)
         return document_list
 
     def _run_spacy(
