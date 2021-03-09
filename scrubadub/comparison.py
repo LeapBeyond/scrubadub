@@ -8,7 +8,7 @@ from . import filth as filth_module
 from .filth import Filth
 from .detectors.tagged import KnownFilthItem
 
-from typing import List, Dict, Union, Optional, Tuple, Callable, Iterable, Type
+from typing import List, Dict, Union, Optional, Tuple, Callable, Iterable, Type, Set
 import pandas as pd
 import sklearn.metrics
 
@@ -16,45 +16,64 @@ import sklearn.metrics
 #   * Filths need to be merged by text location so that replacements can be made
 #   * TextPostions need to be merged by text location, but seperated by type so that we an correclty count them
 
-class TextPosition(object):
-    def __init__(self, filth: Filth, grouping_function: Callable[[Filth], Any]):
+Grouping = Tuple[str, ...]
+GroupingFunction = Callable[[Filth], Grouping]
+
+
+class ToStringMixin(object):
+    def _to_string(self, attributes: List[str]) -> str:
+        item_attributes = [
+            "{}={}".format(item, getattr(self, item, None).__repr__())
+            for item in attributes
+            if getattr(self, item, None) is not None
+        ]
+        return "<{} {}>".format(self.__class__.__name__, " ".join(item_attributes))
+
+
+class TextPosition(ToStringMixin, object):
+    def __init__(self, filth: Filth, grouping_function: GroupingFunction):
         self.beg = filth.beg
         self.end = filth.end
-        self.detected = []  # type: List[Any]
+        self.detected = set()  # type: Set[Grouping]
         self.tagged = False
         self.document_name = str(filth.document_name or '')  # type: str
 
         if isinstance(filth, filth_module.TaggedEvaluationFilth):
             self.tagged = True
         else:
-            self.detected.append(grouping_function(filth))
+            self.detected.add(grouping_function(filth))
 
     @staticmethod
-    def sort_key(range: Range) -> Tuple[str, int, int]:
-        return (self.document_name, f.beg, -f.end)
+    def sort_key(position: 'TextPosition') -> Tuple[str, int, int]:
+        return (position.document_name, position.beg, -position.end)
 
-    def merge(self, other: TextPosition) -> TextPosition:
+    def merge(self, other: 'TextPosition') -> 'TextPosition':
         if self.document_name != other.document_name:
             raise ValueError("Positions are in different documents")
+        # TODO: think about this eqaulity since [0:1] does not include 1
         if self.beg <= other.end and self.end >= other.beg:
             self.beg = min(self.beg, other.beg)
             self.end = max(self.end, other.end)
+            self.tagged = self.tagged or other.tagged
+            self.detected = self.detected | other.detected
             return self
         raise ValueError(f"Positions do not overlap {self.beg} to {self.end} and {other.beg} to {other.end}")
 
+    def __repr__(self) -> str:
+        return self._to_string(['beg', 'end', 'tagged', 'detected', 'document_name', ])
 
-class FilthTypePositions(object):
-    def __init__(self):
+
+class FilthTypePositions(ToStringMixin, object):
+    def __init__(self, grouping_function: GroupingFunction, filth_type: str = None):
         self.positions = []  # type: List[TextPosition]
-        # self.true_positions = []  # type: List[TextPosition]
-        # self.detected_positions = []  # type: List[TextPosition]
+        self.filth_type = filth_type
+        self.grouping_function = grouping_function
+
+    def __repr__(self) -> str:
+        return self._to_string(['filth_type', 'positions', ])
 
     def add_position(self, filth: Filth):
-        self.detected_positions.append(TextPosition(filth))
-        # if isinstance(filth, filth_module.TaggedEvaluationFilth):
-        #     self.true_positions.append(TextPosition(filth))
-        # else:
-        #     self.detected_positions.append(TextPosition(filth))
+        self.positions.append(TextPosition(filth, grouping_function=self.grouping_function))
 
     @staticmethod
     def _merge_position_list(position_list: List[TextPosition]) -> List[TextPosition]:
@@ -74,52 +93,100 @@ class FilthTypePositions(object):
         return merged_positions
 
     def merge_positions(self):
-        self.detected_positions = self._merge_position_list(self.detected_positions)
-        self.true_positions = self._merge_position_list(self.true_positions)
+        self.positions = self._merge_position_list(self.positions)
 
-    def get_counts(self) -> List[int]:
-        pass
+    def get_counts(self) -> pd.DataFrame:
+        self.merge_positions()
+
+        data_list = []  # type: List[Dict[str, int]]
+        for position in self.positions:
+            row = {
+                detected_name: 1
+                for detected_name in position.detected
+            }
+            row['tagged'] = 1 if position.tagged else 0
+            data_list.append(row)
+
+        dataframe = (
+            pd.DataFrame(data_list)
+            .fillna(0)
+        )
+
+        return dataframe
 
 
-class FilthGrouper(object):
-    def __init__(self):
+class FilthGrouper(ToStringMixin, object):
+    def __init__(self, filth_types: Optional[List[str]] = None, grouping_function: Optional[GroupingFunction] = None,
+                 combine_detectors: bool = False):
         self.types = {}  # type: Dict[str, FilthTypePositions]
+        self.combine_detectors = combine_detectors
+        self.filth_types = filth_types
+
+        if grouping_function is None:
+            self.grouping_function = (
+                FilthGrouper.grouping_combined if self.combine_detectors else FilthGrouper.grouping_default
+            )  # type: GroupingFunction
+        else:
+            self.grouping_function = grouping_function
+
+    def __repr__(self) -> str:
+        return self._to_string(['combine_detectors', 'filth_types', 'types', ])
+
+    @staticmethod
+    def grouping_default(filth: Filth) -> Tuple[str, ...]:
+        return (filth.type, filth.detector_name or 'None', filth.locale or 'None')
+
+    @staticmethod
+    def grouping_combined(filth: Filth) -> Tuple[str, ...]:
+        return (filth.type, 'combined', filth.locale or 'None')
 
     def merge_positions(self):
         for positioniser in self.types.values():
             positioniser.merge_positions()
 
-    def add_positions(self, filth_list: List[Filth], filth_types: Optional[List[str]] = None,
-                      combine_detectors: bool = False):
+    def add_positions(self, filth_list: List[Filth]):
         for filth_item in filth_list:
             sub_filths = [filth_item]
             if isinstance(filth_item, filth_module.base.MergedFilth):
                 sub_filths = filth_item.filths
 
             for filth in sub_filths:
-                if isinstance(filth, filth_module.TaggedEvaluationFilth):
-                    filth_type = (filth.comparison_type, filth_module.TaggedEvaluationFilth.type, filth.locale)
-                else:
-                    detector_name = sub_filth.detector_name if not combine_detectors else 'combined'
-                    filth_type = (sub_filth.type, detector_name, sub_filth.locale)
+                filth_type = (
+                    filth.comparison_type if isinstance(filth, filth_module.TaggedEvaluationFilth) else filth.type
+                )
 
-                if filth_type_filter is not None and filth_type[0] not in filth_types:
+                if filth_type is None or (self.filth_types is not None and filth_type not in self.filth_types):
                     continue
 
-                grouper.types[filth_type].add_position(filth)
+                if filth_type not in self.types:
+                    self.types[filth_type] = FilthTypePositions(
+                        filth_type=filth_type,
+                        grouping_function=self.grouping_function
+                    )
+
+                self.types[filth_type].add_position(filth)
 
     @classmethod
-    def from_filth_list(cls, filth_list: List[Filth], filth_types: Optional[List[str]] = None,
-                        combine_detectors: bool = False) -> FilthGrouper:
-        grouper = cls()
-        grouper.add_positions(filth_list, filth_types, combine_detectors=combine_detectors)
+    def from_filth_list(
+            cls, filth_list: List[Filth], filth_types: Optional[List[str]] = None,
+            combine_detectors: bool = False, grouping_function: Optional[GroupingFunction] = None
+        ) -> 'FilthGrouper':
+        grouper = cls(filth_types=filth_types, combine_detectors=combine_detectors, grouping_function=grouping_function)
+        grouper.add_positions(filth_list)
         grouper.merge_positions()
         return grouper
 
-    def get_counts(self) -> List[int]:
+    def get_counts(self) -> pd.DataFrame:
+        if len(self.types) == 0:
+            return pd.DataFrame()
+        df_list = []
+        running_rows = 0
         for positioniser in self.types.values():
-            positioniser.get()
-        pass
+            df_list.append(positioniser.get_counts())
+            df_list[-1].index += running_rows
+            running_rows += max(df_list[-1].index) + 1
+
+        return pd.concat(df_list)
 
 
 def get_filth_classification_report(
@@ -162,9 +229,8 @@ def get_filth_classification_report(
     :rtype: `str` or `dict`
     """
     grouper = FilthGrouper.from_filth_list(filth_list, combine_detectors=combine_detectors)
-    results = grouper.get
-
-
+    results_df = grouper.get_counts()
+    print(results_df)
 
     results = []  # type: List[Dict[str, int]]
     filth_max_length = 0
@@ -355,7 +421,7 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
 
 def make_fake_document(
         paragraphs: int = 20, locale: str = 'en_US', seed: Optional[int] = None, faker: Optional[Faker] = None,
-        filth_types: Optional[List[str]] = None, fake_text_function: Optional[Callable] = None,
+        filth_types: Optional[List[str]] = None, fake_text_function: Optional[Callable[..., str]] = None,
         additional_filth_types: Optional[Iterable[Type[Filth]]] = None,
 ) -> Tuple[str, List[KnownFilthItem]]:
     """Creates a fake document containing `Filth` that needs to be removed. Also returns the list of known filth
