@@ -123,6 +123,11 @@ scrubadub.detectors.SpacyEntityDetector
 
 .. autoclass:: scrubadub.detectors.SpacyEntityDetector
 
+scrubadub.detectors.SpacyNameDetector 
+---------------------------------------
+
+.. autoclass:: scrubadub.detectors.spacy_name_title.SpacyNameDetector
+
 scrubadub.detectors.StanfordEntityDetector
 ------------------------------------------
 
