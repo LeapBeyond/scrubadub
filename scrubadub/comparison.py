@@ -6,7 +6,7 @@ from faker import Faker
 
 from . import filth as filth_module
 from .filth import Filth
-from .detectors.tagged import KnownFilthItem
+from .detectors.tagged import KnownFilthItem, TaggedEvaluationFilth
 
 from typing import List, Dict, Union, Optional, Tuple, Callable, Iterable, Type, Set
 import pandas as pd
@@ -16,7 +16,7 @@ import sklearn.metrics
 #   * Filths need to be merged by text location so that replacements can be made
 #   * TextPostions need to be merged by text location, but seperated by type so that we an correclty count them
 
-Grouping = Tuple[str, ...]
+Grouping = Dict[str, str]
 GroupingFunction = Callable[[Filth], Grouping]
 
 
@@ -34,14 +34,14 @@ class TextPosition(ToStringMixin, object):
     def __init__(self, filth: Filth, grouping_function: GroupingFunction):
         self.beg = filth.beg
         self.end = filth.end
-        self.detected = set()  # type: Set[Grouping]
-        self.tagged = False
+        self.detected = set()  # type: Set[Tuple[str, ...]]
+        self.tagged = set()  # type: Set[Tuple[str, ...]]
         self.document_name = str(filth.document_name or '')  # type: str
 
         if isinstance(filth, filth_module.TaggedEvaluationFilth):
-            self.tagged = True
+            self.tagged.add(tuple(grouping_function(filth).values()))
         else:
-            self.detected.add(grouping_function(filth))
+            self.detected.add(tuple(grouping_function(filth).values()))
 
     @staticmethod
     def sort_key(position: 'TextPosition') -> Tuple[str, int, int]:
@@ -68,12 +68,15 @@ class FilthTypePositions(ToStringMixin, object):
         self.positions = []  # type: List[TextPosition]
         self.filth_type = filth_type
         self.grouping_function = grouping_function
+        self.column_names = None  # type: Optional[List[str]]
 
     def __repr__(self) -> str:
         return self._to_string(['filth_type', 'positions', ])
 
     def add_position(self, filth: Filth):
         self.positions.append(TextPosition(filth, grouping_function=self.grouping_function))
+        if self.column_names is None:
+            self.column_names = list(self.grouping_function(filth).keys())
 
     @staticmethod
     def _merge_position_list(position_list: List[TextPosition]) -> List[TextPosition]:
@@ -98,18 +101,22 @@ class FilthTypePositions(ToStringMixin, object):
     def get_counts(self) -> pd.DataFrame:
         self.merge_positions()
 
-        data_list = []  # type: List[Dict[str, int]]
+        data_list = []  # type: List[Dict[Tuple[str, ...], int]]
         for position in self.positions:
             row = {
                 detected_name: 1
                 for detected_name in position.detected
             }
-            row['tagged'] = 1 if position.tagged else 0
+            row.update({
+                detected_name: 1
+                for detected_name in position.tagged
+            })
             data_list.append(row)
 
-        dataframe = (
-            pd.DataFrame(data_list)
-            .fillna(0)
+        dataframe = pd.DataFrame(data_list)
+        dataframe.columns = pd.MultiIndex.from_tuples(
+            dataframe.columns.values.tolist(),
+            names=self.column_names,
         )
 
         return dataframe
@@ -117,15 +124,21 @@ class FilthTypePositions(ToStringMixin, object):
 
 class FilthGrouper(ToStringMixin, object):
     def __init__(self, filth_types: Optional[List[str]] = None, grouping_function: Optional[GroupingFunction] = None,
-                 combine_detectors: bool = False):
+                 combine_detectors: bool = False, groupby_documents: bool = False):
         self.types = {}  # type: Dict[str, FilthTypePositions]
         self.combine_detectors = combine_detectors
+        self.groupby_documents = groupby_documents
         self.filth_types = filth_types
 
         if grouping_function is None:
-            self.grouping_function = (
-                FilthGrouper.grouping_combined if self.combine_detectors else FilthGrouper.grouping_default
-            )  # type: GroupingFunction
+            if self.combine_detectors and self.groupby_documents:
+                self.grouping_function = FilthGrouper.grouping_combined_bydoc
+            elif self.combine_detectors and not self.groupby_documents:
+                self.grouping_function = FilthGrouper.grouping_combined
+            elif not self.combine_detectors and self.groupby_documents:
+                self.grouping_function = FilthGrouper.grouping_default_bydoc
+            else:
+                self.grouping_function = FilthGrouper.grouping_default
         else:
             self.grouping_function = grouping_function
 
@@ -133,12 +146,62 @@ class FilthGrouper(ToStringMixin, object):
         return self._to_string(['combine_detectors', 'filth_types', 'types', ])
 
     @staticmethod
-    def grouping_default(filth: Filth) -> Tuple[str, ...]:
-        return (filth.type, filth.detector_name or 'None', filth.locale or 'None')
+    def grouping_default(filth: Filth) -> Grouping:
+        detector_name = (
+            (filth.detector_name or 'None')
+            if not isinstance(filth, filth_module.TaggedEvaluationFilth) else
+            filth_module.TaggedEvaluationFilth.type
+        )
+        result = {
+            'filth_type': getattr(filth, 'comparison_type', filth.type),
+            'detector_name': detector_name,
+            'locale': filth.locale or 'None',
+        }
 
     @staticmethod
-    def grouping_combined(filth: Filth) -> Tuple[str, ...]:
-        return (filth.type, 'combined', filth.locale or 'None')
+    def grouping_default_bydoc(filth: Filth) -> Grouping:
+        detector_name = (
+            (filth.detector_name or 'None')
+            if not isinstance(filth, filth_module.TaggedEvaluationFilth) else
+            filth_module.TaggedEvaluationFilth.type
+        )
+        result = {
+            'filth_type': getattr(filth, 'comparison_type', filth.type),
+            'detector_name': detector_name,
+            'locale': filth.locale or 'None',
+            'document_name': filth.document_name or 'None'
+        }
+
+        return result
+
+    @staticmethod
+    def grouping_combined(filth: Filth) -> Grouping:
+        detector_name = (
+            'combined'
+            if not isinstance(filth, filth_module.TaggedEvaluationFilth) else
+            filth_module.TaggedEvaluationFilth.type
+        )
+        return {
+            'filth_type': getattr(filth, 'comparison_type', filth.type),
+            'detector_name': detector_name,
+            'locale': filth.locale or 'None',
+        }
+
+    @staticmethod
+    def grouping_combined_bydoc(filth: Filth) -> Grouping:
+        detector_name = (
+            'combined'
+            if not isinstance(filth, filth_module.TaggedEvaluationFilth) else
+            filth_module.TaggedEvaluationFilth.type
+        )
+        result = {
+            'filth_type': getattr(filth, 'comparison_type', filth.type),
+            'detector_name': detector_name,
+            'locale': filth.locale or 'None',
+            'document_name': filth.document_name or 'None'
+        }
+
+        return result
 
     def merge_positions(self):
         for positioniser in self.types.values():
@@ -177,6 +240,7 @@ class FilthGrouper(ToStringMixin, object):
         return grouper
 
     def get_counts(self) -> pd.DataFrame:
+        print(self)
         if len(self.types) == 0:
             return pd.DataFrame()
         df_list = []
@@ -185,8 +249,7 @@ class FilthGrouper(ToStringMixin, object):
             df_list.append(positioniser.get_counts())
             df_list[-1].index += running_rows
             running_rows += max(df_list[-1].index) + 1
-
-        return pd.concat(df_list)
+        return pd.concat(df_list).fillna(0)
 
 
 def get_filth_classification_report(
@@ -228,46 +291,46 @@ def get_filth_classification_report(
     :return: The report in JSON (a `dict`) or in plain text
     :rtype: `str` or `dict`
     """
-    grouper = FilthGrouper.from_filth_list(filth_list, combine_detectors=combine_detectors)
+    grouper = FilthGrouper.from_filth_list(filth_list, combine_detectors=combine_detectors, )
     results_df = grouper.get_counts()
     print(results_df)
 
-    results = []  # type: List[Dict[str, int]]
-    filth_max_length = 0
-    detector_name_max_length = 0
-    locale_max_length = 0
-
-    for filth_item in filth_list:
-        sub_filths = [filth_item]
-        if isinstance(filth_item, filth_module.base.MergedFilth):
-            sub_filths = filth_item.filths
-
-        results_row = {}
-        for sub_filth in sub_filths:
-            if isinstance(sub_filth, filth_module.TaggedEvaluationFilth) and sub_filth.comparison_type is not None:
-                col_name = '{}:{}:{}'.format(sub_filth.comparison_type, filth_module.TaggedEvaluationFilth.type,
-                                             sub_filth.locale)
-                results_row[col_name] = 1
-            else:
-                try:
-                    detector_name = sub_filth.detector_name if not combine_detectors else 'combined'
-                    results_row['{}:{}:{}'.format(sub_filth.type, detector_name, sub_filth.locale)] = 1
-                except AttributeError:
-                    print(type(sub_filth), sub_filth)
-                    raise
-
-        # Dont include filth that was not produced by one of the detectors of interest
-        if sum(results_row.values()) > 0:
-            results.append(results_row)
-
-    if len(results) == 0:
-        return None
-
-    results_df = pd.DataFrame(results).fillna(0).astype(int)
-    results_df.columns = pd.MultiIndex.from_tuples(
-        results_df.columns.str.split(':').values.tolist(),
-        names=['filth_type', 'detector_name', 'locale'],
-    )
+    # results = []  # type: List[Dict[str, int]]
+    # filth_max_length = 0
+    # detector_name_max_length = 0
+    # locale_max_length = 0
+    #
+    # for filth_item in filth_list:
+    #     sub_filths = [filth_item]
+    #     if isinstance(filth_item, filth_module.base.MergedFilth):
+    #         sub_filths = filth_item.filths
+    #
+    #     results_row = {}
+    #     for sub_filth in sub_filths:
+    #         if isinstance(sub_filth, filth_module.TaggedEvaluationFilth) and sub_filth.comparison_type is not None:
+    #             col_name = '{}:{}:{}'.format(sub_filth.comparison_type, filth_module.TaggedEvaluationFilth.type,
+    #                                          sub_filth.locale)
+    #             results_row[col_name] = 1
+    #         else:
+    #             try:
+    #                 detector_name = sub_filth.detector_name if not combine_detectors else 'combined'
+    #                 results_row['{}:{}:{}'.format(sub_filth.type, detector_name, sub_filth.locale)] = 1
+    #             except AttributeError:
+    #                 print(type(sub_filth), sub_filth)
+    #                 raise
+    #
+    #     # Dont include filth that was not produced by one of the detectors of interest
+    #     if sum(results_row.values()) > 0:
+    #         results.append(results_row)
+    #
+    # if len(results) == 0:
+    #     return None
+    #
+    # results_df = pd.DataFrame(results).fillna(0).astype(int)
+    # results_df.columns = pd.MultiIndex.from_tuples(
+    #     results_df.columns.str.split(':').values.tolist(),
+    #     names=['filth_type', 'detector_name', 'locale'],
+    # )
 
     # Find filth types that have some known filth
     known_types = [x[0] for x in results_df.columns if x[1] == filth_module.TaggedEvaluationFilth.type]
