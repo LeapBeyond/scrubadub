@@ -43,8 +43,10 @@ def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
 
     for token in doc:
         # if the token is a prefix
+        prefix_tag = 0
+        suffix_tag = 0
         span_obj = []  # type: List[int]
-        tokens_ids_in_sentance = [span_token.i for span_token in token.sent]
+        tokens_ids_in_sentence = [span_token.i for span_token in token.sent]
         text = token.text
         if text == ':':
             text = doc[token.i - 1].text + ':'
@@ -55,23 +57,34 @@ def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
                 span_token.i
                 for span_token in doc[token.i:token.i + SpacyNameDetector.TOKEN_SEARCH_DISTANCE + 1]
                 if (span_token.dep_ != "punct" and span_token.tag_ in noun_tags and
-                    not span_token.is_stop and span_token.i in tokens_ids_in_sentance)
+                    not span_token.is_stop and span_token.i in tokens_ids_in_sentence)
             ]
+            prefix_tag = 1
+            if doc.lang_ in SpacyNameDetector.NAME_SUFFIXES and \
+                    str(doc[span_obj[-1]]).lower() in SpacyNameDetector.NAME_SUFFIXES[doc.lang_]:
+                suffix_tag = 1
 
-        if doc.lang_ in SpacyNameDetector.NAME_SUFIXES and \
-                text.lower() in SpacyNameDetector.NAME_SUFIXES[doc.lang_]:
+        if doc.lang_ in SpacyNameDetector.NAME_SUFFIXES and \
+                text.lower() in SpacyNameDetector.NAME_SUFFIXES[doc.lang_]:
             span_obj = [
                 span_token.i
                 for span_token in doc[token.i - SpacyNameDetector.TOKEN_SEARCH_DISTANCE:token.i + 1]
                 if (span_token.dep_ != "punct" and span_token.tag_ in noun_tags and
-                    not span_token.is_stop and span_token.i in tokens_ids_in_sentance)
+                    not span_token.is_stop and span_token.i in tokens_ids_in_sentence)
             ]
+            suffix_tag = 1
+            if str(doc[span_obj[0]]).lower() in SpacyNameDetector.NAME_PREFIXES[doc.lang_]:
+                prefix_tag = 1
 
         if len(span_obj) >= SpacyNameDetector.MINIMUM_NAME_LENGTH:
             # create slice with spacy span to include new entity
             entity = Span(doc, min(span_obj), max(span_obj) + 1, label="PERSON")
+            entity2 = Span(doc, min(span_obj) + prefix_tag, max(span_obj) + 1 - suffix_tag, label="PERSON")
             # update spacy ents to include the new entity
-            doc._.person_titles.append(entity)
+            if entity not in doc._.person_titles:
+                doc._.person_titles.append(entity)
+            if entity2 not in doc._.person_titles:
+                doc._.person_titles.append(entity2)
     return doc
 
 
@@ -108,7 +121,7 @@ class SpacyNameDetector(SpacyEntityDetector):
         ],
     }
 
-    NAME_SUFIXES = {
+    NAME_SUFFIXES = {
         "en": ['phd', 'bsc', 'msci', 'ba', 'md', 'qc', 'ma', 'mba'],
     }
 
@@ -122,11 +135,11 @@ class SpacyNameDetector(SpacyEntityDetector):
     # This is the minimum number of tokens that is considered a name
     MINIMUM_NAME_LENGTH = 1
 
-    def __init__(self, affixes_only: bool = False, **kwargs):
+    def __init__(self, include_spacy: bool = False, **kwargs):
         """Initialise the ``Detector``.
 
-        :param affixes_only: Only find items that have the required prefix or suffix.
-        :type affixes_only: bool, default, False
+        :param include_spacy: include default spacy library in addition to title detector.
+        :type include_spacy: bool, default, False
         :param named_entities: Limit the named entities to those in this list, defaults to ``{'PERSON', 'PER', 'ORG'}``.
         :type named_entities: Iterable[str], optional
         :param model: The name of the spacy model to use, it must contain a 'ner' step in the model pipeline (most
@@ -143,7 +156,7 @@ class SpacyNameDetector(SpacyEntityDetector):
 
         # Add the expand person title component after the named entity recognizer
         self.nlp.add_pipe('expand_person_entities', after='ner')
-        self.affixes_only = affixes_only
+        self.include_spacy = include_spacy
 
     def iter_filth_documents(self, document_list: Sequence[str],
                              document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
@@ -167,7 +180,7 @@ class SpacyNameDetector(SpacyEntityDetector):
 
         self.yielded_filth = set()
         for doc_name, doc, text in zip(document_names, spacy_docs, document_list):
-            if not self.affixes_only:
+            if self.include_spacy:
                 for ent in doc.ents:
                     yield from self._yield_filth(doc_name, text, ent)
             for ent in doc._.person_titles:
@@ -188,7 +201,7 @@ class SpacyNameDetector(SpacyEntityDetector):
 
         language, region = cls.locale_split(locale)
         return (
-            (language in SpacyNameDetector.NAME_PREFIXES or language in SpacyNameDetector.NAME_SUFIXES) and
+            (language in SpacyNameDetector.NAME_PREFIXES or language in SpacyNameDetector.NAME_SUFFIXES) and
             language in SpacyNameDetector.NOUN_TAGS
         )
 
