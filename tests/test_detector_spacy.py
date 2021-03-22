@@ -21,14 +21,13 @@ class SpacyDetectorTestCase(unittest.TestCase, BaseTestCase):
             unsupported_spacy_version = True
 
         unsupported_python_version = (
-                ((sys.version_info.major, sys.version_info.minor) < (3, 6)) or
-                ((sys.version_info.major, sys.version_info.minor) >= (3, 9))
+                ((sys.version_info.major, sys.version_info.minor) < (3, 6)) 
         )
         print("HERE")
         if unsupported_python_version:
             print("SKIPPED")
             self.skipTest(
-                "Spacy detector supported for 3.6 <= python version < 3.9"
+                "Spacy detector supported for 3.6 <= python version"
             )
         elif unsupported_spacy_version:
             self.skipTest(
