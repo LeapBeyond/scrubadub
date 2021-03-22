@@ -21,12 +21,11 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
             unsupported_spacy_version = True
 
         unsupported_python_version = (
-                ((sys.version_info.major, sys.version_info.minor) < (3, 6)) or
-                ((sys.version_info.major, sys.version_info.minor) >= (3, 9))
+                ((sys.version_info.major, sys.version_info.minor) < (3, 6)) 
         )
         if unsupported_python_version:
             self.skipTest(
-                "Spacy detector supported for 3.6 <= python version < 3.9"
+                "Spacy detector supported for 3.6 <= python version"
             )
         elif unsupported_spacy_version:
             self.skipTest(
@@ -34,7 +33,7 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
             )
         else:
             from scrubadub.detectors.spacy_name_title import SpacyNameDetector
-            self.detector = SpacyNameDetector(affixes_only=True)
+            self.detector = SpacyNameDetector(include_spacy=False)
             self.maxDiff = None
 
     def test_expand_names(self):
@@ -56,7 +55,7 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
         ]
         for doc, beg_end in zip(doc_list, beg_end_list):
             filth_list = list(self.detector.iter_filth(doc))
-            self.assertEqual(1, len(filth_list), doc)
+            self.assertEqual(2, len(filth_list), doc)
             self.assertIsInstance(filth_list[0], NameFilth)
             self.assertEqual(beg_end, (filth_list[0].beg, filth_list[0].end))
 
@@ -71,13 +70,13 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
             Dear Mrs Barr
         """
         clean_doc = """
-            Sender: {{NAME}}
-            To: {{NAME}} <example@example.com>
-            Dear {{NAME}}
+            Sender: {{NAME+NAME}}
+            To: {{NAME+NAME}} <example@example.com>
+            Dear {{NAME+NAME}}
             
-            From: {{NAME}} <example@example.com>
-            To: {{NAME}} <example@example.com<mailto:example@example.com>>
-            Dear {{NAME}}
+            From: {{NAME+NAME}} <example@example.com>
+            To: {{NAME+NAME}} <example@example.com<mailto:example@example.com>>
+            Dear {{NAME+NAME}}
         """
         scrubber = scrubadub.Scrubber(detector_list=[self.detector])
         scrubbed_doc = scrubber.clean(doc)

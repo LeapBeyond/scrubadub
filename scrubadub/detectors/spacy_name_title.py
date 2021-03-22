@@ -60,7 +60,7 @@ def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
                     not span_token.is_stop and span_token.i in tokens_ids_in_sentence)
             ]
             prefix_tag = 1
-            if doc.lang_ in SpacyNameDetector.NAME_SUFFIXES and \
+            if doc.lang_ in SpacyNameDetector.NAME_SUFFIXES and len(span_obj) > 1 and \
                     str(doc[span_obj[-1]]).lower() in SpacyNameDetector.NAME_SUFFIXES[doc.lang_]:
                 suffix_tag = 1
 
@@ -83,7 +83,7 @@ def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
             # update spacy ents to include the new entity
             if entity not in doc._.person_titles:
                 doc._.person_titles.append(entity)
-            if entity2 not in doc._.person_titles:
+            if len(entity2) > 0 and entity2 not in doc._.person_titles:
                 doc._.person_titles.append(entity2)
     return doc
 
