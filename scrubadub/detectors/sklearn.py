@@ -13,7 +13,6 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from xgboost import XGBClassifier
 
 from typing import Optional, List, Dict, Any, Generator, Union, Collection, NamedTuple, Sequence, Type
 
@@ -24,7 +23,7 @@ from ..filth.address import AddressFilth
 from ..modelling.serialisation import estimator_from_json, estimator_to_json
 
 DocumentName = Optional[Union[str, int]]
-ModelTypes = Union[RandomForestClassifier, LogisticRegression, XGBClassifier]
+ModelTypes = Union[RandomForestClassifier, LogisticRegression]
 
 
 class TokenPosition(NamedTuple):
