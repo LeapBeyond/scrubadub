@@ -120,8 +120,6 @@ class SpacyEntityDetector(Detector):
                 "please choose another model.".format(self.model)
             )
 
-        self.yielded_filth = None  # type: Optional[Set[str]]
-
     @staticmethod
     def check_spacy_version() -> bool:
         """Ensure that the version od spaCy is v3."""
@@ -195,37 +193,6 @@ class SpacyEntityDetector(Detector):
 
         return spacy_docs
 
-    def _yield_filth(
-            self, doc_name: Optional[str], text: str, ent: spacy.tokens.span.Span
-    ) -> Generator[Filth, None, None]:
-        if ent.label_ not in self.named_entities:
-            return
-        filth_class = self.filth_cls_map.get(ent.label_, Filth)
-        if self.preprocess_text:
-            # When yielding the filth we need to yield filth as found in the original un-preprocessed text.
-            # This section searches for text with the inverse of the preprocessing step.
-            if self.yielded_filth is not None:
-                if ent.text in self.yielded_filth:
-                    return
-                self.yielded_filth.add(ent.text)
-
-            class SpacyEntDetector(RegexDetector):
-                filth_cls = filth_class
-                regex = re.compile(re.escape(ent.text).replace('\\ ', r'\s+'))
-
-            regex_detector = SpacyEntDetector(name=self.name, locale=self.locale)
-            yield from regex_detector.iter_filth(text, document_name=doc_name)
-        else:
-            # If we didn't pre-process, just return the filth as it was found.
-            yield filth_class(
-                beg=ent.start_char,
-                end=ent.end_char,
-                text=ent.text,
-                document_name=(str(doc_name) if doc_name else None),  # None if no doc_name provided
-                detector_name=self.name,
-                locale=self.locale,
-            )
-
     def iter_filth_documents(self, document_list: Sequence[str],
                              document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
         """Yields discovered filth in a list of documents.
@@ -247,10 +214,42 @@ class SpacyEntityDetector(Detector):
         spacy_docs = self._run_spacy(document_list=preprocessed_docs, document_names=document_names)
 
         for doc_name, doc, text in zip(document_names, spacy_docs, document_list):
-            self.yielded_filth = set()
-            for ent in doc.ents:
-                yield from self._yield_filth(doc_name, text, ent)
-        self.yielded_filth = None
+            # We pre-process text when we run the trf model, to ensure the text can be processed by the trf model
+            # That processing changes the character positions in the text, so this bit of code un-does that and
+            # searches for the found entities in the original text.
+            if self.preprocess_text:
+                # Here we will keep a list of the filth that we have found already in this document and only search
+                # for entities that we've not already searched for in this document. If "Jane" is twice in a document
+                # and we loop over each "Jane" entity and search the whole document for "Jane", we would yield 4
+                # "Jane"s instead of just the two that are in the text.
+                yielded_filth = set()
+                for ent in doc.ents:
+                    if ent.text in yielded_filth:
+                        continue
+                    yielded_filth.add(ent.text)
+                    filth_class = self.filth_cls_map.get(ent.label_, Filth)
+
+                    # Use a modified version of the regex detector to find the entities in the original document
+                    class PreProcessedSpacyEntityDetector(RegexDetector):
+                        filth_cls = filth_class
+                        regex = re.compile(re.escape(ent.text).replace('\\ ', r'\s+'))
+
+                    regex_detector = PreProcessedSpacyEntityDetector(name=self.name, locale=self.locale)
+                    yield from regex_detector.iter_filth(text, document_name=doc_name)
+            else:
+                # If we didn't preprocess, just loop over the entities and yield Filth.
+                for ent in doc.ents:
+                    if ent.label_ not in self.named_entities:
+                        continue
+                    filth_class = self.filth_cls_map.get(ent.label_, Filth)
+                    yield filth_class(
+                        beg=ent.start_char,
+                        end=ent.end_char,
+                        text=ent.text,
+                        document_name=(str(doc_name) if doc_name else None),  # None if no doc_name provided
+                        detector_name=self.name,
+                        locale=self.locale,
+                    )
 
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
         """Yields discovered filth in the provided ``text``.
