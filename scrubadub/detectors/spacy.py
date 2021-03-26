@@ -246,8 +246,8 @@ class SpacyEntityDetector(Detector):
 
         spacy_docs = self._run_spacy(document_list=preprocessed_docs, document_names=document_names)
 
-        self.yielded_filth = set()
         for doc_name, doc, text in zip(document_names, spacy_docs, document_list):
+            self.yielded_filth = set()
             for ent in doc.ents:
                 yield from self._yield_filth(doc_name, text, ent)
         self.yielded_filth = None
