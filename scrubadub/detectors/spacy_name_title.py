@@ -1,6 +1,6 @@
 import copy
 
-from typing import Generator, Optional, Sequence, List
+from typing import Generator, Optional, Sequence, List, Iterable
 
 try:
     import spacy
@@ -158,6 +158,14 @@ class SpacyNameDetector(SpacyEntityDetector):
         self.nlp.add_pipe('expand_person_entities', after='ner')
         self.include_spacy = include_spacy
 
+    @staticmethod
+    def _get_affix_entities(doc: spacy.tokens.doc.Doc) -> Iterable[spacy.tokens.span.Span]:
+        return doc._.person_titles
+
+    @staticmethod
+    def _get_affix_and_spacy_entities(doc: spacy.tokens.doc.Doc) -> Iterable[spacy.tokens.span.Span]:
+        return (doc.ents + doc._.person_titles)
+
     def iter_filth_documents(self, document_list: Sequence[str],
                              document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
         """Yields discovered filth in a list of documents.
@@ -169,24 +177,13 @@ class SpacyNameDetector(SpacyEntityDetector):
         :return: A list containing all the spacy doc
         :rtype: Sequence[Optional[str]]
         """
-        preprocessed_docs = list(copy.copy(document_list))
-        # If the model is a transformer model, we need to transform our data a little to avoid a maximum width of the
-        # transformer. Lots of spaces causes lots of tokens to be made and passed to the transformer which makes an
-        # index go out of range and so we remove excess whitespace.
-        if self.preprocess_text:
-            preprocessed_docs = self._preprocess_text(preprocessed_docs)
 
-        spacy_docs = self._run_spacy(document_list=preprocessed_docs, document_names=document_names)
+        if self.include_spacy:
+            entity_function = self._get_affix_and_spacy_entities
+        else:
+            entity_function = self._get_affix_entities
 
-        self.yielded_filth = set()
-        for doc_name, doc, text in zip(document_names, spacy_docs, document_list):
-            if self.include_spacy:
-                for ent in doc.ents:
-                    yield from self._yield_filth(doc_name, text, ent)
-            for ent in doc._.person_titles:
-                yield from self._yield_filth(doc_name, text, ent)
-
-        self.yielded_filth = None
+        yield from self._yield_filth(document_list, document_names, get_entity_function=entity_function)
 
     @classmethod
     def supported_locale(cls, locale: str) -> bool:
