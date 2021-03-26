@@ -23,9 +23,7 @@ class SpacyDetectorTestCase(unittest.TestCase, BaseTestCase):
         unsupported_python_version = (
                 ((sys.version_info.major, sys.version_info.minor) < (3, 6)) 
         )
-        print("HERE")
         if unsupported_python_version:
-            print("SKIPPED")
             self.skipTest(
                 "Spacy detector supported for 3.6 <= python version"
             )
@@ -110,9 +108,9 @@ class SpacyDetectorTestCase(unittest.TestCase, BaseTestCase):
     def test_long_text(self):
         # The transformer cant take text with many spaces as his creates many tokens and there is a limit to the
         # width of the transformer in the model.
+        from scrubadub.detectors.spacy import SpacyEntityDetector
         for whitespace in [' ', '\t', '\n']:
             longtext = (whitespace * 20).join(['asd', 'qwe', 'Mike', '']) * 10
-            from scrubadub.detectors.spacy import SpacyEntityDetector
             detector = SpacyEntityDetector(model='en_core_web_trf')
             filths = list(detector.iter_filth(longtext))
             self.assertIsInstance(filths, list)
