@@ -22,5 +22,5 @@ click
 python-magic
 python-dotenv
 azure-storage-blob
-xlrd<2
+openpyxl
 tabulate
