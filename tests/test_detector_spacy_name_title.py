@@ -64,7 +64,7 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
             Sender: Florence Barr
             To: Florence Barr <example@example.com>
             Dear Mrs Barr
-            
+
             From: Florence Barr <example@example.com>
             To: Florence Barr <example@example.com<mailto:example@example.com>>
             Dear Mrs Barr
@@ -73,7 +73,7 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
             Sender: {{NAME+NAME}}
             To: {{NAME+NAME}} <example@example.com>
             Dear {{NAME+NAME}}
-            
+
             From: {{NAME+NAME}} <example@example.com>
             To: {{NAME+NAME}} <example@example.com<mailto:example@example.com>>
             Dear {{NAME+NAME}}
