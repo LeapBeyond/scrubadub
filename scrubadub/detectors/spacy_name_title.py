@@ -112,7 +112,7 @@ class SpacyNameDetector(SpacyEntityDetector):
         "en": [
             # Titles
             'mr', 'mr.', 'mister', 'mrs', 'mrs.', 'misses', 'ms', 'ms.', 'miss', 'dr', 'dr.', 'doctor', 'prof',
-            'prof.', 'professor', 'lord', 'lady', 'rev', 'rev.', 'reverend', 'hon', 'hon.', 'honourable',
+            'prof.', 'professor', 'lord', 'lady', 'rev', 'rev.', 'reverend', 'hon', 'hon.', 'honourable', 'hhj',
             'honorable', 'judge', 'sir', 'madam',
             # Greetings
             'hello', 'dear', 'hi', 'hey',
