@@ -117,11 +117,10 @@ class ComparisonTestCase(unittest.TestCase):
             filths,
             output_dict=False,
         ).strip()
-        print(text)
         self.assertEqual(
-            "filth     detector     locale    precision    recall  f1-score   support\n"
+            "filth    detector    locale      precision    recall  f1-score   support\n"
             "\n"
-            "phone        phone       None         1.00      0.50      0.67         4\n"
+            "phone    phone       None             1.00      0.50      0.67         4\n"
             "\n"
             "                      micro avg       1.00      0.50      0.67         4\n"
             "                      macro avg       1.00      0.50      0.67         4\n"
@@ -397,3 +396,38 @@ class ComparisonTestCase(unittest.TestCase):
             total_len += len(filth_item['match'])
             self.assertEqual(filth_item['filth_type'], 'email')
         self.assertTrue(len(document) > 2 * total_len)
+
+    def test_groupby_document(self):
+        """test grouping by documents"""
+        filths = [
+            PhoneFilth(beg=0, end=4, text='1234', detector_name='phone_v1', document_name='1.txt'),
+            TaggedEvaluationFilth(beg=5, end=10, text='12345', comparison_type='phone', document_name='1.txt'),
+            MergedFilth(
+                PhoneFilth(beg=12, end=16, text='1234', detector_name='phone_v1', document_name='1.txt'),
+                TaggedEvaluationFilth(beg=12, end=16, text='1234', comparison_type='phone', document_name='1.txt'),
+            ),
+            TaggedEvaluationFilth(beg=20, end=25, text='12345', comparison_type='phone', document_name='1.txt'),
+            PhoneFilth(beg=0, end=4, text='1234', detector_name='phone_v1', document_name='2.txt'),
+            TaggedEvaluationFilth(beg=5, end=10, text='12345', comparison_type='phone', document_name='2.txt'),
+            MergedFilth(
+                PhoneFilth(beg=12, end=16, text='1234', detector_name='phone_v1', document_name='2.txt'),
+                TaggedEvaluationFilth(beg=12, end=16, text='1234', comparison_type='phone', document_name='2.txt'),
+            ),
+            TaggedEvaluationFilth(beg=20, end=25, text='12345', comparison_type='phone', document_name='2.txt'),
+        ]
+
+        self.assertEqual(
+            {
+                'phone:1.txt:phone_v1:None': {'precision': 0.5, 'recall': 0.3333333333333333, 'f1-score': 0.4, 'support': 3},
+                'phone:2.txt:phone_v1:None': {'precision': 0.5, 'recall': 0.3333333333333333, 'f1-score': 0.4, 'support': 3},
+                'micro avg': {'precision': 0.5, 'recall': 0.3333333333333333, 'f1-score': 0.4, 'support': 6},
+                'macro avg': {'precision': 0.5, 'recall': 0.3333333333333333, 'f1-score': 0.4, 'support': 6},
+                'samples avg': {'f1-score': 0.25, 'precision': 0.25, 'recall': 0.25, 'support': 6},
+                'weighted avg': {'precision': 0.5, 'recall': 0.3333333333333333, 'f1-score': 0.4000000000000001, 'support': 6}
+            },
+            scrubadub.comparison.get_filth_classification_report(
+                filths,
+                output_dict=True,
+                groupby_documents=True,
+            ),
+        )

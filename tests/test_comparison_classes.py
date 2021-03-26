@@ -115,7 +115,7 @@ class ComparisonTestCase(unittest.TestCase):
         self.assertEqual(10, ft.positions[0].beg)
         self.assertEqual(0, ft.positions[1].beg)
         self.assertEqual(2, ft.positions[2].beg)
-        self.assertEqual(['filth_type', 'detector_name', 'locale'], ft.column_names)
+        self.assertEqual(['filth', 'detector', 'locale'], ft.column_names)
 
         ft.merge_positions()
         self.assertEqual(2, len(ft.positions))
@@ -131,7 +131,7 @@ class ComparisonTestCase(unittest.TestCase):
         )
 
         df = ft.get_counts()
-        self.assertEqual(['filth_type', 'detector_name', 'locale'], df.columns.names)
+        self.assertEqual(['filth', 'detector', 'locale'], df.columns.names)
         self.assertEqual(
             {
                 ('phone', 'phone_b', 'en_GB'),
@@ -196,7 +196,7 @@ class ComparisonTestCase(unittest.TestCase):
 
         df = fg.get_counts()
         print(df)
-        self.assertEqual(['filth_type', 'detector_name', 'locale'], df.columns.names)
+        self.assertEqual(['filth', 'detector', 'locale'], df.columns.names)
         self.assertEqual(
             [
                 ('name', 'tagged', 'en_US'),

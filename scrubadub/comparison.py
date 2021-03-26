@@ -1,6 +1,7 @@
 import re
 import copy
 import random
+import itertools
 
 from faker import Faker
 
@@ -9,6 +10,7 @@ from .filth import Filth
 from .detectors.tagged import KnownFilthItem
 
 from typing import List, Dict, Union, Optional, Tuple, Callable, Iterable, Type, Set
+import numpy as np
 import pandas as pd
 import sklearn.metrics
 
@@ -152,8 +154,8 @@ class FilthGrouper(ToStringMixin, object):
             filth_module.TaggedEvaluationFilth.type
         )
         result = {
-            'filth_type': getattr(filth, 'comparison_type', filth.type),
-            'detector_name': detector_name,
+            'filth': getattr(filth, 'comparison_type', filth.type),
+            'detector': detector_name,
             'locale': filth.locale or 'None',
         }
         return result
@@ -166,10 +168,10 @@ class FilthGrouper(ToStringMixin, object):
             filth_module.TaggedEvaluationFilth.type
         )
         result = {
-            'filth_type': getattr(filth, 'comparison_type', filth.type),
-            'detector_name': detector_name,
+            'filth': getattr(filth, 'comparison_type', filth.type),
+            'document_name': filth.document_name or 'None',
+            'detector': detector_name,
             'locale': filth.locale or 'None',
-            'document_name': filth.document_name or 'None'
         }
 
         return result
@@ -182,8 +184,8 @@ class FilthGrouper(ToStringMixin, object):
             filth_module.TaggedEvaluationFilth.type
         )
         return {
-            'filth_type': getattr(filth, 'comparison_type', filth.type),
-            'detector_name': detector_name,
+            'filth': getattr(filth, 'comparison_type', filth.type),
+            'detector': detector_name,
             'locale': filth.locale or 'None',
         }
 
@@ -195,10 +197,10 @@ class FilthGrouper(ToStringMixin, object):
             filth_module.TaggedEvaluationFilth.type
         )
         result = {
-            'filth_type': getattr(filth, 'comparison_type', filth.type),
-            'detector_name': detector_name,
+            'filth': getattr(filth, 'comparison_type', filth.type),
+            'document_name': filth.document_name or 'None',
+            'detector': detector_name,
             'locale': filth.locale or 'None',
-            'document_name': filth.document_name or 'None'
         }
 
         return result
@@ -241,13 +243,23 @@ class FilthGrouper(ToStringMixin, object):
         grouper.merge_positions()
         return grouper
 
-    def get_counts(self) -> pd.DataFrame:
+    def expand_missing(self, df: pd.DataFrame) -> pd.DataFrame:
+        set_list = [set(s) for s in zip(*df.columns.values.tolist())]
+        for column in itertools.product(*set_list):
+            if column not in df.columns:
+                df.loc[:, column] = 0
+        return df
+
+    def get_counts(self, expand_missing: bool = False) -> pd.DataFrame:
         if len(self.types) == 0:
             return pd.DataFrame()
-        df_list = []
+        df_list = []  # type: List[pd.DataFrame]
         running_rows = 0
         for positioniser in self.types.values():
-            df_list.append(positioniser.get_counts())
+            pos_df = positioniser.get_counts()
+            if expand_missing:
+                pos_df = self.expand_missing(pos_df)
+            df_list.append(pos_df)
             df_list[-1].index += running_rows
             running_rows += max(df_list[-1].index) + 1
         return pd.concat(df_list).fillna(0).astype(int)
@@ -256,6 +268,7 @@ class FilthGrouper(ToStringMixin, object):
 def get_filth_classification_report(
         filth_list: List[Filth],
         combine_detectors: bool = False,
+        groupby_documents: bool = False,
         output_dict: bool = False,
 ) -> Optional[Union[str, Dict[str, float]]]:
     """Evaluates the performance of detectors using KnownFilth.
@@ -274,9 +287,9 @@ def get_filth_classification_report(
         ... ])
         >>> filth_list = list(scrubber.iter_filth("Hello I am Tom"))
         >>> print(scrubadub.comparison.get_filth_classification_report(filth_list))
-        filth          detector     locale    precision    recall  f1-score   support
+        filth    detector         locale      precision    recall  f1-score   support
         <BLANKLINE>
-         name     name_detector      en_US         1.00      1.00      1.00         1
+        name     name_detector    en_US            1.00      1.00      1.00         1
         <BLANKLINE>
                                     accuracy                           1.00         1
                                    macro avg       1.00      1.00      1.00         1
@@ -287,54 +300,77 @@ def get_filth_classification_report(
     :type filth_list: A list of `Filth` objects
     :param combine_detectors: Combine performance of all detectors for the same filth/locale
     :type combine_detectors: bool, optional
+    :param groupby_documents: Show performance for each file individually
+    :type groupby_documents: bool, optional
     :param output_dict: Return the report in JSON format, defautls to False
     :type output_dict: bool, optional
     :return: The report in JSON (a `dict`) or in plain text
     :rtype: `str` or `dict`
     """
-    grouper = FilthGrouper.from_filth_list(filth_list, combine_detectors=combine_detectors, )
-    results_df = grouper.get_counts()
+    if len(filth_list) == 0:
+        return None
 
-    # Find filth types that have some known filth
-    known_types = [x[0] for x in results_df.columns if x[1] == filth_module.TaggedEvaluationFilth.type]
-    # Select columns for filth that have related known filth, but that are not known filth
+    grouper = FilthGrouper.from_filth_list(filth_list, combine_detectors=combine_detectors,
+                                           groupby_documents=groupby_documents)
+    results_df = grouper.get_counts(expand_missing=True)
+
+    filth_index = results_df.columns.names.index('filth')
+    detector_index = results_df.columns.names.index('detector')
+    tagged_column_mask = np.array(
+        [x[detector_index] == filth_module.TaggedEvaluationFilth.type for x in results_df.columns]
+    )
+
+    # Find filth types that have some tagged filth
+    tagged_types = [x[filth_index] for x in results_df.columns[tagged_column_mask]]
+
+    # Select the columns that have some related tagged filth, but are not tagged filth themselves
     detected_columns = [
-        x for x in results_df.columns
-        if x[1] != filth_module.TaggedEvaluationFilth.type and x[0] in known_types
+        x for x in results_df.columns[~tagged_column_mask]
+        if x[filth_index] in tagged_types
     ]
     detected_classes = results_df.loc[:, detected_columns].values
-    # Take the detected_columns above and find their associated known counterparts
-    known_cols = [(x[0], filth_module.TaggedEvaluationFilth.type, x[2]) for x in detected_columns]
-    try:
-        true_classes = results_df.loc[:, known_cols].values
-    except KeyError:
-        raise KeyError(
-            f"Unable to find known filths with type '{known_cols}' Could there be a mismatch in locales?\n\n"
-            f"Available types are {results_df.columns.tolist()}\n"
-        )
+
+    # Take the detected_columns above and find their tagged counterparts
+    tagged_columns = [
+        (*x[:detector_index], filth_module.TaggedEvaluationFilth.type, *x[detector_index + 1:])
+        for x in detected_columns
+    ]
+    # If they don't have any tagged counterpart, set the column to zero
+    for column in tagged_columns:
+        if column not in results_df.columns:
+            results_df.loc[:, column] = 0
+            tagged_column_mask = np.append(tagged_column_mask, [True])
+
+    true_classes = results_df.loc[:, tagged_columns].values
 
     # Then no true classes were found
     if detected_classes.shape[1] == 0:
         return None
 
+    report_prefix = None  # type: Optional[str]
     if not output_dict:
-        filth_max_length = max([len(x[0]) for x in detected_columns] + [len("filth")])
-        detector_name_max_length = max([len(x[1]) for x in detected_columns] + [len("detector")]) + 4
-        locale_max_length = max([len(x[2]) for x in detected_columns] + [len("locale")]) + 4
+        report_prefix = ''
+        class_labels = [''] * len(detected_columns)
+        for i, name in enumerate(results_df.columns.names):
+            max_length = max([len(str(columns[i])) for columns in results_df.columns] + [len(name)]) + 4
+            class_labels = [
+                name + columns[i].ljust(max_length)
+                for name, columns in zip(class_labels, detected_columns)
+            ]
+            report_prefix += name.ljust(max_length)
         class_labels = [
-            "{} {} {}  ".format(
-                x[0].rjust(filth_max_length),
-                x[1].rjust(detector_name_max_length),
-                x[2].rjust(locale_max_length)
-            )
-            for x in detected_columns
+            name
+            for name in class_labels
         ]
+        if report_prefix is not None:
+            report_prefix += '  '
     else:
-        class_labels = ["{}:{}:{}".format(*x) for x in detected_columns]
+        base_name = ("{}:" * len(results_df.columns.names)).rstrip(':')
+        class_labels = [base_name.format(*x) for x in detected_columns]
 
-    report_labels = []
     # If there is only one label reshape the data so that
     # the classification_report interprets it less ambiguously
+    report_labels = []  # type: List[int]
     if detected_classes.shape[1] == 1:
         detected_classes = detected_classes.T[0]
         true_classes = true_classes.T[0]
@@ -353,14 +389,9 @@ def get_filth_classification_report(
         # **extra_args
     )
 
-    if not output_dict:
-        report = (
-            'filth'.rjust(filth_max_length) +
-            'detector'.rjust(detector_name_max_length + 1) +
-            'locale'.rjust(locale_max_length + 1) +
-            (' '*4) +
-            report.lstrip(' ')
-        )
+    if report_prefix is not None:
+        report = report_prefix + report.lstrip(' ')
+
     return report
 
 
@@ -465,10 +496,10 @@ def make_fake_document(
         ... ))
         >>> filth_list = list(scrubber.iter_filth(document))
         >>> print(scrubadub.comparison.get_filth_classification_report(filth_list))
-        filth     detector     locale    precision    recall  f1-score   support
+        filth    detector    locale      precision    recall  f1-score   support
         <BLANKLINE>
-          url          url      en_US         1.00      1.00      1.00         1
-        email        email      en_US         1.00      1.00      1.00         2
+        email    email       en_US            1.00      1.00      1.00         2
+        url      url         en_US            1.00      1.00      1.00         1
         <BLANKLINE>
                               micro avg       1.00      1.00      1.00         3
                               macro avg       1.00      1.00      1.00         3
