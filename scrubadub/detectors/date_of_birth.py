@@ -9,6 +9,7 @@ Another option is to nuke all date of birth that is between 18 and 100 years.
 Using 18+ years may not be suitable for all use cases; use with caution.
 """
 import re
+import logging
 from dateparser.search import search_dates
 from datetime import datetime
 
@@ -106,7 +107,12 @@ class DateOfBirthDetector(Detector):
 
         for i_line, line in enumerate(lines):
             # using the dateparser lib - locale can be set here
-            date_picker = search_dates(line, languages=[self.language])
+            try:
+                date_picker = search_dates(line, languages=[self.language])
+            except RecursionError:
+                logger = logging.getLogger("scrubadub.detectors.date_of_birth.DateOfBirthDetector")
+                logger.error(f"The below text caused a recursion error in dateparser.\n{line.__repr__()}")
+                raise
             if date_picker is None:
                 continue
 
