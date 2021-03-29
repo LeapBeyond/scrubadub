@@ -289,17 +289,21 @@ class Scrubber(object):
             self, text: str, filth_list: Sequence[Filth], document_name: Optional[str], **kwargs
     ) -> str:
         filth_list = [filth for filth in filth_list if filth.document_name == document_name]
+        if len(filth_list) == 0:
+            return text
+
         filth_list = self._sort_filths(filth_list)  # TODO: expensive sort may not be needed
+        filth = None  # type: Optional[Filth]
         clean_chunks = []
-        filth = Filth()
         for next_filth in filth_list:
-            clean_chunks.append(text[filth.end:next_filth.beg])
+            clean_chunks.append(text[(0 if filth is None else filth.end):next_filth.beg])
             if next_filth.replacement_string is not None:
                 clean_chunks.append(next_filth.replacement_string)
             else:
                 clean_chunks.append(next_filth.replace_with(**kwargs))
             filth = next_filth
-        clean_chunks.append(text[filth.end:])
+        if filth is not None:
+            clean_chunks.append(text[filth.end:])
         return u''.join(clean_chunks)
 
     def _post_process_filth_list(self, filth_list: Sequence[Filth]) -> Sequence[Filth]:

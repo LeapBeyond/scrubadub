@@ -54,6 +54,11 @@ class Filth(object):
         self.replacement_string = replacement_string  # type: Optional[str]
         self.locale = locale  # type: Optional[str]
 
+        if self.beg >= self.end:
+            raise ValueError(
+                f"Creating invalid filth (self.beg >= self.end): {self}"
+            )
+
     @property
     def placeholder(self) -> str:
         return self.type.upper()

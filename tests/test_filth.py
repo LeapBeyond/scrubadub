@@ -8,7 +8,7 @@ class FilthTestCase(unittest.TestCase):
 
     def test_disallowed_replace_with(self):
         """replace_with should fail gracefully"""
-        filth = Filth()
+        filth = Filth(beg=0, end=3, text='asd')
         with self.assertRaises(InvalidReplaceWith):
             filth.replace_with('surrogate')
         with self.assertRaises(InvalidReplaceWith):
