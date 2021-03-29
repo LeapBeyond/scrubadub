@@ -173,7 +173,22 @@ class SpacyEntityDetector(Detector):
     ) -> List[spacy.tokens.doc.Doc]:
         i = 0
         spacy_docs = []  # type: List[spacy.tokens.doc.Doc]
+
+        transformer_stages = [stage for name, stage in self.nlp.pipeline if name == 'transformer']
+        if len(transformer_stages) > 0 and 'tokenizer' in transformer_stages[0].model.attrs:
+            tokenizer = transformer_stages[0].model.attrs['tokenizer']
+            tokenizer.deprecation_warnings['sequence-length-is-longer-than-the-specified-maximum'] = False
+
         generator = self.nlp.pipe(document_list)
+
+        if len(transformer_stages) > 0 and 'tokenizer' in transformer_stages[0].model.attrs:
+            if tokenizer.deprecation_warnings['sequence-length-is-longer-than-the-specified-maximum']:
+                logger = logging.getLogger('scrubadub.detectors.spacy.SpacyEntityDetector')
+                logger.warning(
+                    "The documents that triggered the sequence-length-is-longer-than-the-specified-maximum message:\n"
+                    f"{document_list}"
+                )
+
         while True:
             try:
                 spacy_doc = next(generator)
