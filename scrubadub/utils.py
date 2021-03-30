@@ -1,7 +1,7 @@
 import re
 import locale as locale_module
 
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 try:
     unicode  # type: ignore  # tell mypy to ignore the fact that this doesnt exist in python3
@@ -98,3 +98,13 @@ def locale_split(locale: str) -> Tuple[Optional[str], Optional[str]]:
         raise ValueError('Locale does not match expected format.')
 
     return match.group('language').lower(), match.group('region').upper()
+
+
+class ToStringMixin(object):
+    def _to_string(self, attributes: List[str]) -> str:
+        item_attributes = [
+            "{}={}".format(item, getattr(self, item, None).__repr__())
+            for item in attributes
+            if getattr(self, item, None) is not None
+        ]
+        return "<{} {}>".format(self.__class__.__name__, " ".join(item_attributes))
