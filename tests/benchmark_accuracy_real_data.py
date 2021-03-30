@@ -300,7 +300,7 @@ def load_complicated_detectors(user_supplied_pii: Optional[Sequence[str]] = None
         'address_sklearn': False,
         'date_of_birth': False,
         'spacy': False,
-        'spacy_name_title': False,
+        'spacy_title': False,
         'stanford': False,
         'text_blob': False,
         'user_supplied': False,
@@ -377,33 +377,33 @@ def load_complicated_detectors(user_supplied_pii: Optional[Sequence[str]] = None
         scrubadub.detectors.register_detector(SpacyEnTrfDetector, autoload=True)
     try:
         import scrubadub.detectors.spacy_name_title
-        detector_available['spacy_name_title'] = True
+        detector_available['spacy_title'] = True
     except ImportError:
         pass
     # Disable spacy due to thinc.config.ConfigValidationError
-    if detector_available['spacy_name_title']:
+    if detector_available['spacy_title']:
         del scrubadub.detectors.detector_configuration[
             scrubadub.detectors.spacy_name_title.SpacyNameDetector.name
         ]
 
         # TODO: this only supports english models for spacy, this should be improved
         class SpacyTitleEnSmDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):
-            name = 'spacy_name_title_en_core_web_sm'
+            name = 'spacy_title_en_core_web_sm'
             def __init__(self, **kwargs):
                 super(SpacyTitleEnSmDetector, self).__init__(model='en_core_web_sm', **kwargs)
 
         class SpacyTitleEnMdDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):
-            name = 'spacy_name_title_en_core_web_md'
+            name = 'spacy_title_en_core_web_md'
             def __init__(self, **kwargs):
                 super(SpacyTitleEnMdDetector, self).__init__(model='en_core_web_md', **kwargs)
 
         class SpacyTitleEnLgDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):
-            name = 'spacy_name_title_en_core_web_lg'
+            name = 'spacy_title_en_core_web_lg'
             def __init__(self, **kwargs):
                 super(SpacyTitleEnLgDetector, self).__init__(model='en_core_web_lg', **kwargs)
 
         class SpacyTitleEnTrfDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):
-            name = 'spacy_name_title_en_core_web_trf'
+            name = 'spacy_title_en_core_web_trf'
             def __init__(self, **kwargs):
                 super(SpacyTitleEnTrfDetector, self).__init__(model='en_core_web_trf', **kwargs)
 
@@ -501,6 +501,7 @@ def not_none_argument(ctx, param, value):
               help='Locale to run with')
 @click.option('--detectors', default=None, metavar='<locale>', type=click.STRING,
               help='Comma separated detectors to run')
+@click.option('--groupby-documents', is_flag=True, help='Breakdown accuracies by document')
 @click.option('--storage-connection-string', type=str, envvar='AZURE_STORAGE_CONNECTION_STRING', metavar='<string>',
               help='Connection string to azure bob storage (if needed)')
 @click.option('--tagged-pii', '--known-pii', type=str, multiple=True, metavar='<file>',
@@ -517,7 +518,7 @@ def not_none_argument(ctx, param, value):
 def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_connection_string: Optional[str],
          tagged_pii: Sequence[str], user_supplied_pii: Sequence[str],
          filth_matching_dataset: Optional[click.utils.LazyFile], filth_matching_report: Optional[click.utils.LazyFile],
-         debug_log: Optional[click.utils.LazyFile], detectors: Optional[str] = None):
+         debug_log: Optional[click.utils.LazyFile], detectors: Optional[str] = None, groupby_documents: bool = False):
     """Test scrubadub accuracy using text DOCUMENT(s). Requires a CSV of known PII.
 
     DOCUMENT(s) can be specified as local paths or azure blob storage URLs in the form:
@@ -582,6 +583,14 @@ def main(document: Union[str, Sequence[str]], fast: bool, locale: str, storage_c
         return
 
     click.echo("\n" + classification_report)
+
+    if groupby_documents:
+        classification_report = get_filth_classification_report(found_filth, groupby_documents=True)
+        if classification_report is None:
+            click.echo("ERROR: No Known Filth was found in the provided documents.")
+            return
+
+        click.echo("\n" + classification_report)
 
     classification_report = get_filth_classification_report(found_filth, combine_detectors=True)
     if classification_report is None:

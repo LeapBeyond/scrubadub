@@ -6,9 +6,11 @@ import click
 import random
 
 from faker import Faker
-from typing import List, Union, Dict, Optional
+from typing import List, Union, Dict, Optional, Tuple
 
 import scrubadub
+from scrubadub.detectors.base import Detector
+from scrubadub.filth import Filth
 from scrubadub.comparison import make_fake_document, get_filth_classification_report
 
 
@@ -18,7 +20,7 @@ FILTH_IN_LOCALES = {
 }
 
 
-def generate_and_scrub(locale, filth_list, detectors, n_docs: int = 50):
+def generate_and_scrub(locale: str, filth_list: List[str], detectors: List[Union[str, Detector]], n_docs: int = 50) -> List[Filth]:
     documents = []
     known_pii = []
 
@@ -46,10 +48,10 @@ def generate_and_scrub(locale, filth_list, detectors, n_docs: int = 50):
 
 
 def document_accuracy_settings(locales: List[str], detector_available: Dict[str, bool], run_slow: bool = False,
-                               limit_detectors: Optional[str] = False):
+                               limit_detectors: Optional[str] = False) -> List[Tuple[str, List[str], str]]:
     """This works out what should be executed"""
     global FILTH_IN_LOCALES
-    run_settings = []
+    run_settings = []  # type: List[Tuple[str, List[str], str]]
 
     detector_list = None  # type: Optional[List[str]]
     if limit_detectors is not None:
@@ -76,16 +78,33 @@ def document_accuracy_settings(locales: List[str], detector_available: Dict[str,
                     ]
             elif filth == 'name':
                 added_name_detector = False
-                if detector_available['spacy'] \
-                        and (detector_list is None or 'spacy_en_core_web_sm' in detector_list
-                             or 'spacy' in detector_list):
-                    detectors.append('spacy_en_core_web_sm')
-                    added_name_detector = True
-                    if run_slow:
-                        detectors += [
-                            x for x in ['spacy_en_core_web_md', 'spacy_en_core_web_lg', 'spacy_en_core_web_trf']
-                            if detector_list is None or 'spacy' in detector_list or x in detector_list
-                        ]
+                if detector_available['spacy']:
+                    if detector_list is None or 'spacy' in detector_list:
+                        detectors.append('spacy_en_core_web_sm')
+                        added_name_detector = True
+                        if run_slow:
+                            detectors += ['spacy_en_core_web_md', 'spacy_en_core_web_lg', 'spacy_en_core_web_trf']
+                    else:
+                        for x in ['spacy_en_core_web_sm', 'spacy_en_core_web_md', 'spacy_en_core_web_lg',
+                                  'spacy_en_core_web_trf']:
+                            if x in detector_list:
+                                detectors.append(x)
+                                added_name_detector = True
+                if detector_available['spacy_title']:
+                    if detector_list is None or 'spacy_title' in detector_list:
+                        detectors.append('spacy_title_en_core_web_sm')
+                        added_name_detector = True
+                        if run_slow:
+                            detectors += [
+                                'spacy_title_en_core_web_md', 'spacy_title_en_core_web_lg',
+                                'spacy_title_en_core_web_trf'
+                            ]
+                    else:
+                        for x in ['spacy_title_en_core_web_sm', 'spacy_title_en_core_web_md',
+                                  'spacy_title_en_core_web_lg', 'spacy_title_en_core_web_trf']:
+                            if x in detector_list:
+                                detectors.append(x)
+                                added_name_detector = True
                 if run_slow:
                     if detector_available['text_blob'] \
                             and (detector_list is None or 'text_blob' in detector_list):
@@ -110,14 +129,24 @@ def document_accuracy_settings(locales: List[str], detector_available: Dict[str,
 def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
     detector_available = {
         'address': False,
-        'sklearn_address': False,
+        'address_sklearn': False,
+        'date_of_birth': False,
         'spacy': False,
+        'spacy_title': False,
         'stanford': False,
         'text_blob': False,
+        'user_supplied': False,
     }
     try:
         import scrubadub.detectors.sklearn_address
         detector_available['sklearn_address'] = True
+    except ImportError:
+        pass
+    try:
+        import scrubadub.detectors.date_of_birth
+        detector_available['date_of_birth'] = True
+        detector_name = scrubadub.detectors.date_of_birth.DateOfBirthDetector.name
+        scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
     except ImportError:
         pass
 
@@ -142,6 +171,7 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
             detector_available['spacy'] = True
         except ImportError:
             pass
+        # Disable spacy due to thinc.config.ConfigValidationError
         if detector_available['spacy']:
             del scrubadub.detectors.detector_configuration[scrubadub.detectors.spacy.SpacyEntityDetector.name]
 
@@ -166,10 +196,46 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
                 def __init__(self, **kwargs):
                     super(SpacyEnTrfDetector, self).__init__(model='en_core_web_trf', **kwargs)
 
-            scrubadub.detectors.register_detector(SpacyEnSmDetector, autoload=False)
-            scrubadub.detectors.register_detector(SpacyEnMdDetector, autoload=False)
-            scrubadub.detectors.register_detector(SpacyEnLgDetector, autoload=False)
-            scrubadub.detectors.register_detector(SpacyEnTrfDetector, autoload=False)
+            scrubadub.detectors.register_detector(SpacyEnSmDetector, autoload=True)
+            scrubadub.detectors.register_detector(SpacyEnMdDetector, autoload=True)
+            scrubadub.detectors.register_detector(SpacyEnLgDetector, autoload=True)
+            scrubadub.detectors.register_detector(SpacyEnTrfDetector, autoload=True)
+        try:
+            import scrubadub.detectors.spacy_name_title
+            detector_available['spacy_title'] = True
+        except ImportError:
+            pass
+        # Disable spacy due to thinc.config.ConfigValidationError
+        if detector_available['spacy_title']:
+            del scrubadub.detectors.detector_configuration[
+                scrubadub.detectors.spacy_name_title.SpacyNameDetector.name
+            ]
+
+            # TODO: this only supports english models for spacy, this should be improved
+            class SpacyTitleEnSmDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):
+                name = 'spacy_title_en_core_web_sm'
+                def __init__(self, **kwargs):
+                    super(SpacyTitleEnSmDetector, self).__init__(model='en_core_web_sm', **kwargs)
+
+            class SpacyTitleEnMdDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):
+                name = 'spacy_title_en_core_web_md'
+                def __init__(self, **kwargs):
+                    super(SpacyTitleEnMdDetector, self).__init__(model='en_core_web_md', **kwargs)
+
+            class SpacyTitleEnLgDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):
+                name = 'spacy_title_en_core_web_lg'
+                def __init__(self, **kwargs):
+                    super(SpacyTitleEnLgDetector, self).__init__(model='en_core_web_lg', **kwargs)
+
+            class SpacyTitleEnTrfDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):
+                name = 'spacy_title_en_core_web_trf'
+                def __init__(self, **kwargs):
+                    super(SpacyTitleEnTrfDetector, self).__init__(model='en_core_web_trf', **kwargs)
+
+            scrubadub.detectors.register_detector(SpacyTitleEnSmDetector, autoload=True)
+            scrubadub.detectors.register_detector(SpacyTitleEnMdDetector, autoload=True)
+            scrubadub.detectors.register_detector(SpacyTitleEnLgDetector, autoload=True)
+            scrubadub.detectors.register_detector(SpacyTitleEnTrfDetector, autoload=True)
 
     return detector_available
 
@@ -179,17 +245,18 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
 @click.option('--seed', help='Document generation seed', default=1234, type=click.INT, show_default=True)
 @click.option('--fast', is_flag=True, help='Only run fast detectors')
 @click.option('--combine-detectors', is_flag=True, help='Print statistics for combined detectors')
+@click.option('--groupby-documents', is_flag=True, help='Breakdown accuracies by document')
 @click.option('--locales', default=','.join(FILTH_IN_LOCALES.keys()), show_default=True,
                metavar='<locale>', type=click.STRING, help='Locales to run with')
 @click.option('--detectors', default=None, metavar='<locale>', type=click.STRING,
               help='Comma separated detectors to run')
 def main(fast: bool, combine_detectors: bool, locales: Union[str, List[str]], ndocs: int = 50, seed: int = 1234,
-         detectors: Optional[str] = None):
+         detectors: Optional[str] = None, groupby_documents: bool = False):
     """Test scrubadub accuracy using fake data."""
     run_slow = not fast
 
     if isinstance(locales, str):
-        locales_list = locales.split(',')
+        locales_list = [x.strip() for x in locales.split(',')]
     else:
         locales_list = list(locales)
 
@@ -205,6 +272,14 @@ def main(fast: bool, combine_detectors: bool, locales: Union[str, List[str]], nd
     found_filth = []
     for locale, filth_list, detectors in settings:
         found_filth += generate_and_scrub(locale, filth_list, detectors, n_docs=ndocs)
+
+    if groupby_documents:
+        classification_report = get_filth_classification_report(found_filth, groupby_documents=True)
+        if classification_report is None:
+            click.echo("ERROR: No Known Filth was found in the provided documents.")
+            return
+
+        click.echo("\n" + classification_report)
 
     print(get_filth_classification_report(found_filth, combine_detectors=False))
     if combine_detectors:
