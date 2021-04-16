@@ -5,7 +5,7 @@ from ..filth.vehicle_licence_plate import VehicleLicencePlateFilth
 
 
 class VehicleLicencePlateDetector(RegionLocalisedRegexDetector):
-    """Detects british postcodes."""
+    """Detects standard british licence plates."""
     filth_cls = VehicleLicencePlateFilth
     name = 'vehicle_licence_plate'
 
