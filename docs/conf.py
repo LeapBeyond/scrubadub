@@ -78,7 +78,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'scrubadub'
-copyright = u'2020, Dean Malmgren and Leap Beyond'
+copyright = u'2021, Dean Malmgren and Leap Beyond'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
