@@ -85,6 +85,8 @@ class SklearnDetector(Detector):
     def __init__(self, model_path_prefix: Optional[str] = None, dict_vectorizer_json_path: Optional[str] = None,
                  label_encoder_json_path: Optional[str] = None, model_json_path: Optional[str] = None,
                  use_pickled_model: bool = True, **kwargs):
+        warnings.warn("The SklearnDetector is in a pre-release state. It is provided here as a preview. Use with care.",
+                      UserWarning)
         super(SklearnDetector, self).__init__(**kwargs)
 
         self.use_pickled_model = use_pickled_model
@@ -94,17 +96,17 @@ class SklearnDetector(Detector):
         if self.model_path_prefix is None:
             self.model_path_prefix = str(pathlib.Path(__file__).parent / 'models')
 
-        self.dict_vectorizer_json_path = dict_vectorizer_json_path
-        if self.dict_vectorizer_json_path is None:
-            self.dict_vectorizer_json_path = str(pathlib.Path(self.model_path_prefix) / 'dict_vectorizer.pickle')
+        self.dict_vectorizer_path = dict_vectorizer_json_path
+        if self.dict_vectorizer_path is None:
+            self.dict_vectorizer_path = str(pathlib.Path(self.model_path_prefix) / 'dict_vectorizer.pickle')
 
-        self.label_encoder_json_path = label_encoder_json_path
-        if self.label_encoder_json_path is None:
-            self.label_encoder_json_path = str(pathlib.Path(self.model_path_prefix) / 'label_encoder.pickle')
+        self.label_encoder_path = label_encoder_json_path
+        if self.label_encoder_path is None:
+            self.label_encoder_path = str(pathlib.Path(self.model_path_prefix) / 'label_encoder.pickle')
 
-        self.model_json_path = model_json_path
-        if self.model_json_path is None:
-            self.model_json_path = str(pathlib.Path(self.model_path_prefix) / 'model.pickle')
+        self.model_path = model_json_path
+        if self.model_path is None:
+            self.model_path = str(pathlib.Path(self.model_path_prefix) / 'model.pickle')
 
         self.n_prev_tokens = 3
         self.n_next_tokens = 5
@@ -135,7 +137,6 @@ class SklearnDetector(Detector):
             TokenTuple(doc_name=document_name, token=token, span=position)
             for token, position in zip(tokens, token_positions)
         ]
-        # return list(zip([document_name] * len(tokens), tokens, token_positions))
 
     @staticmethod
     def token_positions(text: str, tokens: Collection[str]) -> List[TokenPosition]:
@@ -233,51 +234,51 @@ class SklearnDetector(Detector):
         if use_pickle is None:
             use_pickle = self.use_pickled_model
 
-        if self.dict_vectorizer is None and self.dict_vectorizer_json_path is not None:
+        if self.dict_vectorizer is None and self.dict_vectorizer_path is not None:
             if use_pickle:
-                with open(self.dict_vectorizer_json_path, 'rb') as f:
+                with open(self.dict_vectorizer_path, 'rb') as f:
                     self.dict_vectorizer = pickle.load(f)
             else:
-                self.dict_vectorizer = estimator_from_json(self.dict_vectorizer_json_path)
+                self.dict_vectorizer = estimator_from_json(self.dict_vectorizer_path)
 
-        if self.model is None and self.model_json_path is not None:
+        if self.model is None and self.model_path is not None:
             if use_pickle:
-                with open(self.model_json_path, 'rb') as f:
+                with open(self.model_path, 'rb') as f:
                     self.model = pickle.load(f)
             else:
-                self.model = estimator_from_json(self.model_json_path)
+                self.model = estimator_from_json(self.model_path)
 
-        if self.label_encoder is None and self.label_encoder_json_path is not None:
+        if self.label_encoder is None and self.label_encoder_path is not None:
             if use_pickle:
-                with open(self.label_encoder_json_path, 'rb') as f:
+                with open(self.label_encoder_path, 'rb') as f:
                     self.label_encoder = pickle.load(f)
             else:
-                self.label_encoder = estimator_from_json(self.label_encoder_json_path)
+                self.label_encoder = estimator_from_json(self.label_encoder_path)
 
     def save_model(self, use_pickle: Optional[bool] = None) -> None:
         if use_pickle is None:
             use_pickle = self.use_pickled_model
 
-        if self.dict_vectorizer is not None and self.dict_vectorizer_json_path is not None:
+        if self.dict_vectorizer is not None and self.dict_vectorizer_path is not None:
             if use_pickle:
-                with open(self.dict_vectorizer_json_path, 'wb') as f:
+                with open(self.dict_vectorizer_path, 'wb') as f:
                     pickle.dump(self.dict_vectorizer, f)
             else:
-                estimator_to_json(self.dict_vectorizer, self.dict_vectorizer_json_path)
+                estimator_to_json(self.dict_vectorizer, self.dict_vectorizer_path)
 
-        if self.model is not None and self.model_json_path is not None:
+        if self.model is not None and self.model_path is not None:
             if use_pickle:
-                with open(self.model_json_path, 'wb') as f:
+                with open(self.model_path, 'wb') as f:
                     pickle.dump(self.model, f)
             else:
-                estimator_to_json(self.model, self.model_json_path)
+                estimator_to_json(self.model, self.model_path)
 
-        if self.label_encoder is not None and self.label_encoder_json_path is not None:
+        if self.label_encoder is not None and self.label_encoder_path is not None:
             if use_pickle:
-                with open(self.label_encoder_json_path, 'wb') as f:
+                with open(self.label_encoder_path, 'wb') as f:
                     pickle.dump(self.label_encoder, f)
             else:
-                estimator_to_json(self.label_encoder, self.label_encoder_json_path)
+                estimator_to_json(self.label_encoder, self.label_encoder_path)
 
     @staticmethod
     def _add_labels_to_tokens(token_tuples: Collection[Union[TokenTuple, TokenTupleWithLabel]],
@@ -423,7 +424,7 @@ class SklearnDetector(Detector):
         # text_labels = self.label_encoder.inverse_transform(text_prediction)
         del text_data, target
         return []
-        # # TODO: return both predited and true labels
+        # # TODO: return both predicted and true labels
         # text_tokens_with_labels = self._add_labels_to_tokens(text_tokens_with_labels, text_labels)
         #
         # return text_tokens_with_labels
@@ -444,11 +445,6 @@ class SklearnDetector(Detector):
                         locale=self.locale,
                 )
                 yield filth
-
-    # def iter_filth_documents(self, document_list: Sequence[str],
-    #                          document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
-    #     token_tuple_list = self.predict(document_list=document_list, document_names=document_names)
-    #     yield from self._yield_filth(token_tuple_list=token_tuple_list)
 
     def iter_filth(self, text: str, document_name: Optional[DocumentName] = None) -> Generator[Filth, None, None]:
         yield from self.iter_filth_documents(

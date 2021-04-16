@@ -1,10 +1,8 @@
-import copy
 
 from typing import Generator, Optional, Sequence, List, Iterable
 
 try:
     import spacy
-    # new in spacy v3
     from spacy.language import Language
     from spacy.tokens import Doc
     from spacy.tokens import Span
