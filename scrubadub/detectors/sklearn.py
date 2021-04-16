@@ -54,7 +54,7 @@ class TokenTupleWithPredictedTrueLabels(NamedTuple):
 
 class SklearnDetector(Detector):
     """This is the base of a detector that tokenises text, turns that into features (including features from
-    next/previous words), and runs this through a serialised ML model.
+    next/previous tokens), and runs this through an ML model.
     """
     name = 'sklearn'
     punct_languages = {

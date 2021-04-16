@@ -8,10 +8,10 @@ We have started to make scrubadub localised to support multiple languages and re
 We are on the beginning of this journey, so stay tuned.
 
 By setting a locale the ``Detector``\ s that need configuring based on your region or language will know what to expect.
-This means that a ``Detector`` that needs to know how to ``Filth`` (such as a phone number) is formatted in your
+This means that a ``Detector`` that needs to know how  ``Filth`` (such as a phone number) is formatted in your
 region will be able to look for ``Filth`` in that specific format.
 Other detectors that use machine learning models to identify entities in the text will be able to use models
-corresponding to the correct language.
+corresponding to the correct language or location.
 
 To set your locale you can use the standard format ``xx_YY``, where ``xx`` is a
 lower-case `language code <https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>`_
@@ -36,40 +36,25 @@ These locales can be set by passing them directly to one of the functions in the
 
 Below is a summary of the supported countries and regions of the various detectors in scrubadub.
 
-+----------------+--------------------------+--------------------------------------------------------------------------------------+--------------------------------------------------------------------+
-| Filth type     | Detector                 | Regions                                                                              | Languages                                                          |
-+================+==========================+======================================================================================+====================================================================+
-| Address        | Address                  | CA, GB, US                                                                           | ---                                                                |
-+----------------+--------------------------+--------------------------------------------------------------------------------------+--------------------------------------------------------------------+
-| Email          | Email                    | ---                                                                                  | ---                                                                |
-+----------------+--------------------------+--------------------------------------------------------------------------------------+--------------------------------------------------------------------+
-| Name           | TextBlob                 | ---                                                                                  | en (future: fr, de)                                                |
-+----------------+--------------------------+--------------------------------------------------------------------------------------+--------------------------------------------------------------------+
-| Name           | Spacy                    | ---                                                                                  | Wide range check the `spacy docs <https://spacy.io/usage/models>`_ |
-+----------------+--------------------------+--------------------------------------------------------------------------------------+--------------------------------------------------------------------+
-| Name           | Stanford NER             | ---                                                                                  | en (future: es, fr, de, zh)                                        |
-+----------------+--------------------------+--------------------------------------------------------------------------------------+--------------------------------------------------------------------+
-| Phone Number   | Phone Number             | Most regions via `libphonenumber <https://github.com/google/libphonenumber>`_        | ---                                                                |
-+----------------+--------------------------+--------------------------------------------------------------------------------------+--------------------------------------------------------------------+
-| Postal code    | Postal code              | GB                                                                                   | ---                                                                |
-+----------------+--------------------------+--------------------------------------------------------------------------------------+--------------------------------------------------------------------+
-| SSN            | SSN                      | US                                                                                   | ---                                                                |
-+----------------+--------------------------+--------------------------------------------------------------------------------------+--------------------------------------------------------------------+
-| Twitter        | Twitter                  | ---                                                                                  | ---                                                                |
-+----------------+--------------------------+--------------------------------------------------------------------------------------+--------------------------------------------------------------------+
-| URL            | URL                      | ---                                                                                  | ---                                                                |
-+----------------+--------------------------+--------------------------------------------------------------------------------------+--------------------------------------------------------------------+
+ * `AddressDetector`: supports Canadian, American and British addresses
+ * `PhoneDetector`: supports most regions via `libphonenumber <https://github.com/google/libphonenumber>`_
+ * `PostalCodeDetector`: only supports British postcodes
+ * `SpacyEntityDetector`: supports a wide range of languages check the `spacy documentation <https://spacy.io/usage/models>`_ for the full list of supported languages.
+ * `StanfordEntityDetector`: only supports english in scrubadub, but the models support more languages (es, fr, de, zh).
+
+This is just the start of the localisation, so if you want to add more languages or features we're keen to hear from you!
+Other detectors are location/language independent (eg email addresses or twitter usernames) or do not support localisation.
 
 Creating a localized detector
 -----------------------------
 
-To create a detector that is localised it is identical to creating a normal detector
+To create a detector that is localised the process is identical to creating a normal detector
 (as shown in :ref:`create-detector`), but with one addition a ``supported_locale()`` function.
 If this function is not defined it is assumed that this ``Detector`` does not need
 localization.
 An example of a ``Detector`` that does not need localization is the email detector,
 as emails follow the same format no matter where you live and what language you speak.
-On the other the format of a phone number can vary significantly depending on the region.
+On the other hand, the format of a phone number can vary significantly depending on the region.
 
 Below is an example of a detector that detects employee names for a very small, but international company.
 There is one German employee, `Walther`, and one US employee `Georgina`.
