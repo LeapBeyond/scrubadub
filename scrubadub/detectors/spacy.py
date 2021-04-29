@@ -11,6 +11,7 @@ from typing import Generator, Iterable, Optional, Sequence, List, Callable, cast
 try:
     import spacy
     import spacy.tokens
+    import spacy.cli
 except ImportError as e:
     if e.name == "spacy":
         raise ImportError(
@@ -124,7 +125,6 @@ class SpacyEntityDetector(Detector):
     def check_spacy_version() -> bool:
         """Ensure that the version od spaCy is v3."""
         spacy_version = spacy.__version__  # spacy_info.get('spaCy version', spacy_info.get('spacy_version', None))
-        spacy_major = 0
 
         if spacy_version is None:
             raise ImportError('Spacy v3 needs to be installed. Unable to detect spacy version.')
@@ -149,7 +149,6 @@ class SpacyEntityDetector(Detector):
 
         if model not in models:
             msg.info("Downloading spacy model {}".format(model))
-            import spacy.cli
             spacy.cli.download(model)
             importlib.import_module(model)
             # spacy.info() doesnt update after a spacy.cli.download, so theres no point checking it
@@ -174,21 +173,24 @@ class SpacyEntityDetector(Detector):
 
         import spacy_transformers.pipeline_component
         transformer_stages = [stage for name, stage in self.nlp.pipeline if name == 'transformer']
-        transformer_model = cast(spacy_transformers.pipeline_component.Transformer, transformer_stages[0])
-        if len(transformer_stages) > 0 and 'tokenizer' in transformer_model.model.attrs:
-            tokenizer = transformer_model.model.attrs['tokenizer']
-            tokenizer.deprecation_warnings['sequence-length-is-longer-than-the-specified-maximum'] = False
+        if len(transformer_stages) > 0:
+            transformer_model = cast(spacy_transformers.pipeline_component.Transformer, transformer_stages[0])
+            if 'tokenizer' in transformer_model.model.attrs:
+                tokenizer = transformer_model.model.attrs['tokenizer']
+                tokenizer.deprecation_warnings['sequence-length-is-longer-than-the-specified-maximum'] = False
 
         generator = self.nlp.pipe(document_list)
 
-        if len(transformer_stages) > 0 and 'tokenizer' in transformer_model.model.attrs:
-            tokenizer = transformer_model.model.attrs['tokenizer']
-            if tokenizer.deprecation_warnings['sequence-length-is-longer-than-the-specified-maximum']:
-                logger = logging.getLogger('scrubadub.detectors.spacy.SpacyEntityDetector')
-                logger.warning(
-                    "The documents that triggered the sequence-length-is-longer-than-the-specified-maximum message:\n"
-                    f"{document_list}"
-                )
+        if len(transformer_stages) > 0:
+            transformer_model = cast(spacy_transformers.pipeline_component.Transformer, transformer_stages[0])
+            if 'tokenizer' in transformer_model.model.attrs:
+                tokenizer = transformer_model.model.attrs['tokenizer']
+                if tokenizer.deprecation_warnings['sequence-length-is-longer-than-the-specified-maximum']:
+                    logger = logging.getLogger('scrubadub.detectors.spacy.SpacyEntityDetector')
+                    logger.warning(
+                        "The documents that triggered the sequence-length-is-longer-than-the-specified-maximum message:"
+                        f"\n{document_list}"
+                    )
 
         while True:
             try:
