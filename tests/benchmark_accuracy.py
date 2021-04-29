@@ -129,7 +129,7 @@ def document_accuracy_settings(locales: List[str], detector_available: Dict[str,
 def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
     detector_available = {
         'address': False,
-        'address_sklearn': False,
+        'sklearn_address': False,
         'date_of_birth': False,
         'spacy': False,
         'spacy_title': False,
