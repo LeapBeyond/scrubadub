@@ -1,4 +1,5 @@
 import unittest
+import warnings
 
 import scrubadub.detectors.sklearn_address
 from scrubadub.detectors.base import Detector, RegexDetector
@@ -10,12 +11,15 @@ import scrubadub
 
 
 class SklearnTestCase(unittest.TestCase):
+    sklearn_message = "The SklearnDetector is in a pre-release state. It is provided here as a preview. Use with care."
 
     def setUp(self) -> None:
+        warnings.filterwarnings('ignore', message=SklearnTestCase.sklearn_message)
         import scrubadub.detectors.sklearn
         scrubadub.detectors.register_detector(scrubadub.detectors.sklearn_address.SklearnAddressDetector)
 
     def tearDown(self) -> None:
+        warnings.filterwarnings('default', message=SklearnTestCase.sklearn_message)
         import scrubadub.detectors.sklearn
         del scrubadub.detectors.detector_configuration[scrubadub.detectors.sklearn_address.SklearnAddressDetector.name]
 
