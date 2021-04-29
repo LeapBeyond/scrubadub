@@ -2,7 +2,6 @@ import unittest
 
 import scrubadub
 import scrubadub.post_processors
-from scrubadub.post_processors.text_replacers.prefix_suffix import PrefixSuffixReplacer
 from scrubadub.filth import EmailFilth
 
 
@@ -14,7 +13,7 @@ class PostProcessorTestCase(unittest.TestCase):
             # EmailFilth(beg=5, end=10, text='e@e.c'),
         ]
 
-        post_processor = scrubadub.post_processors.FilthTypeReplacer(name='new_name')
+        post_processor = scrubadub.post_processors.FilthReplacer(name='new_name')
         self.assertEqual(post_processor.name, 'new_name')
         new_filths = list(post_processor.process_filth(filths))
         self.assertEqual(len(new_filths), 1)

@@ -1,6 +1,6 @@
 import unittest
 
-from scrubadub.post_processors.text_replacers.prefix_suffix import PrefixSuffixReplacer
+from scrubadub.post_processors.prefix_suffix import PrefixSuffixReplacer
 from scrubadub.filth import EmailFilth
 
 

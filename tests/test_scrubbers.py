@@ -179,24 +179,26 @@ class ScrubberTestCase(unittest.TestCase):
     def test_add_post_processor_instance(self):
         """make sure adding some post processors work"""
         scrubber = scrubadub.Scrubber()
-        scrubber.add_post_processor(scrubadub.post_processors.HashReplacer(salt='example_salt', include_filth_type=False))
+        scrubber.add_post_processor(
+            scrubadub.post_processors.FilthReplacer(hash_salt='example_salt', include_type=False, include_hash=True)
+        )
         scrubber.add_post_processor(scrubadub.post_processors.PrefixSuffixReplacer(prefix='<<', suffix='>>'))
         text = scrubber.clean("hello from example@example.com")
-        self.assertEqual(text, "hello from <<5A337A5C25F9D260>>")
+        self.assertEqual("hello from <<5A337A5C25F9D260>>", text)
 
 
     def test_add_post_processor_order(self):
         """make sure adding some post processors work"""
         scrubber = scrubadub.Scrubber()
-        scrubber.add_post_processor(scrubadub.post_processors.FilthTypeReplacer(name='one'))
-        scrubber.add_post_processor(scrubadub.post_processors.HashReplacer(name='two', salt='example_salt', include_filth_type=False))
+        scrubber.add_post_processor(scrubadub.post_processors.FilthReplacer(name='one'))
+        scrubber.add_post_processor(scrubadub.post_processors.FilthReplacer(name='two', hash_salt='example_salt', include_type=False))
         scrubber.add_post_processor(scrubadub.post_processors.PrefixSuffixReplacer(name='three', prefix='<<', suffix='>>'))
 
         self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'one'][0], 0)
         self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'two'][0], 1)
         self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'three'][0], 2)
 
-        scrubber.add_post_processor(scrubadub.post_processors.FilthTypeReplacer(name='zero'), index=0)
+        scrubber.add_post_processor(scrubadub.post_processors.FilthReplacer(name='zero'), index=0)
 
         self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'zero'][0], 0)
         self.assertEqual([i for i, x in enumerate(scrubber._post_processors) if x.name == 'one'][0], 1)
@@ -206,15 +208,15 @@ class ScrubberTestCase(unittest.TestCase):
     def test_add_duplicate_post_processor(self):
         """make sure adding a detector that already exists raises an error"""
         scrubber = scrubadub.Scrubber()
-        scrubber.add_post_processor(scrubadub.post_processors.HashReplacer)
+        scrubber.add_post_processor(scrubadub.post_processors.FilthReplacer)
 
         with self.assertRaises(KeyError):
-            scrubber.add_post_processor(scrubadub.post_processors.HashReplacer)
+            scrubber.add_post_processor(scrubadub.post_processors.FilthReplacer)
 
     def test_add_post_processor_instance_with_name(self):
         """make sure adding a duplicate post_processors with a different name works"""
         scrubber = scrubadub.Scrubber(post_processor_list=[
-            scrubadub.post_processors.FilthTypeReplacer(name='typeinator'),
+            scrubadub.post_processors.FilthReplacer(name='typeinator'),
             scrubadub.post_processors.PrefixSuffixReplacer(name='prefixor'),
         ])
         scrubber.add_post_processor(scrubadub.post_processors.PrefixSuffixReplacer(name='prefixor_two'))
@@ -238,19 +240,20 @@ class ScrubberTestCase(unittest.TestCase):
 
     def test_remove_post_processor(self):
         """make sure you can't add a detector that is not a Detector"""
-        post_processor = scrubadub.post_processors.FilthTypeReplacer(name='typeinator')
+        post_processor = scrubadub.post_processors.FilthReplacer(name='typeinator')
         scrubber = scrubadub.Scrubber(post_processor_list=[post_processor])
-        scrubber.add_post_processor(scrubadub.post_processors.HashReplacer)
-        scrubber.add_post_processor('filth_type_replacer')
+        scrubber.add_post_processor(scrubadub.post_processors.PrefixSuffixReplacer)
+        scrubber.add_post_processor('filth_replacer')
 
         self.assertEqual(len(scrubber._post_processors), 3)
-        self.assertEqual([x.name for x in scrubber._post_processors], ['typeinator', 'hash_replacer', 'filth_type_replacer'])
+        self.assertEqual([x.name for x in scrubber._post_processors], ['typeinator', 'prefix_suffix_replacer',
+                                                                       'filth_replacer'])
 
-        scrubber.remove_post_processor('filth_type_replacer')
+        scrubber.remove_post_processor('filth_replacer')
         self.assertEqual(len(scrubber._post_processors), 2)
-        self.assertEqual([x.name for x in scrubber._post_processors], ['typeinator', 'hash_replacer'])
+        self.assertEqual([x.name for x in scrubber._post_processors], ['typeinator', 'prefix_suffix_replacer'])
 
-        scrubber.remove_post_processor(scrubadub.post_processors.HashReplacer)
+        scrubber.remove_post_processor(scrubadub.post_processors.PrefixSuffixReplacer)
         self.assertEqual(len(scrubber._post_processors), 1)
         self.assertEqual([x.name for x in scrubber._post_processors], ['typeinator'])
 
@@ -347,7 +350,7 @@ class ScrubberTestCase(unittest.TestCase):
 
     def test_list_filth_documents_dict(self):
         """Test the iter_filth_documents funtion with a dict"""
-        scrubber = scrubadub.Scrubber(post_processor_list=[scrubadub.post_processors.FilthTypeReplacer()])
+        scrubber = scrubadub.Scrubber(post_processor_list=[scrubadub.post_processors.FilthReplacer()])
         docs = {
             "first.txt": "This is a test message for example@example.com",
             "second.txt": "Hello @Jane call me on +33 4 41 26 62 36.",
@@ -374,7 +377,7 @@ class ScrubberTestCase(unittest.TestCase):
 
     def test_list_filth_documents_list(self):
         """Test the iter_filth_documents function with a list"""
-        scrubber = scrubadub.Scrubber(post_processor_list=[scrubadub.post_processors.FilthTypeReplacer()])
+        scrubber = scrubadub.Scrubber(post_processor_list=[scrubadub.post_processors.FilthReplacer()])
         docs = [
             "This is a test message for example@example.com",
             "Hello @Jane call me on +33 4 41 26 62 36.",

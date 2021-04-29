@@ -7,11 +7,9 @@ else:
     from typing_extensions import TypedDict
 
 from .base import PostProcessor
-from .text_replacers.filth_type import FilthTypeReplacer
-from .text_replacers.hash import HashReplacer
-from .text_replacers.numeric import NumericReplacer
-from .text_replacers.prefix_suffix import PrefixSuffixReplacer
-from .text_replacers.remover import FilthRemover
+from .filth_replacer import FilthReplacer
+from .prefix_suffix import PrefixSuffixReplacer
+from .remover import FilthRemover
 
 PostProcessorConfigurationItem = TypedDict(
     'PostProcessorConfigurationItem',
@@ -24,10 +22,8 @@ PostProcessorConfigurationItem = TypedDict(
 
 post_processor_configuration = {
     # PostProcessors that are not automatically loaded by scrubadub
-    NumericReplacer.name: {'post_processor': NumericReplacer, 'autoload': False, 'index': 0},
+    FilthReplacer.name: {'post_processor': FilthReplacer, 'autoload': False, 'index': 0},
     PrefixSuffixReplacer.name: {'post_processor': PrefixSuffixReplacer, 'autoload': False, 'index': 1},
-    FilthTypeReplacer.name: {'post_processor': FilthTypeReplacer, 'autoload': False, 'index': 0},
-    HashReplacer.name: {'post_processor': HashReplacer, 'autoload': False, 'index': 0},
     FilthRemover.name: {'post_processor': FilthRemover, 'autoload': False, 'index': 0},
 }  # type: Dict[str, PostProcessorConfigurationItem]
 

@@ -166,7 +166,7 @@ class Scrubber(object):
 
             >>> import scrubadub, scrubadub.post_processors
             >>> scrubber = scrubadub.Scrubber()
-            >>> scrubber.add_post_processor('filth_type_replacer')
+            >>> scrubber.add_post_processor('filth_replacer')
             >>> scrubber.add_post_processor(scrubadub.post_processors.PrefixSuffixReplacer)
 
         :param post_processor: The ``PostProcessor`` to remove from this scrubber.

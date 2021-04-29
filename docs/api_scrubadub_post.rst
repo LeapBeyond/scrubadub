@@ -14,22 +14,17 @@ exist that alter the replacement string.
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: scrubadub.post_processors.text_replacers.filth_type.FilthTypeReplacer
+.. autoclass:: scrubadub.post_processors.filth_replacer.FilthReplacer
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: scrubadub.post_processors.text_replacers.hash.HashReplacer
+.. autoclass:: scrubadub.post_processors.prefix_suffix.PrefixSuffixReplacer
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. autoclass:: scrubadub.post_processors.text_replacers.numeric.NumericReplacer
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. autoclass:: scrubadub.post_processors.text_replacers.prefix_suffix.PrefixSuffixReplacer
+.. autoclass:: scrubadub.post_processors.remover.FilthRemover
     :members:
     :undoc-members:
     :show-inheritance:

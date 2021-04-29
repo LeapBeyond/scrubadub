@@ -126,23 +126,26 @@ The default setup is shown below:
     >>> import scrubadub
     >>> text = "contact Joe Duffy at joe@example.com"
     >>> scrubber = scrubadub.Scrubber(post_processor_list=[
-    ...     scrubadub.post_processors.FilthTypeReplacer(),
+    ...     scrubadub.post_processors.FilthReplacer(),
     ...     scrubadub.post_processors.PrefixSuffixReplacer(),
     ... ])
     >>> scrubber.clean(text)
     'contact {{NAME}} {{NAME}} at {{EMAIL}}'
 
 This can be inconvenient in situations where you want to display the information differently.
-You can customize the mustache notation by setting the `prefix` and `suffix` arguments in the
+You can alter the arguments passed to the ``scrubadub.post_processors.FilthReplacer`` constructor to include the
+filth type, a number unique to that filth and a hash of that filth, see the
+:ref:`post_processors reference <api_scrubadub_post>` for the set of options available.
+You can also customize the mustache notation by setting the `prefix` and `suffix` arguments in the
 ``scrubadub.post_processors.PrefixSuffixReplacer`` constructor.
-For example, to display a hash of the Filth in bold HTML, you could to do this:
+As an example, to display a hash of the Filth in bold HTML, you could to do this:
 
 .. code:: pycon
 
     >>> import scrubadub
     >>> text = "contact Joe Duffy at joe@example.com"
     >>> scrubber = scrubadub.Scrubber(post_processor_list=[
-    ...     scrubadub.post_processors.HashReplacer(salt='example', length=5, include_filth_type=True),
+    ...     scrubadub.post_processors.FilthReplacer(include_hash=True, hash_salt='example', hash_length=5),
     ...     scrubadub.post_processors.PrefixSuffixReplacer(prefix='<b>', suffix='</b>'),
     ... ])
     >>> scrubber.clean(text)
