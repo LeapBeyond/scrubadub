@@ -71,9 +71,7 @@ PostProcessors
 ^^^^^^^^^^^^^^
 
 * Introduction of simple `PostProcessors`:
-   * `FilthTypeReplacer`: Replace the filth with the type of filth ``example@example.com -> EMAIL``
-   * `HashReplacer`: Replace the filth with a configurable hash ``example@example.com -> 196aa39e9f8159ec``
-   * `NumericReplacer`: Replace the filth with a monotonically increasing number for each unique piece of filth, optionally including the filth type ``example@example.com -> EMAIL-1``.
+   * `FilthReplacer`: Replace the filth with the type of filth ``example@example.com -> EMAIL``, a configurable hash ``example@example.com -> 196aa39e9f8159ec`` or a monotonically increasing number for each unique piece of filth (optionally including the filth type) ``example@example.com -> EMAIL-1``.
    * `PrefixSuffixReplacer`: Add a prefix and/or suffix onto the replacement ``EMAIL-1 -> {{EMAIL-1}}``
 * It is envisioned that other more complex operations can be done here too such as grouping filth (e.g. "John", "John Doe" and "Mr. Doe" could be grouped together).
 
