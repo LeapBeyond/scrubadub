@@ -87,6 +87,7 @@ jobs:
         # One of the possible spacy models, should
         ( python3 -c 'import spacy' && python -m spacy download en_core_web_sm ) || bash -c 'exit 0'
         ( python3 -c 'import spacy' && python -m spacy download en_core_web_trf ) || bash -c 'exit 0'
+        ( python3 -c 'import spacy' && python -m spacy download de_core_news_sm ) || bash -c 'exit 0'
 
     - name: Install package
       run: |
