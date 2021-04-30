@@ -95,7 +95,5 @@ class SkypeDetector(RegexDetector):
             self.regex = re.compile('|'.join(skype_usernames))
             return super(SkypeDetector, self).iter_filth(text, document_name=document_name)
 
-        return []
-
 
 register_detector(SkypeDetector, autoload=False)
