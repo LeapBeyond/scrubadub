@@ -65,6 +65,6 @@ setup(
         "stanford": get_package_list('python-extras-stanford'),
     },
     include_package_data=True,
-    package_data={'': ['scrubadub/detectors/models/sklearn_address/*.json']},
+    package_data={'scrubadub': ['scrubadub/detectors/models/*.json', 'scrubadub/detectors/models/*.pickle']},
     zip_safe=False,
 )

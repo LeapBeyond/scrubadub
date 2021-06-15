@@ -3,6 +3,7 @@ include MANIFEST.in
 include README.rst
 include LICENSE
 recursive-include scrubadub/detectors/models *.json
+recursive-include scrubadub/detectors/models *.pickle
 recursive-exclude * *.py[co]
 recursive-exclude * *~
 recursive-exclude * *.orig
