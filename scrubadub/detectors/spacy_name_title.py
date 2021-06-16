@@ -113,7 +113,7 @@ class SpacyNameDetector(SpacyEntityDetector):
             'prof.', 'professor', 'lord', 'lady', 'rev', 'rev.', 'reverend', 'hon', 'hon.', 'honourable', 'hhj',
             'honorable', 'judge', 'sir', 'madam',
             # Greetings
-            'hello', 'dear', 'hi', 'hey',
+            'hello', 'dear', 'hi', 'hey', 'from', 'regards',
             # emails
             'to:', 'from:', 'sender:',
         ],

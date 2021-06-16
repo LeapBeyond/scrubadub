@@ -69,6 +69,13 @@ class SkypeTestCase(unittest.TestCase, BaseTestCase):
         """
         self.compare_before_after()
 
+    def test_no_triggers(self):
+        """
+        BEFORE: SCREAM to get my attention because Im not on instant messengers
+        AFTER:  SCREAM to get my attention because Im not on instant messengers
+        """
+        self.compare_before_after()
+
     def test_generate(self):
         class Faker:
             def user_name(self):

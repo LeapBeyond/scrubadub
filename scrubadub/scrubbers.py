@@ -8,7 +8,7 @@ from .post_processors import PostProcessor
 from .filth import Filth
 
 
-class Scrubber(object):
+class Scrubber:
     """The Scrubber class is used to clean personal information out of dirty
     dirty text. It manages a set of ``Detector``'s that are each responsible
     for identifying ``Filth``. ``PostProcessor`` objects are used to alter
@@ -45,8 +45,8 @@ class Scrubber(object):
                 for name, config in detectors.detector_configuration.items()
                 if config['autoload'] and (
                     not hasattr(config['detector'], 'supported_locale') or (
-                            hasattr(config['detector'], 'supported_locale') and
-                            config['detector'].supported_locale(locale)  # type: ignore
+                        hasattr(config['detector'], 'supported_locale') and
+                        config['detector'].supported_locale(locale)  # type: ignore
                     )
                 )
             ]

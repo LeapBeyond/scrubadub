@@ -59,22 +59,22 @@ class UserSuppliedFilthDetector(TaggedEvaluationFilthDetector):
     ) -> Filth:
         for item_name in dir(filth_module):
             try:
-                flith_cls = filth_module.__getattribute__(item_name)
+                filth_cls = filth_module.__getattribute__(item_name)
             except AttributeError:
                 continue
 
-            if not issubclass(flith_cls, Filth):
+            if not isinstance(filth_cls, type) or not issubclass(filth_cls, Filth):
                 continue
 
             try:
-                filth_type = flith_cls.type
+                filth_type = filth_cls.type
             except AttributeError:
                 continue
 
             if filth_type != comparison_type:
                 continue
 
-            return flith_cls(
+            return filth_cls(
                 start_location,
                 end_location,
                 text,

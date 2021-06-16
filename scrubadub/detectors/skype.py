@@ -5,11 +5,11 @@ import textblob
 from textblob.blob import BaseBlob
 from textblob.en.taggers import PatternTagger
 
-from typing import Optional
+from typing import Optional, Generator
 
 from . import register_detector
 from .base import RegexDetector
-from ..filth import SkypeFilth
+from ..filth import SkypeFilth, Filth
 
 # BaseBlob uses NLTKTagger as a pos_tagger, but it works wrong
 BaseBlob.pos_tagger = PatternTagger()
@@ -43,7 +43,7 @@ class SkypeDetector(RegexDetector):
     SKYPE_TOKEN = _SKYPE + '+'
     SKYPE_USERNAME = re.compile(_SKYPE+'{5,31}')
 
-    def iter_filth(self, text, document_name: Optional[str] = None):
+    def iter_filth(self, text, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
         """Yields discovered filth in the provided ``text``.
 
         :param text: The dirty text to clean.
@@ -93,9 +93,9 @@ class SkypeDetector(RegexDetector):
         # replace all skype usernames
         if skype_usernames:
             self.regex = re.compile('|'.join(skype_usernames))
-            return super(SkypeDetector, self).iter_filth(text, document_name=document_name)
+            yield from super(SkypeDetector, self).iter_filth(text, document_name=document_name)
 
-        return []
+        return
 
 
 register_detector(SkypeDetector, autoload=False)

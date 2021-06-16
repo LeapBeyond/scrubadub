@@ -87,21 +87,6 @@ class AddressFilth(Filth):
         return address
 
     @staticmethod
-    def _add_words(address: str, faker: Faker) -> str:
-        target = random.choice([0, 0, 0, 0, 0, 1, 1, 2])
-        if target == 0:
-            return address
-
-        split_address = [line.split(' ') for line in address.split('\n')]
-        for i in range(target):
-            word = faker.last_name()
-            line_pos = random.randint(0, len(split_address) - 2)
-            word_pos = random.randint(0, len(split_address[line_pos]))
-            split_address[line_pos].insert(word_pos, word)
-
-        return "\n".join([' '.join(line) for line in address])
-
-    @staticmethod
     def _randomise_case(address: str) -> str:
         target = random.random()
         if target >= 0.8:
@@ -125,7 +110,6 @@ class AddressFilth(Filth):
             address = AddressFilth._randomise_street_number(address)
             address = AddressFilth._randomise_building(address, faker)
             address = AddressFilth._randomise_postcode(address)
-        # address = AddressFilth._add_words(address, faker)
         if faker.locales == ['en_GB']:
             address = AddressFilth._randomise_country(address)
         address = AddressFilth._randomise_seperators(address)

@@ -71,3 +71,25 @@ class DoBTestCase(unittest.TestCase, BaseTestCase):
                 (datetime.date.today() - datetime.timedelta(days=29729 + 1)).strftime('%a %d %b %Y'),
             ]
         )
+
+    def test_init(self):
+        from scrubadub.detectors.date_of_birth import DateOfBirthDetector
+        with self.assertRaises(ValueError):
+            DateOfBirthDetector(locale='zz_GB')
+
+    def test_custom_words(self):
+        from scrubadub.detectors.date_of_birth import DateOfBirthDetector
+        detector = DateOfBirthDetector(context_words=['big day'])
+        filths = list(detector.iter_filth('the big day is may 14th 1983\nsee you then'))
+
+        self.assertEqual(1, len(filths))
+        self.assertEqual(15, filths[0].beg)
+        self.assertEqual(28, filths[0].end)
+        self.assertEqual('may 14th 1983', filths[0].text)
+
+    def test_young(self):
+        from scrubadub.detectors.date_of_birth import DateOfBirthDetector
+        detector = DateOfBirthDetector()
+        filths = list(detector.iter_filth('my birthday is not may 14th 2020\nor may 15th 2020\nor +14-05-2020 23'))
+
+        self.assertEqual(0, len(filths))

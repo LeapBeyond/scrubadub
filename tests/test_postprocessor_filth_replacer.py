@@ -1,5 +1,6 @@
 import unittest
 
+import scrubadub.filth
 from scrubadub.post_processors.filth_replacer import FilthReplacer
 from scrubadub.filth import Filth, MergedFilth, EmailFilth
 
@@ -110,3 +111,30 @@ class FilthTypeReplacerTestCase(unittest.TestCase):
         filths = post_proc.process_filth(filths)
         self.assertEqual(filths[0].replacement_string, '87BB6F7ED5FE49C4EA43D95A41F843D4FBB66D15C5AA41A7F7')
         self.assertEqual(len(filths[0].replacement_string), 50)
+
+    def test_bad_filth(self):
+        """Test making labels from a filth without a type"""
+        class TestFilth(Filth):
+            type = None
+
+        filth_replacer = FilthReplacer()
+        self.assertEqual(
+            filth_replacer.filth_label(TestFilth(0, 1, 'a')),
+            ''
+        )
+
+    def test_tagged_filth(self):
+        """Test making labels from a tagged filth"""
+        filth_replacer = FilthReplacer()
+        self.assertEqual(
+            filth_replacer.filth_label(scrubadub.filth.TaggedEvaluationFilth(0, 1, 'a', comparison_type='phone')),
+            'TAGGED_PHONE'
+        )
+
+    def test_all_disabled(self):
+        """Test making labels when everything is disabled"""
+        filth_replacer = FilthReplacer(include_type=False, include_hash=False, include_count=False)
+        self.assertEqual(
+            filth_replacer.filth_label(scrubadub.filth.TaggedEvaluationFilth(0, 1, 'a', comparison_type='phone')),
+            'FILTH'
+        )
