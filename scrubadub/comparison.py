@@ -482,7 +482,7 @@ def make_fake_document(
         additional_filth_types: Optional[Iterable[Type[Filth]]] = None,
 ) -> Tuple[str, List[KnownFilthItem]]:
     """Creates a fake document containing `Filth` that needs to be removed. Also returns the list of known filth
-    items that are needed byt the `KnownFilthDetector`\\ .
+    items that are needed by the `TaggedEvaluationFilthDetector`\\ .
 
     An example of using this is shown below:
 
