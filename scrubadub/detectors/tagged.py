@@ -4,14 +4,14 @@ import copy
 
 from typing import Optional, List, Generator
 
+from .base import Detector
+from ..filth.base import Filth
+from ..filth.tagged import TaggedEvaluationFilth
+
 if sys.version_info >= (3, 8):
     from typing import TypedDict  # pylint: disable=no-name-in-module
 else:
     from typing_extensions import TypedDict
-
-from .base import Detector
-from ..filth.base import Filth
-from ..filth.tagged import TaggedEvaluationFilth
 
 KnownFilthItem = TypedDict(
     'KnownFilthItem',

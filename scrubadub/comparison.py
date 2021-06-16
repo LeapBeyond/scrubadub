@@ -23,7 +23,7 @@ Grouping = Dict[str, str]
 GroupingFunction = Callable[[Filth], Grouping]
 
 
-class TextPosition(ToStringMixin, object):
+class TextPosition(ToStringMixin):
     def __init__(self, filth: Filth, grouping_function: GroupingFunction):
         self.beg = filth.beg
         self.end = filth.end
@@ -233,9 +233,9 @@ class FilthGrouper(ToStringMixin, object):
 
     @classmethod
     def from_filth_list(
-        cls, filth_list: List[Filth], filth_types: Optional[List[str]] = None,
-        combine_detectors: bool = False, groupby_documents: bool = False,
-        grouping_function: Optional[GroupingFunction] = None
+            cls, filth_list: List[Filth], filth_types: Optional[List[str]] = None,
+            combine_detectors: bool = False, groupby_documents: bool = False,
+            grouping_function: Optional[GroupingFunction] = None
     ) -> 'FilthGrouper':
         grouper = cls(filth_types=filth_types, combine_detectors=combine_detectors, groupby_documents=groupby_documents,
                       grouping_function=grouping_function)
@@ -553,8 +553,8 @@ def make_fake_document(
 
     doc = ""
     known_items = []  # type: List[KnownFilthItem]
-    for i_paragraph in range(paragraphs):
-        for i_sentance_group in range(random.randint(1, 10)):
+    for _ in range(paragraphs):
+        for _ in range(random.randint(1, 10)):
             text = fake_text_function() + " "
             matches = list(re.finditer(r'[\s.]', text))
             position = random.choice(matches)
