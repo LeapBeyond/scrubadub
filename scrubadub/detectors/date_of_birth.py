@@ -103,49 +103,61 @@ class DateOfBirthDetector(Detector):
         :return: The found Filth in the text
         :rtype: Generator[Filth]
         """
+
+        # using the dateparser lib - locale can be set here
+        try:
+            date_picker = search_dates(text, languages=[self.language])
+        except RecursionError:
+            logger = logging.getLogger("scrubadub.detectors.date_of_birth.DateOfBirthDetector")
+            logger.error(f"The documnet '{document_name}' caused a recursion error in dateparser.")
+            raise
+        if date_picker is None:
+            return None
+
         lines = text.split('\n')
 
-        for i_line, line in enumerate(lines):
-            # using the dateparser lib - locale can be set here
-            try:
-                date_picker = search_dates(line, languages=[self.language])
-            except RecursionError:
-                logger = logging.getLogger("scrubadub.detectors.date_of_birth.DateOfBirthDetector")
-                logger.error(f"The below text caused a recursion error in dateparser.\n{line.__repr__()}")
-                raise
-            if date_picker is None:
+        for identified_string, identified_date in date_picker:
+            # Skip anything that could be a phone number, dates rarely begin with a plus
+            suspected_phone_number = str(identified_string).startswith('+')
+            if suspected_phone_number:
                 continue
 
-            for identified_date in date_picker:
-                # Skip anything that could be a phone number, dates rarely begin with a plus
-                suspected_phone_number = str(identified_date[0]).startswith('+')
-                if suspected_phone_number:
-                    continue
+            # Skip any dates that fall outside of the configured age range
+            years_since_identified_date = datetime.now().year - identified_date.year
+            within_age_range = self.min_age_years <= years_since_identified_date <= self.max_age_years
+            if not within_age_range:
+                continue
 
-                # Skip any dates that fall outside of the configured age range
-                years_since_identified_date = datetime.now().year - identified_date[1].year
-                within_age_range = self.min_age_years <= years_since_identified_date <= self.max_age_years
-                if not within_age_range:
-                    continue
-
-                # If its desired, search for context, if no context is found skip this identified date
-                if self.require_context:
-                    text_context = ' '.join(lines[i_line - self.context_before:i_line + self.context_after]).lower()
-                    found_context = any(context_word in text_context for context_word in self.context_words)
-                    if not found_context:
+            # If its desired, search for context, if no context is found skip this identified date
+            if self.require_context:
+                found_context = False
+                # Search line by line for the identified date string (identified_string)
+                for i_line, line in enumerate(lines):
+                    if identified_string not in line:
                         continue
+                    # when you find the identified_string, search for context
+                    from_line = max(i_line - self.context_before, 0)
+                    to_line = max(i_line + self.context_after, 0)
+                    text_context = ' '.join(lines[from_line:to_line]).lower()
+                    found_context = any(context_word in text_context for context_word in self.context_words)
+                    # If you find any context around any instances of this string, all instance are PII
+                    if found_context:
+                        break
+                # If we didn't find any context, this isnt PII, so skip this date
+                if not found_context:
+                    continue
 
-                found_dates = re.finditer(re.escape(identified_date[0]), text)
+            found_dates = re.finditer(re.escape(identified_string), text)
 
-                for instance in found_dates:
-                    yield DateOfBirthFilth(
-                        beg=instance.start(),
-                        end=instance.end(),
-                        text=instance.group(),
-                        detector_name=self.name,
-                        document_name=document_name,
-                        locale=self.locale,
-                    )
+            for instance in found_dates:
+                yield DateOfBirthFilth(
+                    beg=instance.start(),
+                    end=instance.end(),
+                    text=instance.group(),
+                    detector_name=self.name,
+                    document_name=document_name,
+                    locale=self.locale,
+                )
 
     @classmethod
     def supported_locale(cls, locale: str) -> bool:
