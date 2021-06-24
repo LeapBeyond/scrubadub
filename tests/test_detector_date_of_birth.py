@@ -38,18 +38,48 @@ class DoBTestCase(unittest.TestCase, BaseTestCase):
         BEFORE: DOB: 02.12.1979
         AFTER:  DOB: 02.12.{{DATE_OF_BIRTH}}
         """
-        # TODO this is a known limitation of the dateparser search util,
-        # TODO need to improve the search to include the full date
+        # TODO: this is a known limitation of the dateparser search util,
+        #  need to improve the search to include the full date
         self.compare_before_after()
 
     def test_DoB_4(self):
+        """
+        BEFORE: My name is Mike and I was born in a land far away on 22/11/1972
+        AFTER:  My name is Mike and I was born in a land far away {{DATE_OF_BIRTH}}
+        """
+        # TODO: dateparser is a little greedy, consuming the "on " as well as the date
+        self.compare_before_after()
+
+    def test_DoB_5(self):
+        """
+        BEFORE: my name is Jane and I was born on 11/22/1972
+        AFTER:  my name is Jane and I was born {{DATE_OF_BIRTH}}
+        """
+        # TODO: dateparser is a little greedy, consuming the "on " as well as the date
+        self.compare_before_after()
+
+    def test_DoB_6(self):
+        """
+        BEFORE: my date of birth is 22-nov-1972
+        AFTER:  my date of birth is {{DATE_OF_BIRTH}}
+        """
+        self.compare_before_after()
+
+    def test_DoB_7(self):
+        """
+        BEFORE: My dob is 22-11-1972
+        AFTER:  My dob is {{DATE_OF_BIRTH}}
+        """
+        self.compare_before_after()
+
+    def test_DoB_8(self):
         """
         BEFORE: The claimant's, d.o.b. is 4 June 1976
         AFTER:  The claimant's, d.o.b. is {{DATE_OF_BIRTH}}
         """
         self.compare_before_after()
 
-    def test_DoB_5(self):
+    def test_DoB_9(self):
         """
         BEFORE: 1985-01-01 is my birthday.
         AFTER:  {{DATE_OF_BIRTH}} is my birthday.
@@ -71,3 +101,41 @@ class DoBTestCase(unittest.TestCase, BaseTestCase):
                 (datetime.date.today() - datetime.timedelta(days=29729 + 1)).strftime('%a %d %b %Y'),
             ]
         )
+
+    def test_context(self):
+        from scrubadub.detectors.date_of_birth import DateOfBirthDetector
+        text = """
+        CONTEXTB2
+        CONTEXTB1
+        10-Nov-2000
+        CONTEXTA1
+        CONTEXTA2
+        """
+
+        detector = DateOfBirthDetector(context_words=['CONTEXTB1'], context_before=10, context_after=10)
+        self.assertEqual(1, len(list(detector.iter_filth(text))))
+        detector = DateOfBirthDetector(context_words=['CONTEXTB1'], context_before=1, context_after=10)
+        self.assertEqual(1, len(list(detector.iter_filth(text))))
+        detector = DateOfBirthDetector(context_words=['CONTEXTB1'], context_before=0, context_after=10)
+        self.assertEqual(0, len(list(detector.iter_filth(text))))
+
+        detector = DateOfBirthDetector(context_words=['CONTEXTB2'], context_before=10, context_after=0)
+        self.assertEqual(1, len(list(detector.iter_filth(text))))
+        detector = DateOfBirthDetector(context_words=['CONTEXTB2'], context_before=2, context_after=0)
+        self.assertEqual(1, len(list(detector.iter_filth(text))))
+        detector = DateOfBirthDetector(context_words=['CONTEXTB2'], context_before=1, context_after=0)
+        self.assertEqual(0, len(list(detector.iter_filth(text))))
+
+        detector = DateOfBirthDetector(context_words=['CONTEXTA1'], context_before=10, context_after=10)
+        self.assertEqual(1, len(list(detector.iter_filth(text))))
+        detector = DateOfBirthDetector(context_words=['CONTEXTA1'], context_before=0, context_after=1)
+        self.assertEqual(1, len(list(detector.iter_filth(text))))
+        detector = DateOfBirthDetector(context_words=['CONTEXTA1'], context_before=1, context_after=0)
+        self.assertEqual(0, len(list(detector.iter_filth(text))))
+
+        detector = DateOfBirthDetector(context_words=['CONTEXTA2'], context_before=0, context_after=10)
+        self.assertEqual(1, len(list(detector.iter_filth(text))))
+        detector = DateOfBirthDetector(context_words=['CONTEXTA2'], context_before=10, context_after=2)
+        self.assertEqual(1, len(list(detector.iter_filth(text))))
+        detector = DateOfBirthDetector(context_words=['CONTEXTA2'], context_before=3, context_after=0)
+        self.assertEqual(0, len(list(detector.iter_filth(text))))
