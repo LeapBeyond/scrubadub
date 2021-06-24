@@ -243,7 +243,7 @@ class SpacyEntityDetector(Detector):
                 # "Jane"s instead of just the two that are in the text.
                 yielded_filth = set()
                 for ent in get_entity_function(doc):
-                    if ent.text in yielded_filth:
+                    if ent.text in yielded_filth or ent.label_ not in self.named_entities:
                         continue
                     yielded_filth.add(ent.text)
                     filth_class = self.filth_cls_map.get(ent.label_, None)
