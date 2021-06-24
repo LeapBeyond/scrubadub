@@ -16,7 +16,7 @@ import azure.storage.blob
 
 from pandas import DataFrame
 
-from typing import List, Union, Sequence, Optional, Dict
+from typing import List, Union, Sequence, Optional, Dict, Any
 from urllib.parse import urlparse, unquote
 
 import scrubadub
@@ -150,6 +150,12 @@ def load_files(path: str, storage_connection_string: Optional[str] = None) -> Di
     return load_local_files(path)
 
 
+def convert_to_bool(value: Any) -> bool:
+    if isinstance(value, str):
+        return value.strip().lower() in ('true', 'yes')
+    return bool(value)
+
+
 def load_known_pii(known_pii_locations: List[str],
                    storage_connection_string: Optional[str] = None) -> List[KnownFilthItem]:
     start_time = time.time()
@@ -161,7 +167,7 @@ def load_known_pii(known_pii_locations: List[str],
     logger = logging.getLogger('scrubadub.tests.benchmark_accuracy_real_data.load_known_pii')
 
     target_cols = {'match', 'filth_type'}
-    target_cols_optional = {'match_end', 'limit'}
+    target_cols_optional = {'match_end', 'limit', 'ignore_case', 'ignore_whitespace', 'ignore_partial_word_matches'}
     target_cols_alt = {'pii_type', 'pii_start', 'pii_end'}
 
     for known_pii_location in known_pii_locations:
@@ -233,16 +239,17 @@ def load_known_pii(known_pii_locations: List[str],
             ].to_dict(orient='records')
 
     for item in known_pii:
-        for sub_item in ('limit', 'match_end'):
+        for sub_item in ('limit', 'match_end', 'ignore_case', 'ignore_whitespace', 'ignore_partial_word_matches'):
             if sub_item in item.keys():
                 if pd.isnull(item[sub_item]):
                     del item[sub_item]
                 elif isinstance(item[sub_item], str) and len(item[sub_item].strip()) == 0:
                     del item[sub_item]
-        if 'ignore_case' not in item:
-            item['ignore_case'] = True
-            item['ignore_whitespace'] = True
-            item['ignore_partial_word_matches'] = True
+                elif 'ignore' in sub_item:
+                    item[sub_item] = convert_to_bool(item[sub_item])
+
+            if 'ignore' in sub_item and sub_item not in item:
+                item[sub_item] = True
 
     end_time = time.time()
     click.echo("Loaded Known Filth in {:.2f}s".format(end_time-start_time))
