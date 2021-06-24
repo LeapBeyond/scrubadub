@@ -30,7 +30,7 @@ class DateOfBirthFilth(Filth):
         ]
         return faker.date_of_birth().strftime(random.choice(formats))
 
-    def validate(self) -> bool:
+    def is_valid(self) -> bool:
         """Check to see if the found filth is valid."""
         found_date = dateparser.parse(self.text)
         if found_date is None:
