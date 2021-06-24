@@ -1,11 +1,15 @@
-from faker import Faker
 import random
+import datetime
+import dateparser
+from faker import Faker
 
 from .base import Filth
 
 
 class DateOfBirthFilth(Filth):
     type = 'date_of_birth'
+    min_age_years = 18
+    max_age_years = 100
 
     @staticmethod
     def generate(faker: Faker) -> str:
@@ -25,3 +29,11 @@ class DateOfBirthFilth(Filth):
             '%A %dth, %B, %Y',  # Monday 08th, January, 1973
         ]
         return faker.date_of_birth().strftime(random.choice(formats))
+
+    def validate(self) -> bool:
+        """Check to see if the found filth is valid."""
+        found_date = dateparser.parse(self.text)
+        if found_date is None:
+            return False
+        years_since_identified_date = datetime.date.today().year - found_date.year
+        return DateOfBirthFilth.min_age_years <= years_since_identified_date <= DateOfBirthFilth.max_age_years

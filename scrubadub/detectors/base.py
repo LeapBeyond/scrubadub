@@ -138,7 +138,11 @@ class RegexDetector(Detector):
             raise ValueError('No regular expression has been specified for {}.'.format(self.__class__))
 
         for match in self.regex.finditer(text):
-            yield self.filth_cls(match=match, detector_name=self.name, document_name=document_name, locale=self.locale)
+            filth = self.filth_cls(match=match, detector_name=self.name, document_name=document_name, locale=self.locale)
+            if hasattr(filth, 'validate'):
+                if not filth.validate():
+                    continue
+            yield filth
 
 
 class RegionLocalisedRegexDetector(RegexDetector):
