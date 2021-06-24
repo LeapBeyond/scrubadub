@@ -138,6 +138,9 @@ class Filth(object):
         """
         raise NotImplementedError("A generate() function has not been implemented for this Filth")
 
+    def is_valid(self) -> bool:
+        return True
+
 
 class MergedFilth(Filth):
     """This class takes care of merging different types of filth"""
