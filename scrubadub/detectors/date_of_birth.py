@@ -108,7 +108,7 @@ class DateOfBirthDetector(Detector):
             date_picker = search_dates(text, languages=[self.language])
         except RecursionError:
             logger = logging.getLogger("scrubadub.detectors.date_of_birth.DateOfBirthDetector")
-            logger.error(f"The documnet '{document_name}' caused a recursion error in dateparser.")
+            logger.error(f"The document '{document_name}' caused a recursion error in dateparser.")
             raise
         if date_picker is None:
             return None
