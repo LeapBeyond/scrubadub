@@ -190,7 +190,7 @@ class TaggedEvaluationFilthDetector(Detector):
         if ignore_partial_word_matches:
             substr = f"\\b{substr}\\b"
 
-        matches = re.finditer(substr, text)
+        matches = re.finditer(substr, text, re.MULTILINE | re.DOTALL)
         for match in matches:
             yield self.create_filth(
                 match.span()[0],
@@ -236,7 +236,7 @@ class TaggedEvaluationFilthDetector(Detector):
             substr_start = f"\\b{substr_start}\\b"
             substr_end = f"\\b{substr_end}\\b"
 
-        matches = re.finditer(f"({substr_start})(.{{0,{limit}}})({substr_end})", text)
+        matches = re.finditer(f"({substr_start})(.{{0,{limit}}})({substr_end})", text, re.MULTILINE | re.DOTALL)
         for match in matches:
             yield self.create_filth(
                 match.span()[0],
