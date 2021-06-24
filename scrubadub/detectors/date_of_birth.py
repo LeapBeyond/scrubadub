@@ -90,6 +90,8 @@ class DateOfBirthDetector(Detector):
         if context_words is not None:
             self.context_words = context_words
 
+        self.context_words = [word.lower() for word in self.context_words]
+
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
         """Search ``text`` for ``Filth`` and return a generator of ``Filth`` objects.
 
@@ -134,7 +136,7 @@ class DateOfBirthDetector(Detector):
                         continue
                     # when you find the identified_string, search for context
                     from_line = max(i_line - self.context_before, 0)
-                    to_line = max(i_line + self.context_after, 0)
+                    to_line = max(i_line + self.context_after + 1, 0)
                     text_context = ' '.join(lines[from_line:to_line]).lower()
                     found_context = any(context_word in text_context for context_word in self.context_words)
                     # If you find any context around any instances of this string, all instance are PII
