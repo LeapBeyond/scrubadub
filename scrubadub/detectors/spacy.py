@@ -6,7 +6,7 @@ import importlib
 from . import url
 
 from wasabi import msg
-from typing import Generator, Iterable, Optional, Sequence, List, Callable, cast
+from typing import Generator, Iterable, Optional, Sequence, List, Callable, cast, Type
 
 try:
     import spacy
@@ -21,7 +21,7 @@ except ImportError as e:
 
 from . import register_detector
 from .base import Detector, RegexDetector
-from ..filth import Filth, NameFilth, OrganizationFilth, LocationFilth
+from ..filth import Filth, NameFilth, OrganizationFilth, LocationFilth, DateOfBirthFilth
 from ..utils import CanonicalStringSet
 
 
@@ -57,6 +57,7 @@ class SpacyEntityDetector(Detector):
         'PERSON': NameFilth,       # People, including fictional.
         'PER': NameFilth,          # Bug in french model
         'ORG': OrganizationFilth,  # Companies, agencies, institutions, etc.
+        'DATE': DateOfBirthFilth,  # Dates within the period 18 to 100 years ago.
     }
     name = 'spacy'
     language_to_model = {
@@ -242,14 +243,16 @@ class SpacyEntityDetector(Detector):
                 # "Jane"s instead of just the two that are in the text.
                 yielded_filth = set()
                 for ent in get_entity_function(doc):
-                    if ent.text in yielded_filth:
+                    if ent.text in yielded_filth or ent.label_ not in self.named_entities:
                         continue
                     yielded_filth.add(ent.text)
-                    filth_class = self.filth_cls_map.get(ent.label_, Filth)
+                    filth_class = self.filth_cls_map.get(ent.label_, None)
+                    if filth_class is None:
+                        continue
 
                     # Use a modified version of the regex detector to find the entities in the original document
                     class PreProcessedSpacyEntityDetector(RegexDetector):
-                        filth_cls = filth_class
+                        filth_cls = cast(Type[Filth], filth_class)
                         regex = re.compile(re.escape(ent.text).replace('\\ ', r'\s+'))
 
                     regex_detector = PreProcessedSpacyEntityDetector(name=self.name, locale=self.locale)
@@ -259,8 +262,10 @@ class SpacyEntityDetector(Detector):
                 for ent in get_entity_function(doc):
                     if ent.label_ not in self.named_entities:
                         continue
-                    filth_class = self.filth_cls_map.get(ent.label_, Filth)
-                    yield filth_class(
+                    filth_class = self.filth_cls_map.get(ent.label_, None)
+                    if filth_class is None:
+                        continue
+                    filth = filth_class(
                         beg=ent.start_char,
                         end=ent.end_char,
                         text=ent.text,
@@ -268,6 +273,9 @@ class SpacyEntityDetector(Detector):
                         detector_name=self.name,
                         locale=self.locale,
                     )
+                    if not filth.is_valid():
+                        continue
+                    yield filth
 
     def iter_filth_documents(self, document_list: Sequence[str],
                              document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
