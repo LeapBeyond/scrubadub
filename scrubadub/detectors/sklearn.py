@@ -5,6 +5,7 @@ import numpy as np
 import scipy.sparse as sp
 import pickle
 import pathlib
+import logging
 import warnings
 
 from nltk.tokenize.api import TokenizerI
@@ -168,6 +169,10 @@ class SklearnDetector(Detector):
 
         match = re.match(pattern, text, re.DOTALL)
         if match is None:
+            logger = logging.getLogger('scrubadub.detectors.sklearn')
+            logger.error("Tokens were not able to be matched to original document.")
+            logger.error("Here is the original text: \n" + text.__repr__())
+            logger.error("Here is the regex trying to be matched to it: \n" + pattern.__repr__())
             raise ValueError('Tokens were not able to be matched to original document')
         groups = match.groups()
         n_groups = len(groups)
