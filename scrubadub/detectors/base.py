@@ -139,9 +139,8 @@ class RegexDetector(Detector):
 
         for match in self.regex.finditer(text):
             filth = self.filth_cls(match=match, detector_name=self.name, document_name=document_name, locale=self.locale)
-            if hasattr(filth, 'validate'):
-                if not filth.validate():
-                    continue
+            if not filth.is_valid():
+                continue
             yield filth
 
 
