@@ -25,22 +25,19 @@ class DateOfBirthDetector(Detector):
     """This detector aims to detect dates of birth in text.
 
     First all possible dates are found, then they are filtered to those that would result in people being between
-    ``min_age_years`` and ``max_age_years``.
+    ``min_age_years`` and ``max_age_years``, which default to 18 and 100 respectively.
 
     If ``require_context`` is True, we search for one of the possible ``context_words`` near the found date. We search
-    up to ``context_before`` lines before the date and up to ``context_after`` lines after the date. But doing this we
-    can search for `'birth'` or `'DoB'` near the date to increase the likelyhood that the date is indeed a date of
-    birth.
+    up to ``context_before`` lines before the date and up to ``context_after`` lines after the date. The context that
+    we search for are terms like `'birth'` or `'DoB'` to increase the likelihood that the date is indeed a date of
+    birth. The context words can be set using the ``context_words`` parameter, which expects a list of strings.
 
     >>> import scrubadub, scrubadub.detectors.date_of_birth
     >>> scrubber = scrubadub.Scrubber(detector_list=[
-    ...     scrubadub.detectors.TextBlobNameDetector(name='name_detector'),
-    ...     scrubadub.detectors.TaggedEvaluationFilthDetector([
-    ...         {'match': 'Tom', 'filth_type': 'name'},
-    ...         {'match': 'tom@example.com', 'filth_type': 'email'},
-    ...     ]),
+    ...     scrubadub.detectors.date_of_birth.DateOfBirthDetector(min_age_years=12),
     ... ])
-
+    >>> scrubber.clean("I was born on 10-Nov-2008.")
+    'I was born {{DATE_OF_BIRTH}}.'
 
     """
     name = 'date_of_birth'
