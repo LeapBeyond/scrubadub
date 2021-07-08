@@ -133,7 +133,7 @@ class SpacyNameDetector(SpacyEntityDetector):
     # This is the minimum number of tokens that is considered a name
     MINIMUM_NAME_LENGTH = 1
 
-    def __init__(self, include_spacy: bool = False, **kwargs):
+    def __init__(self, include_spacy: bool = True, **kwargs):
         """Initialise the ``Detector``.
 
         :param include_spacy: include default spacy library in addition to title detector.
