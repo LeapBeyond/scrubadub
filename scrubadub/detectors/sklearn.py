@@ -159,13 +159,12 @@ class SklearnDetector(Detector):
         # This is as a result of using the nltk.tokenize.destructive.NLTKWordTokenizer, will need to be changed if
         # the tokeniser is changed too much
         tokenisation_replacements = [
-            (re.compile(r"``"), "(?:``|\"|'')"),
-            (re.compile(r"''"), "(?:''|\")"),
+            (r"``", "(?:``|\"|'')"),
+            (r"''", "(?:''|\")"),
+            (r"\'\'", "(?:\\'\\'|''|\")"),
         ]
         for search, replace in tokenisation_replacements:
-            pattern = re.sub(search, replace, pattern)
-
-        pattern.replace("\\'\\'", "(\\'\\'|\")")
+            pattern = pattern.replace(search, replace)
 
         match = re.match(pattern, text, re.DOTALL)
         if match is None:
