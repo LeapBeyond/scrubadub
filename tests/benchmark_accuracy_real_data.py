@@ -158,22 +158,29 @@ def convert_to_bool(value: Any) -> bool:
 
 def load_known_pii(known_pii_locations: List[str],
                    storage_connection_string: Optional[str] = None) -> List[KnownFilthItem]:
+    """This function loads tagged filth from a csv and transforms it into a dict that the detector can use"""
     start_time = time.time()
     click.echo("Loading Known Filth...")
 
     import pandas as pd
-    known_pii = []
+    # This will be a list of records containing all the info from the loaded tagged pii files
+    known_pii = []  # type: List[Dict[str, Any]]
 
     logger = logging.getLogger('scrubadub.tests.benchmark_accuracy_real_data.load_known_pii')
 
+    # These are the column names that we want
     target_cols = {'match', 'filth_type'}
+    # These are some optional column names that we will use to filter extra columns out
     target_cols_optional = {'match_end', 'limit', 'ignore_case', 'ignore_whitespace', 'ignore_partial_word_matches'}
+    # This is an alternate set of column names that are also accepted instead of the ones listed in `target_cols`
     target_cols_alt = {'pii_type', 'pii_start', 'pii_end'}
 
+    # We loop over all tagged PII files
     for known_pii_location in known_pii_locations:
         file_data = load_files(known_pii_location, storage_connection_string=storage_connection_string)
+        # Loop over the results from the load_files function, could be more than one file if we provide a directory
+        # in `known_pii_location`
         for file_name, data in file_data.items():
-
             mime_type = magic.from_buffer(data, mime=True)
             pandas_reader = pd.read_csv
             if mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
@@ -182,8 +189,9 @@ def load_known_pii(known_pii_locations: List[str],
                 data = decode_text({file_name: data}, allowed_mime_types=['application/csv'])[file_name].encode('utf-8')
 
             dataframe = None  # type: Optional[DataFrame]
-            for i in range(10):
-                dataframe = pandas_reader(io.BytesIO(data), skiprows=i, dtype={
+            # Work out how many rows to skip in this loop, starting at zero going up to 9
+            for n_rows_to_skip in range(10):
+                dataframe = pandas_reader(io.BytesIO(data), skiprows=n_rows_to_skip, dtype={
                     'match': str,
                     'match_end': str,
                     'filth_type': str,
@@ -191,8 +199,11 @@ def load_known_pii(known_pii_locations: List[str],
                     'pii_end': str,
                     'pii_type': str,
                 }).rename(columns=lambda x: x.strip())
+                # If we find the `target_cols` then we found the correct number of rows to skip so we break from
+                # this loop
                 if (set(dataframe.columns.to_list()) & target_cols) == target_cols:
                     break
+                # if we find the `target_cols_alt`, we convert those to the standard set of names and then break
                 elif (set(dataframe.columns.to_list()) & target_cols_alt) == target_cols_alt:
                     dataframe = dataframe.rename(
                         columns={
@@ -214,13 +225,16 @@ def load_known_pii(known_pii_locations: List[str],
                     break
                 dataframe = None
 
+            # We weren't able to find the correct columns so raise an error
             if dataframe is None:
                 raise ValueError(f'Unable to read file: {known_pii_location} Are the file format (csv or xslx) and '
                                  f'columns (match, match_end, filth_type and optionally limit) correct?')
 
+            # strip() the main columns
             for col in ['match', 'match_end', 'filth_type']:
                 dataframe[col] = dataframe[col].str.strip()
 
+            # drop rows if the column 'match' has null values
             if pd.isnull(dataframe['match']).sum() > 0:
                 dataframe = dataframe.dropna(axis='index', subset=['match'])
 
@@ -228,27 +242,33 @@ def load_known_pii(known_pii_locations: List[str],
                     f"The KnownFilth column 'match' contains some null/blank entries in '{file_name}'. "
                     f"Skipping these rows."
                 )
+            # drop rows if the column 'filth_type' has null values
             if pd.isnull(dataframe['filth_type']).sum() > 0:
                 dataframe = dataframe.dropna(axis='index', subset=['filth_type'])
                 logger.warning(
                     f"The KnownFilth column 'filth_type' contains some null/blank entries in '{file_name}'. "
                     f"Skipping these rows."
                 )
+            # Convert the dataframe to a dict in records format and add it to the big list of tagged pii
             known_pii += dataframe[
                 [col for col in dataframe.columns if col in (target_cols | target_cols_optional)]
             ].to_dict(orient='records')
 
+    # Loop over each of the tagged pieces of pii
     for item in known_pii:
         for sub_item in ('limit', 'match_end', 'ignore_case', 'ignore_whitespace', 'ignore_partial_word_matches'):
+            # if each of hte above keys exist, delete it if its empty
             if sub_item in item.keys():
                 if pd.isnull(item[sub_item]):
                     del item[sub_item]
                 elif isinstance(item[sub_item], str) and len(item[sub_item].strip()) == 0:
                     del item[sub_item]
                 elif 'ignore' in sub_item:
+                    # if ignore is in the name of the item, then try to convert it to a bool
                     item[sub_item] = convert_to_bool(item[sub_item])
 
             if 'ignore' in sub_item and sub_item not in item:
+                # if ignore is not det then set it to true
                 item[sub_item] = True
 
     end_time = time.time()
