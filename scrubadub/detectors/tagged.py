@@ -111,7 +111,6 @@ class TaggedEvaluationFilthDetector(Detector):
         super().__init__(**kwargs)
 
         for item in known_filth_items:
-            ignore_whitespace = 'ignore_whitespace' in item and item['ignore_whitespace'] is True
             if 'match' not in item or 'filth_type' not in item:
                 raise KeyError("Each known filth item (dict) needs both keys 'match' and 'filth_type'.")
             if not isinstance(item['match'], str):
@@ -120,17 +119,13 @@ class TaggedEvaluationFilthDetector(Detector):
             if not isinstance(item['filth_type'], str):
                 raise ValueError("The value of 'filth_type' in each KnownItem should be a string. "
                                  "Current value: " + item['filth_type'].__repr__())
-            if ignore_whitespace:
-                item['match'] = " ".join(item['match'].split())
-            else:
-                item['match'] = item['match'].strip()
+            item['match'] = item['match'].strip()
             item['filth_type'] = item['filth_type'].strip()
             if 'match_end' in item:
                 if not isinstance(item['match_end'], str):
                     raise ValueError("The value of 'match_end' in each KnownItem should be a string. "
                                      "Current value: " + item['match_end'].__repr__())
-                if ignore_whitespace:
-                    item['match_end'] = " ".join(item['match_end'].split())
+                item['match_end'] = item['match_end'].strip()
 
             for key in item.keys():
                 if key not in ['match', 'match_end', 'limit', 'filth_type', 'ignore_case', 'ignore_whitespace',
