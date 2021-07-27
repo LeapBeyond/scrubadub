@@ -202,7 +202,7 @@ class SpacyEntityDetector(Detector):
                               "preprocessing the text by removing non-words and reducing spaces. Skipping file: {}"
                     logger = logging.getLogger('scrubadub.detectors.spacy.SpacyEntityDetector')
                     logger.warning(message.format(document_names[i]))
-                    spacy_doc = list(self.nlp.pipe(' '))[0]
+                    spacy_doc = list(self.nlp.pipe([' ']))[0]
                 else:
                     raise e
             except StopIteration:
