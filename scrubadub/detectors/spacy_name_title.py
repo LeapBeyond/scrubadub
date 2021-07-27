@@ -39,50 +39,31 @@ def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
 
     noun_tags = SpacyNameDetector.NOUN_TAGS[doc.lang_]
 
+    # Loop over each token in the document
     for token in doc:
-        # if the token is a prefix
-        prefix_tag = 0
-        suffix_tag = 0
-        span_obj = []  # type: List[int]
+        # This is used to ensure that we don't go into the next/previous sentence
         tokens_ids_in_sentence = [span_token.i for span_token in token.sent]
-        text = token.text
-        if text == ':':
-            text = doc[token.i - 1].text + ':'
+        # If the token is :, include the previous token, so ['From', ':'] becomes 'from:'
+        text = SpacyNameDetector._token_to_text(token, doc)
 
+        # If this token is a prefix, search forwards for nouns
         if doc.lang_ in SpacyNameDetector.NAME_PREFIXES and \
-                text.lower() in SpacyNameDetector.NAME_PREFIXES[doc.lang_]:
-            span_obj = [
-                span_token.i
-                for span_token in doc[token.i:token.i + SpacyNameDetector.TOKEN_SEARCH_DISTANCE + 1]
-                if (span_token.dep_ != "punct" and span_token.tag_ in noun_tags and
-                    not span_token.is_stop and span_token.i in tokens_ids_in_sentence)
+                text in SpacyNameDetector.NAME_PREFIXES[doc.lang_]:
+            search_tokens = [
+                tok for tok in doc[token.i:token.i + SpacyNameDetector.TOKEN_SEARCH_DISTANCE + 1]
+                if tok.i in tokens_ids_in_sentence
             ]
-            prefix_tag = 1
-            if doc.lang_ in SpacyNameDetector.NAME_SUFFIXES and len(span_obj) > 1 and \
-                    str(doc[span_obj[-1]]).lower() in SpacyNameDetector.NAME_SUFFIXES[doc.lang_]:
-                suffix_tag = 1
+            doc = SpacyNameDetector.find_names(doc=doc, tokens=search_tokens, noun_tags=noun_tags)
 
+        # If this token is a suffix, search backwards for nouns
         if doc.lang_ in SpacyNameDetector.NAME_SUFFIXES and \
-                text.lower() in SpacyNameDetector.NAME_SUFFIXES[doc.lang_]:
-            span_obj = [
-                span_token.i
-                for span_token in doc[token.i - SpacyNameDetector.TOKEN_SEARCH_DISTANCE:token.i + 1]
-                if (span_token.dep_ != "punct" and span_token.tag_ in noun_tags and
-                    not span_token.is_stop and span_token.i in tokens_ids_in_sentence)
-            ]
-            suffix_tag = 1
-            if str(doc[span_obj[0]]).lower() in SpacyNameDetector.NAME_PREFIXES[doc.lang_]:
-                prefix_tag = 1
+                text in SpacyNameDetector.NAME_SUFFIXES[doc.lang_]:
+            search_tokens = [
+                tok for tok in doc[token.i - SpacyNameDetector.TOKEN_SEARCH_DISTANCE:token.i + 1]
+                if tok.i in tokens_ids_in_sentence
+            ][::-1]  # We search backwards since its the words closest to the suffix that matter most
+            doc = SpacyNameDetector.find_names(doc=doc, tokens=search_tokens, noun_tags=noun_tags)
 
-        if len(span_obj) >= SpacyNameDetector.MINIMUM_NAME_LENGTH:
-            # create slice with spacy span to include new entity
-            entity = Span(doc, min(span_obj), max(span_obj) + 1, label="PERSON")
-            entity2 = Span(doc, min(span_obj) + prefix_tag, max(span_obj) + 1 - suffix_tag, label="PERSON")
-            # update spacy ents to include the new entity
-            if entity not in doc._.person_titles:
-                doc._.person_titles.append(entity)
-            if len(entity2) > 0 and entity2 not in doc._.person_titles:
-                doc._.person_titles.append(entity2)
     return doc
 
 
@@ -113,7 +94,7 @@ class SpacyNameDetector(SpacyEntityDetector):
             'prof.', 'professor', 'lord', 'lady', 'rev', 'rev.', 'reverend', 'hon', 'hon.', 'honourable', 'hhj',
             'honorable', 'judge', 'sir', 'madam',
             # Greetings
-            'hello', 'dear', 'hi', 'hey', 'from', 'regards',
+            'hello', 'dear', 'hi', 'hey', 'regards',
             # emails
             'to:', 'from:', 'sender:',
         ],
@@ -163,6 +144,99 @@ class SpacyNameDetector(SpacyEntityDetector):
     @staticmethod
     def _get_affix_and_spacy_entities(doc: spacy.tokens.doc.Doc) -> Iterable[spacy.tokens.span.Span]:
         return (doc.ents + doc._.person_titles)
+
+    @staticmethod
+    def find_names(doc: spacy.tokens.doc.Doc, tokens: Sequence[spacy.tokens.token.Token],
+                   noun_tags: List[str]) -> spacy.tokens.doc.Doc:
+        """This function searches for possilbe names in a flagged set of tokens and adds them to the identified
+        entities."""
+        span_obj = SpacyNameDetector._get_name_token_ids(
+            tokens=tokens,
+            noun_tags=noun_tags,
+        )
+        doc = SpacyNameDetector._append_tokens(doc, span_obj)
+
+        filtered_tokens = SpacyNameDetector._remove_trigger_tokens(
+            tokens=tokens,
+            doc=doc,
+        )
+        span_obj_no_triggers = SpacyNameDetector._get_name_token_ids(
+            tokens=filtered_tokens,
+            noun_tags=noun_tags,
+        )
+        doc = SpacyNameDetector._append_tokens(doc, span_obj_no_triggers)
+        return doc
+
+    @staticmethod
+    def _token_to_text(token, doc: spacy.tokens.doc.Doc) -> str:
+        """This converts the tokens to text so that they can be looked up in NAME_PREFIXES or NAME_SUFFIXES."""
+        text = token.text
+        if text == ':':
+            text = doc[token.i - 1].text + ':'
+        return text.lower()
+
+    @staticmethod
+    def _get_name_token_ids(tokens: Sequence[spacy.tokens.token.Token], noun_tags) -> List[int]:
+        """Get the ID of all tokens near to the trigger word that are nouns and not stop words."""
+        span_obj = []  # type: List[int]
+        for token in tokens:
+            if token.dep_ == "punct":
+                continue
+            if token.tag_ not in noun_tags or token.is_stop:
+                break
+            span_obj.append(token.i)
+        return span_obj
+
+    @staticmethod
+    def _append_tokens(doc: spacy.tokens.doc.Doc, span_obj: List[int]) -> spacy.tokens.doc.Doc:
+        """Append the given token span to the identified entities."""
+        if len(span_obj) < SpacyNameDetector.MINIMUM_NAME_LENGTH:
+            return doc
+
+        # create slice with spacy span to include new entity
+        entity = Span(doc, min(span_obj), max(span_obj) + 1, label="PERSON")
+
+        # update spacy ents to include the new entity
+        if entity not in doc._.person_titles:
+            doc._.person_titles.append(entity)
+
+        return doc
+
+    @staticmethod
+    def _remove_trigger_tokens(doc: spacy.tokens.doc.Doc,
+                               tokens: Sequence[spacy.tokens.token.Token]) -> List[spacy.tokens.token.Token]:
+        """Remove all trigger words from the start and end of a sequence of tokens."""
+        tokens_to_remove = []  # type: List[str]
+
+        if doc.lang_ in SpacyNameDetector.NAME_PREFIXES:
+            tokens_to_remove += SpacyNameDetector.NAME_PREFIXES[doc.lang_]
+        if doc.lang_ in SpacyNameDetector.NAME_SUFFIXES:
+            tokens_to_remove += SpacyNameDetector.NAME_SUFFIXES[doc.lang_]
+
+        sorted_tokens = sorted((tok for tok in tokens if tok.dep_ != "punct" or tok.text == ':'),
+                               key=lambda tok: tok.i)
+
+        while len(sorted_tokens) > 0:
+            first_token = sorted_tokens[0]
+            text = SpacyNameDetector._token_to_text(first_token, doc)
+            if text not in tokens_to_remove:
+                break
+            # Filter out all tokens that are before the `first_token` if that token is a trigger word
+            tokens = [tok for tok in tokens if tok.i > first_token.i]
+            sorted_tokens = sorted((tok for tok in tokens if tok.dep_ != "punct" or tok.text == ':'),
+                                   key=lambda tok: tok.i)
+
+        while len(sorted_tokens) > 0:
+            last_token = sorted_tokens[-1]
+            text = SpacyNameDetector._token_to_text(last_token, doc)
+            if text not in tokens_to_remove:
+                break
+            # Filter out all tokens that are after the `last_token` if that token is a trigger word
+            tokens = [tok for tok in tokens if tok.i < last_token.i]
+            sorted_tokens = sorted((tok for tok in tokens if tok.dep_ != "punct" or tok.text == ':'),
+                                   key=lambda tok: tok.i)
+
+        return tokens
 
     def iter_filth_documents(self, document_list: Sequence[str],
                              document_names: Sequence[Optional[str]]) -> Generator[Filth, None, None]:
