@@ -1,5 +1,6 @@
 from typing import Optional
 
+from scrubadub.detectors.catalogue import register_detector
 from .. import filth as filth_module
 from ..filth.base import Filth
 from .tagged import TaggedEvaluationFilthDetector
@@ -83,3 +84,6 @@ class UserSuppliedFilthDetector(TaggedEvaluationFilthDetector):
                 locale=locale,
             )
         raise KeyError(f"Unable to find filth '{comparison_type}'")
+
+
+register_detector(UserSuppliedFilthDetector)

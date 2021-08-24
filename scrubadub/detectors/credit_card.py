@@ -6,6 +6,7 @@ from typing import Optional, Generator
 
 from .base import RegexDetector
 from ..filth import Filth, CreditCardFilth
+from scrubadub.detectors.catalogue import register_detector
 
 
 class CreditCardDetector(RegexDetector):
@@ -15,6 +16,7 @@ class CreditCardDetector(RegexDetector):
     """
     name = 'credit_card'
     filth_cls = CreditCardFilth
+    autoload = True
 
     # Regexes from:
     # http://www.regular-expressions.info/creditcard.html
@@ -53,3 +55,6 @@ class CreditCardDetector(RegexDetector):
         for filth in super(CreditCardDetector, self).iter_filth(text=text, document_name=document_name):
             if stdnum.luhn.is_valid(''.join(char for char in filth.text if char in string.digits)):
                 yield filth
+
+
+register_detector(CreditCardDetector)

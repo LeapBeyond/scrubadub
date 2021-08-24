@@ -2,6 +2,7 @@ import faker
 import random
 import unittest
 import scrubadub
+import scrubadub.detectors.catalogue
 from scrubadub.filth import DateOfBirthFilth
 
 import datetime
@@ -13,11 +14,11 @@ class DoBTestCase(unittest.TestCase, BaseTestCase):
 
     def setUp(self):
         from scrubadub.detectors.date_of_birth import DateOfBirthDetector
-        scrubadub.detectors.register_detector(DateOfBirthDetector, autoload=True)
+        scrubadub.detectors.catalogue.register_detector(DateOfBirthDetector, autoload=True)
 
     def tearDown(self) -> None:
         from scrubadub.detectors.date_of_birth import DateOfBirthDetector
-        del scrubadub.detectors.detector_configuration[DateOfBirthDetector.name]
+        scrubadub.detectors.catalogue.remove_detector(DateOfBirthDetector)
 
     def test_DoB_1(self):
         """

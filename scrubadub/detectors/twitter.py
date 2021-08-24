@@ -1,5 +1,6 @@
 import re
 
+from scrubadub.detectors.catalogue import register_detector
 from .base import RegexDetector
 from ..filth import TwitterFilth
 
@@ -10,6 +11,7 @@ class TwitterDetector(RegexDetector):
     """
     filth_cls = TwitterFilth
     name = 'twitter'
+    autoload = True
 
     # https://help.twitter.com/en/managing-your-account/twitter-username-rules#error
     # Twitter user names must be 15 or less charachtors and only contain a-zA-Z0-9_
@@ -18,3 +20,6 @@ class TwitterDetector(RegexDetector):
     regex = re.compile((
         r"(?<!\w)@((?!((admin)|(twitter)))[a-z0-9_]){2,15}\b"
     ), re.VERBOSE | re.IGNORECASE)
+
+
+register_detector(TwitterDetector)

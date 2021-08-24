@@ -1,5 +1,6 @@
 import re
 
+from scrubadub.detectors.catalogue import register_detector
 from scrubadub.detectors.base import RegexDetector
 from scrubadub.filth import TaxReferenceNumberFilth
 
@@ -10,6 +11,7 @@ class TaxReferenceNumberDetector(RegexDetector):
     """
 
     name = 'tax_reference_number'
+    autoload = True
     filth_cls = TaxReferenceNumberFilth
     # this regex is looking for NINO that does not begin with certain letters
     regex = re.compile(r'''\d{2}\s?[a-zA-Z]{1}(?:\s*\d\s*){5}''', re.IGNORECASE)
@@ -26,3 +28,6 @@ class TaxReferenceNumberDetector(RegexDetector):
         """
         language, region = cls.locale_split(locale)
         return region in ['GB']
+
+
+register_detector(TaxReferenceNumberDetector)

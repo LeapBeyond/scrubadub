@@ -13,7 +13,7 @@ except ImportError as e:
             " make sure you install scrubadub with 'pip install scrubadub[spacy]'"
         )
 
-from . import register_detector
+from scrubadub.detectors.catalogue import register_detector
 from ..filth import Filth
 from .spacy import SpacyEntityDetector
 
@@ -276,6 +276,6 @@ class SpacyNameDetector(SpacyEntityDetector):
         )
 
 
-register_detector(SpacyNameDetector, autoload=False)
+register_detector(SpacyNameDetector)
 
 __all__ = ['SpacyNameDetector']

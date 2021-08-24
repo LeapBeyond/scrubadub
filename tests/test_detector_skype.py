@@ -1,5 +1,7 @@
 import faker
 import unittest
+
+import scrubadub.detectors.catalogue
 from scrubadub.filth import SkypeFilth
 
 from base import BaseTestCase
@@ -10,7 +12,7 @@ class SkypeTestCase(unittest.TestCase, BaseTestCase):
 
     def setUp(self):
         from scrubadub.detectors.skype import SkypeDetector
-        scrubadub.detectors.register_detector(SkypeDetector, autoload=True)
+        scrubadub.detectors.catalogue.register_detector(SkypeDetector, autoload=True)
 
     def test_inline_skype_name(self):
         """
@@ -88,4 +90,4 @@ class SkypeTestCase(unittest.TestCase, BaseTestCase):
 
     def tearDown(self) -> None:
         from scrubadub.detectors.skype import SkypeDetector
-        del scrubadub.detectors.detector_configuration[SkypeDetector.name]
+        scrubadub.detectors.catalogue.remove_detector(SkypeDetector)

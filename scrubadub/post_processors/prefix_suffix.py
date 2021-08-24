@@ -1,6 +1,7 @@
 from typing import Optional, Sequence
 
 from scrubadub.filth import Filth
+from scrubadub.post_processors.catalogue import register_post_processor
 from scrubadub.post_processors.base import PostProcessor
 
 
@@ -28,6 +29,8 @@ class PrefixSuffixReplacer(PostProcessor):
 
     """
     name = 'prefix_suffix_replacer'  # type: str
+    autoload = False
+    index = 1
 
     def __init__(self, prefix: Optional[str] = '{{', suffix: Optional[str] = '}}', name: Optional[str] = None):
         super(PrefixSuffixReplacer, self).__init__(name=name)
@@ -56,5 +59,7 @@ class PrefixSuffixReplacer(PostProcessor):
 
         return filth_list
 
+
+register_post_processor(PrefixSuffixReplacer)
 
 __all__ = ['PrefixSuffixReplacer']

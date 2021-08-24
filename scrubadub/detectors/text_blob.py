@@ -6,7 +6,7 @@ from textblob.en.taggers import PatternTagger
 
 from typing import Optional, Generator
 
-from . import register_detector
+from scrubadub.detectors.catalogue import register_detector
 from .base import RegexDetector
 from ..filth import NameFilth, Filth
 from ..utils import CanonicalStringSet
@@ -76,4 +76,4 @@ class TextBlobNameDetector(RegexDetector):
         return language in ['en', ]
 
 
-register_detector(TextBlobNameDetector, autoload=False)
+register_detector(TextBlobNameDetector)

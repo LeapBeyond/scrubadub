@@ -4,6 +4,7 @@ import stdnum.us.ssn
 
 from typing import Optional, Generator
 
+from scrubadub.detectors.catalogue import register_detector
 from scrubadub.detectors.base import RegexDetector
 from scrubadub.filth import Filth, SocialSecurityNumberFilth
 
@@ -15,6 +16,7 @@ class SocialSecurityNumberDetector(RegexDetector):
 
     filth_cls = SocialSecurityNumberFilth
     name = 'social_security_number'
+    autoload = True
     regex = re.compile((
         r"[0-9][0-9][0-9]"       # first three digits
         r"[\-. ]"                # separator
@@ -56,3 +58,6 @@ class SocialSecurityNumberDetector(RegexDetector):
         """
         language, region = cls.locale_split(locale)
         return region in ['US']
+
+
+register_detector(SocialSecurityNumberDetector)

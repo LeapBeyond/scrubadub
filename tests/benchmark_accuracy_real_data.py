@@ -13,6 +13,7 @@ import cchardet as chardet
 import logging
 import posixpath
 import azure.storage.blob
+import scrubadub.detectors.catalogue
 
 from pandas import DataFrame
 
@@ -398,10 +399,10 @@ def load_complicated_detectors(user_supplied_pii: Optional[Sequence[str]] = None
             def __init__(self, **kwargs):
                 super(SpacyEnTrfDetector, self).__init__(model='en_core_web_trf', **kwargs)
 
-        scrubadub.detectors.register_detector(SpacyEnSmDetector, autoload=True)
-        scrubadub.detectors.register_detector(SpacyEnMdDetector, autoload=True)
-        scrubadub.detectors.register_detector(SpacyEnLgDetector, autoload=True)
-        scrubadub.detectors.register_detector(SpacyEnTrfDetector, autoload=True)
+        scrubadub.detectors.catalogue.register_detector(SpacyEnSmDetector, autoload=True)
+        scrubadub.detectors.catalogue.register_detector(SpacyEnMdDetector, autoload=True)
+        scrubadub.detectors.catalogue.register_detector(SpacyEnLgDetector, autoload=True)
+        scrubadub.detectors.catalogue.register_detector(SpacyEnTrfDetector, autoload=True)
     try:
         import scrubadub.detectors.spacy_name_title
         detector_available['spacy_title'] = True
@@ -434,10 +435,10 @@ def load_complicated_detectors(user_supplied_pii: Optional[Sequence[str]] = None
             def __init__(self, **kwargs):
                 super(SpacyTitleEnTrfDetector, self).__init__(model='en_core_web_trf', **kwargs)
 
-        scrubadub.detectors.register_detector(SpacyTitleEnSmDetector, autoload=True)
-        scrubadub.detectors.register_detector(SpacyTitleEnMdDetector, autoload=True)
-        scrubadub.detectors.register_detector(SpacyTitleEnLgDetector, autoload=True)
-        scrubadub.detectors.register_detector(SpacyTitleEnTrfDetector, autoload=True)
+        scrubadub.detectors.catalogue.register_detector(SpacyTitleEnSmDetector, autoload=True)
+        scrubadub.detectors.catalogue.register_detector(SpacyTitleEnMdDetector, autoload=True)
+        scrubadub.detectors.catalogue.register_detector(SpacyTitleEnLgDetector, autoload=True)
+        scrubadub.detectors.catalogue.register_detector(SpacyTitleEnTrfDetector, autoload=True)
 
     if user_supplied_pii is not None:
         detector_available['user_supplied'] = True
@@ -448,7 +449,7 @@ def load_complicated_detectors(user_supplied_pii: Optional[Sequence[str]] = None
                 known_filth_items = load_known_pii(user_supplied_pii)
                 super(LoadedUserSuppliedFilthDetector, self).__init__(known_filth_items=known_filth_items, **kwargs)
 
-        scrubadub.detectors.register_detector(LoadedUserSuppliedFilthDetector, autoload=True)
+        scrubadub.detectors.catalogue.register_detector(LoadedUserSuppliedFilthDetector, autoload=True)
 
     return detector_available
 

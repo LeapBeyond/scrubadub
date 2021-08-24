@@ -1,5 +1,8 @@
 import unittest
+
+import catalogue
 import scrubadub
+import scrubadub.detectors.catalogue
 
 
 class DetectorConfigTestCase(unittest.TestCase):
@@ -7,17 +10,18 @@ class DetectorConfigTestCase(unittest.TestCase):
         class NewDetector(scrubadub.detectors.Detector):
             name = 'new_detector'
 
-        scrubadub.detectors.register_detector(NewDetector, False)
-        self.assertTrue(NewDetector.name in scrubadub.detectors.detector_configuration)
-        self.assertEqual(scrubadub.detectors.detector_configuration[NewDetector.name]['autoload'], False)
-        self.assertEqual(scrubadub.detectors.detector_configuration[NewDetector.name]['detector'], NewDetector)
+        scrubadub.detectors.catalogue.register_detector(NewDetector, False)
+        self.assertTrue(NewDetector.name in scrubadub.detectors.catalogue.detector_catalogue)
+        self.assertFalse(NewDetector.autoload)
+        self.assertEqual(scrubadub.detectors.catalogue.detector_catalogue.get(NewDetector.name), NewDetector)
 
-        scrubadub.detectors.detector_configuration.pop(NewDetector.name)
-        self.assertTrue(NewDetector.name not in scrubadub.detectors.detector_configuration)
+        scrubadub.detectors.catalogue.remove_detector(NewDetector)
+        with self.assertRaises(catalogue.RegistryError):
+            scrubadub.detectors.catalogue.detector_catalogue.get(NewDetector.name)
 
-        scrubadub.detectors.register_detector(NewDetector, True)
-        self.assertTrue(NewDetector.name in scrubadub.detectors.detector_configuration)
-        self.assertEqual(scrubadub.detectors.detector_configuration[NewDetector.name]['autoload'], True)
-        self.assertEqual(scrubadub.detectors.detector_configuration[NewDetector.name]['detector'], NewDetector)
+        scrubadub.detectors.catalogue.register_detector(NewDetector, True)
+        self.assertTrue(NewDetector.name in scrubadub.detectors.catalogue.detector_catalogue)
+        self.assertTrue(NewDetector.autoload)
+        self.assertEqual(scrubadub.detectors.catalogue.detector_catalogue.get(NewDetector.name), NewDetector)
 
-        scrubadub.detectors.detector_configuration.pop(NewDetector.name)
+        scrubadub.detectors.catalogue.remove_detector(NewDetector)

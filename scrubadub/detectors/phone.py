@@ -2,6 +2,7 @@ import phonenumbers
 
 from typing import Optional
 
+from scrubadub.detectors.catalogue import register_detector
 from .base import Detector
 from ..filth import PhoneFilth
 
@@ -17,6 +18,7 @@ class PhoneDetector(Detector):
     """
     filth_cls = PhoneFilth
     name = 'phone'
+    autoload = True
 
     def iter_filth(self, text, document_name: Optional[str] = None):
         """Yields discovered filth in the provided ``text``.
@@ -50,3 +52,6 @@ class PhoneDetector(Detector):
         :rtype: bool
         """
         return True
+
+
+register_detector(PhoneDetector)

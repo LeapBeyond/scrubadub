@@ -1,5 +1,6 @@
 import re
 
+from scrubadub.detectors.catalogue import register_detector
 from .base import RegexDetector
 from ..filth import UrlFilth
 
@@ -15,6 +16,7 @@ class UrlDetector(RegexDetector):
     """
     filth_cls = UrlFilth
     name = 'url'
+    autoload = True
 
     # this regular expression is convenient for captures the domain name
     # and the path separately, which is useful for keeping the domain name
@@ -28,3 +30,6 @@ class UrlDetector(RegexDetector):
             [\-\w@:%\+\.~\#?&/=]*                # rest of path, query, & hash
         )
     ''', re.VERBOSE)
+
+
+register_detector(UrlDetector)

@@ -1,5 +1,6 @@
 import re
 
+from scrubadub.detectors.catalogue import register_detector
 from .base import RegexDetector
 from ..filth import EmailFilth
 
@@ -11,6 +12,7 @@ class EmailDetector(RegexDetector):
     """
     filth_cls = EmailFilth
     name = 'email'
+    autoload = True
 
     # there may be better solutions than this out there and this certainly
     # doesn't do that great of a job with people that spell out the
@@ -28,3 +30,6 @@ class EmailDetector(RegexDetector):
         r")+"                                      # repeat as necessary
         r"[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"         # end of domain
     ), re.VERBOSE | re.IGNORECASE)
+
+
+register_detector(EmailDetector)

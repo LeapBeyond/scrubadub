@@ -4,8 +4,12 @@ import pathlib
 import requests
 import unittest
 import warnings
+import catalogue
 
 import scrubadub
+import scrubadub.detectors.address
+import scrubadub.detectors.catalogue
+
 
 class AddressTestCase(unittest.TestCase):
 
@@ -13,13 +17,13 @@ class AddressTestCase(unittest.TestCase):
         import scrubadub.detectors.address
 
     def tearDown(self) -> None:
-        if scrubadub.detectors.AddressDetector.name in scrubadub.detectors.detector_configuration:
-            del scrubadub.detectors.detector_configuration[scrubadub.detectors.AddressDetector.name]
+        if scrubadub.detectors.address.AddressDetector.name in scrubadub.detectors.catalogue.detector_catalogue:
+            scrubadub.detectors.catalogue.remove_detector(scrubadub.detectors.address.AddressDetector)
 
     def test_bad_locale(self):
         """test a non existant region"""
         with self.assertRaises(ValueError):
-            scrubadub.detectors.AddressDetector(locale='non_existant')
+            scrubadub.detectors.address.AddressDetector(locale='non_existant')
 
     def test_not_implemented_locale(self):
         """test a non existant region"""
@@ -27,7 +31,7 @@ class AddressTestCase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.simplefilter("error")
             with self.assertRaises(UserWarning):
-                scrubber.add_detector(scrubadub.detectors.AddressDetector)
+                scrubber.add_detector(scrubadub.detectors.address.AddressDetector)
 
     def test_gb(self):
         """test a simple matching"""
@@ -41,7 +45,7 @@ class AddressTestCase(unittest.TestCase):
         ]
 
         test_str = 'this is a {} test string'
-        detector = scrubadub.detectors.AddressDetector(locale='en_GB')
+        detector = scrubadub.detectors.address.AddressDetector(locale='en_GB')
 
         for address, result in to_test:
             matches = list(detector.iter_filth(test_str.format(address)))

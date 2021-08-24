@@ -4,6 +4,7 @@ import copy
 
 from typing import Optional, List, Generator
 
+from scrubadub.detectors.catalogue import register_detector
 from .base import Detector
 from ..filth.base import Filth
 from ..filth.tagged import TaggedEvaluationFilth
@@ -39,7 +40,7 @@ class TaggedEvaluationFilthDetector(Detector):
 
     >>> import scrubadub, scrubadub.comparison, scrubadub.detectors.text_blob
     >>> scrubber = scrubadub.Scrubber(detector_list=[
-    ...     scrubadub.detectors.TextBlobNameDetector(name='name_detector'),
+    ...     scrubadub.detectors.text_blob.TextBlobNameDetector(name='name_detector'),
     ...     scrubadub.detectors.TaggedEvaluationFilthDetector([
     ...         {'match': 'Tom', 'filth_type': 'name'},
     ...         {'match': 'tom@example.com', 'filth_type': 'email'},
@@ -290,3 +291,6 @@ class TaggedEvaluationFilthDetector(Detector):
                     "Unknown keys in predefined PII item: "
                     "{}".format(pii_item.keys())
                 )
+
+
+register_detector(TaggedEvaluationFilthDetector)

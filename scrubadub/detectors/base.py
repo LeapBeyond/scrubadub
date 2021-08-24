@@ -34,6 +34,7 @@ class Detector(object):
 
     filth_cls = Filth  # type: ClassVar[Type[Filth]]
     name = 'detector'  # type: str
+    autoload = False  # type: bool
 
     def __init__(self, name: Optional[str] = None, locale: str = 'en_US'):
         """Initialise the ``Detector``.

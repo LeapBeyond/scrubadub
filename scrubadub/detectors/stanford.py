@@ -21,7 +21,7 @@ except ImportError:
 
 from typing import Dict, Type, Optional, List
 
-from . import register_detector
+from scrubadub.detectors.catalogue import register_detector
 from .base import Detector
 from ..filth.base import Filth
 from ..filth.name import NameFilth
@@ -58,7 +58,7 @@ class StanfordEntityDetector(Detector):
     An example of their usage is given below.
 
     >>> import scrubadub, scrubadub.detectors.stanford
-    >>> detector = scrubadub.detectors.StanfordEntityDetector(
+    >>> detector = scrubadub.detectors.stanford.StanfordEntityDetector(
     ...     enable_person=False, enable_organization=False, enable_location=True
     ... )
     >>> scrubber = scrubadub.Scrubber(detector_list=[detector])
@@ -232,6 +232,6 @@ class StanfordEntityDetector(Detector):
         return language in ['en']
 
 
-register_detector(StanfordEntityDetector, autoload=False)
+register_detector(StanfordEntityDetector)
 
 __all__ = ["StanfordEntityDetector"]

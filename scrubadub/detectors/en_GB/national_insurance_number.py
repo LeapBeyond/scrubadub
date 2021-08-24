@@ -1,5 +1,6 @@
 import re
 
+from scrubadub.detectors.catalogue import register_detector
 from scrubadub.detectors.base import RegexDetector
 from scrubadub.filth import NationalInsuranceNumberFilth
 
@@ -10,6 +11,7 @@ class NationalInsuranceNumberDetector(RegexDetector):
     """
 
     name = 'national_insurance_number'
+    autoload = True
     filth_cls = NationalInsuranceNumberFilth
     # this regex is looking for NINO that does not begin with certain letters
     regex = re.compile(
@@ -29,3 +31,6 @@ class NationalInsuranceNumberDetector(RegexDetector):
         """
         language, region = cls.locale_split(locale)
         return region in ['GB']
+
+
+register_detector(NationalInsuranceNumberDetector)

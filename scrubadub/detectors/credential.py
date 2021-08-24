@@ -2,6 +2,7 @@ import re
 
 from .base import RegexDetector
 from ..filth import CredentialFilth
+from scrubadub.detectors.catalogue import register_detector
 
 
 class CredentialDetector(RegexDetector):
@@ -9,6 +10,7 @@ class CredentialDetector(RegexDetector):
     """
     filth_cls = CredentialFilth
     name = 'credential'
+    autoload = True
 
     # this regular expression searches for patterns like
     #     "username: root password: root"
@@ -21,3 +23,6 @@ class CredentialDetector(RegexDetector):
         (password|pw|p:)\s*:?\s*       # password might have : and whitespace
         (?P<password>.*)               # password can be anything until EOL
     ''', re.MULTILINE | re.VERBOSE | re.IGNORECASE)
+
+
+register_detector(CredentialDetector)

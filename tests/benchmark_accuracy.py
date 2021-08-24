@@ -5,6 +5,7 @@ import copy
 import click
 import random
 
+import scrubadub.detectors.catalogue
 from faker import Faker
 from typing import List, Union, Dict, Optional, Tuple
 
@@ -196,10 +197,10 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
                 def __init__(self, **kwargs):
                     super(SpacyEnTrfDetector, self).__init__(model='en_core_web_trf', **kwargs)
 
-            scrubadub.detectors.register_detector(SpacyEnSmDetector, autoload=True)
-            scrubadub.detectors.register_detector(SpacyEnMdDetector, autoload=True)
-            scrubadub.detectors.register_detector(SpacyEnLgDetector, autoload=True)
-            scrubadub.detectors.register_detector(SpacyEnTrfDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyEnSmDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyEnMdDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyEnLgDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyEnTrfDetector, autoload=True)
         try:
             import scrubadub.detectors.spacy_name_title
             detector_available['spacy_title'] = True
@@ -232,10 +233,10 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
                 def __init__(self, **kwargs):
                     super(SpacyTitleEnTrfDetector, self).__init__(model='en_core_web_trf', **kwargs)
 
-            scrubadub.detectors.register_detector(SpacyTitleEnSmDetector, autoload=True)
-            scrubadub.detectors.register_detector(SpacyTitleEnMdDetector, autoload=True)
-            scrubadub.detectors.register_detector(SpacyTitleEnLgDetector, autoload=True)
-            scrubadub.detectors.register_detector(SpacyTitleEnTrfDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyTitleEnSmDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyTitleEnMdDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyTitleEnLgDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyTitleEnTrfDetector, autoload=True)
 
     return detector_available
 

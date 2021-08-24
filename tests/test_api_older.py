@@ -2,13 +2,14 @@ import unittest
 import warnings
 
 import scrubadub
+import scrubadub.detectors.catalogue
 import scrubadub.utils
 
 class OldAPITestCase(unittest.TestCase):
 
     def setUp(self):
         from scrubadub.detectors.text_blob import TextBlobNameDetector
-        scrubadub.detectors.register_detector(TextBlobNameDetector, autoload=True)
+        scrubadub.detectors.catalogue.register_detector(TextBlobNameDetector, autoload=True)
 
     def test_scrubadub_clean(self):
         """test old scrubadub API"""
@@ -109,4 +110,4 @@ class OldAPITestCase(unittest.TestCase):
 
     def tearDown(self) -> None:
         from scrubadub.detectors.text_blob import TextBlobNameDetector
-        del scrubadub.detectors.detector_configuration[TextBlobNameDetector.name]
+        scrubadub.detectors.catalogue.remove_detector(TextBlobNameDetector)

@@ -1,5 +1,6 @@
 from typing import Sequence
 
+from scrubadub.post_processors.catalogue import register_post_processor
 from scrubadub.filth import Filth
 from scrubadub.post_processors.base import PostProcessor
 
@@ -16,6 +17,8 @@ class FilthRemover(PostProcessor):
 
     """
     name = 'filth_remover'  # type: str
+    autoload = False
+    index = 0
 
     def process_filth(self, filth_list: Sequence[Filth]) -> Sequence[Filth]:
         """Processes the filth to remove the filth
@@ -29,5 +32,7 @@ class FilthRemover(PostProcessor):
             filth_item.replacement_string = ''
         return filth_list
 
+
+register_post_processor(FilthRemover)
 
 __all__ = ['FilthRemover']

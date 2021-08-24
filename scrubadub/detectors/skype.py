@@ -7,7 +7,7 @@ from textblob.en.taggers import PatternTagger
 
 from typing import Optional, Generator
 
-from . import register_detector
+from scrubadub.detectors.catalogue import register_detector
 from .base import RegexDetector
 from ..filth import SkypeFilth, Filth
 
@@ -98,4 +98,4 @@ class SkypeDetector(RegexDetector):
         return
 
 
-register_detector(SkypeDetector, autoload=False)
+register_detector(SkypeDetector)

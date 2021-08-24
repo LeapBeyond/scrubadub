@@ -12,7 +12,7 @@ except (ImportError, ):
 
 from typing import Dict, Optional
 
-from . import register_detector
+from scrubadub.detectors.catalogue import register_detector
 from .base import Detector
 from .postalcode import PostalCodeDetector
 from ..filth.address import AddressFilth
@@ -158,4 +158,4 @@ class AddressDetector(Detector):
                 )
 
 
-register_detector(AddressDetector, autoload=False)
+register_detector(AddressDetector)

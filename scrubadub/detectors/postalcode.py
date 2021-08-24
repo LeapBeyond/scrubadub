@@ -1,5 +1,6 @@
 import re
 
+from scrubadub.detectors.catalogue import register_detector
 from .base import RegionLocalisedRegexDetector
 from ..filth.postalcode import PostalCodeFilth
 
@@ -8,6 +9,7 @@ class PostalCodeDetector(RegionLocalisedRegexDetector):
     """Detects postal codes, currently only British post codes are supported."""
     filth_cls = PostalCodeFilth
     name = 'postalcode'
+    autoload = True
     region_regex = {
         # Informed by https://en.wikipedia.org/wiki/Postcodes_in_the_United_Kingdom#Validation
         # and validated against https://osdatahub.os.uk/downloads/open/CodePointOpen
@@ -54,3 +56,6 @@ class PostalCodeDetector(RegionLocalisedRegexDetector):
             )
         """, re.VERBOSE),
     }
+
+
+register_detector(PostalCodeDetector)
