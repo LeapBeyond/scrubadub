@@ -88,9 +88,11 @@ in the resulting output, you can disable the email address cleaning like this:
 .. code:: pycon
 
     >>> import scrubadub
-    >>> scrubber = scrubadub.Scrubber()
-    >>> scrubber.remove_detector('email')
     >>> text = "contact Joe Duffy at joe@example.com"
+    >>> scrubber = scrubadub.Scrubber()
+    >>> scrubber.clean(text)
+    u"contact {{NAME}} {{NAME}} at {{EMAIL}}"
+    >>> scrubber.remove_detector('email')
     >>> scrubber.clean(text)
     u"contact {{NAME}} {{NAME}} at joe@example.com"
 
