@@ -80,7 +80,8 @@ class SpacyNameDetector(SpacyEntityDetector):
     >>> import scrubadub, scrubadub.detectors.spacy_name_title
     >>> scrubadub.detectors.spacy_name_title.SpacyNameDetector.NOUN_TAGS['de'] = ['NN', 'NE', 'NNE']
     >>> scrubadub.detectors.spacy_name_title.SpacyNameDetector.NAME_PREFIXES['de'] = ['frau', 'herr']
-    >>> detector = scrubadub.detectors.spacy_name_title.SpacyNameDetector(locale='de_DE', model='de_core_news_sm')
+    >>> detector = scrubadub.detectors.spacy_name_title.SpacyNameDetector(locale='de_DE', model='de_core_news_sm',
+    ...     include_spacy=False)
     >>> scrubber = scrubadub.Scrubber(detector_list=[detector], locale='de_DE')
     >>> scrubber.clean("bleib dort Frau Schmidt")
     'bleib dort {{NAME+NAME}}'
