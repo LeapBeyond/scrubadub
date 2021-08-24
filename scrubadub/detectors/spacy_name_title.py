@@ -143,7 +143,7 @@ class SpacyNameDetector(SpacyEntityDetector):
 
     @staticmethod
     def _get_affix_and_spacy_entities(doc: spacy.tokens.doc.Doc) -> Iterable[spacy.tokens.span.Span]:
-        return (doc.ents + doc._.person_titles)
+        return (doc.ents + tuple(doc._.person_titles))
 
     @staticmethod
     def find_names(doc: spacy.tokens.doc.Doc, tokens: Sequence[spacy.tokens.token.Token],
@@ -204,7 +204,7 @@ class SpacyNameDetector(SpacyEntityDetector):
 
     @staticmethod
     def _remove_trigger_tokens(doc: spacy.tokens.doc.Doc,
-                               tokens: Sequence[spacy.tokens.token.Token]) -> List[spacy.tokens.token.Token]:
+                               tokens: Sequence[spacy.tokens.token.Token]) -> Sequence[spacy.tokens.token.Token]:
         """Remove all trigger words from the start and end of a sequence of tokens."""
         tokens_to_remove = []  # type: List[str]
 
