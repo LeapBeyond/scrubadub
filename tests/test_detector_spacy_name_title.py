@@ -53,11 +53,23 @@ class SpacyExpandPersonTitleTestCase(unittest.TestCase, BaseTestCase):
             (18, 33),
             (6, 16),
         ]
-        for doc, beg_end in zip(doc_list, beg_end_list):
+        count_list = [2, 2, 2, 2, 2, 1]
+        for doc, beg_end, count in zip(doc_list, beg_end_list, count_list):
             filth_list = list(self.detector.iter_filth(doc))
-            self.assertEqual(2, len(filth_list), doc)
+            self.assertEqual(count, len(filth_list), doc)
             self.assertIsInstance(filth_list[0], NameFilth)
             self.assertEqual(beg_end, (filth_list[0].beg, filth_list[0].end))
+
+    def test_bad_examples(self):
+        doc_list = [
+            "Take it from the office supplies as soon as possible!",
+            '"Hi" said John.',
+            'Hello? Mike? Are you there?',
+            "When will you get out from Hospital?"
+        ]
+        for doc in doc_list:
+            filth_list = list(self.detector.iter_filth(doc))
+            self.assertEqual(0, len(filth_list), doc)
 
     def test_doc(self):
         doc = """
