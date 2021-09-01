@@ -103,45 +103,45 @@ Detectors that need to be enabled
 
 These detectors need to be imported first before they they can be added to a ``Scrubber``.
 
-scrubadub.detectors.AddressDetector
------------------------------------
+scrubadub.detectors.address.AddressDetector
+-------------------------------------------
 
-.. autoclass:: scrubadub.detectors.AddressDetector
+.. autoclass:: scrubadub.detectors.address.AddressDetector
 
-scrubadub.detectors.DateOfBirthDetector
+scrubadub.detectors.date_of_birth.DateOfBirthDetector
+-----------------------------------------------------
+
+.. autoclass:: scrubadub.detectors.date_of_birth.DateOfBirthDetector
+
+scrubadub.detectors.skype.SkypeDetector
 ---------------------------------------
 
-.. autoclass:: scrubadub.detectors.DateOfBirthDetector
+.. autoclass:: scrubadub.detectors.skype.SkypeDetector
 
-scrubadub.detectors.SkypeDetector
----------------------------------
+scrubadub.detectors.spacy.SpacyEntityDetector
+---------------------------------------------
 
-.. autoclass:: scrubadub.detectors.SkypeDetector
+.. autoclass:: scrubadub.detectors.spacy.SpacyEntityDetector
 
-scrubadub.detectors.SpacyEntityDetector
----------------------------------------
-
-.. autoclass:: scrubadub.detectors.SpacyEntityDetector
-
-scrubadub.detectors.SpacyNameDetector 
----------------------------------------
+scrubadub.detectors.spacy_name_title.SpacyNameDetector
+------------------------------------------------------
 
 .. autoclass:: scrubadub.detectors.spacy_name_title.SpacyNameDetector
 
-scrubadub.detectors.StanfordEntityDetector
-------------------------------------------
+scrubadub.detectors.stanford.StanfordEntityDetector
+---------------------------------------------------
 
-.. autoclass:: scrubadub.detectors.StanfordEntityDetector
+.. autoclass:: scrubadub.detectors.stanford.StanfordEntityDetector
 
 scrubadub.detectors.TaggedEvaluationFilthDetector
 -------------------------------------------------
 
 .. autoclass:: scrubadub.detectors.TaggedEvaluationFilthDetector
 
-scrubadub.detectors.TextBlobNameDetector
-----------------------------------------
+scrubadub.detectors.text_blob.TextBlobNameDetector
+--------------------------------------------------
 
-.. autoclass:: scrubadub.detectors.TextBlobNameDetector
+.. autoclass:: scrubadub.detectors.text_blob.TextBlobNameDetector
 
 scrubadub.detectors.UserSuppliedFilthDetector
 ---------------------------------------------
