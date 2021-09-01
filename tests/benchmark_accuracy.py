@@ -144,10 +144,15 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
     except ImportError:
         pass
     try:
+        import scrubadub.detectors.text_blob
+        detector_available['text_blob'] = True
+    except ImportError:
+        pass
+    try:
         import scrubadub.detectors.date_of_birth
+        scrubadub.detectors.date_of_birth.DateOfBirthDetector.autoload = True
         detector_available['date_of_birth'] = True
-        detector_name = scrubadub.detectors.date_of_birth.DateOfBirthDetector.name
-        scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
+        # scrubadub.detectors.register_detector(scrubadub.detectors.date_of_birth.DateOfBirthDetector, autoload=True)
     except ImportError:
         pass
 
@@ -174,7 +179,7 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
             pass
         # Disable spacy due to thinc.config.ConfigValidationError
         if detector_available['spacy']:
-            del scrubadub.detectors.detector_configuration[scrubadub.detectors.spacy.SpacyEntityDetector.name]
+            scrubadub.detectors.remove_detector(scrubadub.detectors.date_of_birth.DateOfBirthDetector)
 
             # TODO: this only supports english models for spacy, this should be improved
             class SpacyEnSmDetector(scrubadub.detectors.spacy.SpacyEntityDetector):
@@ -208,9 +213,7 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
             pass
         # Disable spacy due to thinc.config.ConfigValidationError
         if detector_available['spacy_title']:
-            del scrubadub.detectors.detector_configuration[
-                scrubadub.detectors.spacy_name_title.SpacyNameDetector.name
-            ]
+            scrubadub.detectors.remove_detector(scrubadub.detectors.spacy_name_title.SpacyNameDetector)
 
             # TODO: this only supports english models for spacy, this should be improved
             class SpacyTitleEnSmDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):

@@ -336,47 +336,43 @@ def load_complicated_detectors(user_supplied_pii: Optional[Sequence[str]] = None
 
     try:
         import scrubadub.detectors.sklearn_address
-        detector_name = scrubadub.detectors.sklearn_address.SklearnAddressDetector.name
-        scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
+        scrubadub.detectors.sklearn_address.SklearnAddressDetector.autoload = True
         detector_available['address_sklearn'] = True
     except ImportError:
         pass
     try:
         import scrubadub.detectors.stanford
-        detector_name = scrubadub.detectors.stanford.StanfordEntityDetector.name
-        scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
+        scrubadub.detectors.stanford.StanfordEntityDetector.autoload = True
         detector_available['stanford'] = True
     except ImportError:
         pass
     try:
         import scrubadub.detectors.address
-        detector_name = scrubadub.detectors.address.AddressDetector.name
-        scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
+        scrubadub.detectors.address.AddressDetector.autoload = True
         detector_available['address'] = True
     except ImportError:
         pass
     try:
         import scrubadub.detectors.date_of_birth
+        scrubadub.detectors.date_of_birth.DateOfBirthDetector.autoload = True
         detector_available['date_of_birth'] = True
-        detector_name = scrubadub.detectors.date_of_birth.DateOfBirthDetector.name
-        scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
     except ImportError:
         pass
-    # try:
-    #     import scrubadub.detectors.text_blob
-    #     detector_name = scrubadub.detectors.text_blob.TextBlobNameDetector.name
-    #     scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
-    #     detector_available['text_blob'] = True
-    # except ImportError:
-    #     pass
+    try:
+        import scrubadub.detectors.text_blob
+        scrubadub.detectors.text_blob.TextBlobNameDetector.autoload = True
+        detector_available['text_blob'] = True
+    except ImportError:
+        pass
     try:
         import scrubadub.detectors.spacy
+        scrubadub.detectors.spacy.SpacyEntityDetector.autoload = True
         detector_available['spacy'] = True
     except ImportError:
         pass
     # Disable spacy due to thinc.config.ConfigValidationError
     if detector_available['spacy']:
-        del scrubadub.detectors.detector_configuration[scrubadub.detectors.spacy.SpacyEntityDetector.name]
+        scrubadub.detectors.remove_detector(scrubadub.detectors.spacy.SpacyEntityDetector)
 
         # TODO: this only supports english models for spacy, this should be improved
         class SpacyEnSmDetector(scrubadub.detectors.spacy.SpacyEntityDetector):
@@ -410,9 +406,7 @@ def load_complicated_detectors(user_supplied_pii: Optional[Sequence[str]] = None
         pass
     # Disable spacy due to thinc.config.ConfigValidationError
     if detector_available['spacy_title']:
-        del scrubadub.detectors.detector_configuration[
-            scrubadub.detectors.spacy_name_title.SpacyNameDetector.name
-        ]
+        scrubadub.detectors.remove_detector(scrubadub.detectors.spacy_name_title.SpacyNameDetector)
 
         # TODO: this only supports english models for spacy, this should be improved
         class SpacyTitleEnSmDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):
