@@ -5,6 +5,7 @@ from .base import RegionLocalisedRegexDetector
 from ..filth.vehicle_licence_plate import VehicleLicencePlateFilth
 
 
+@register_detector
 class VehicleLicencePlateDetector(RegionLocalisedRegexDetector):
     """Detects standard british licence plates."""
     filth_cls = VehicleLicencePlateFilth
@@ -31,6 +32,3 @@ class VehicleLicencePlateDetector(RegionLocalisedRegexDetector):
             re.VERBOSE | re.IGNORECASE,
         ),
     }
-
-
-register_detector(VehicleLicencePlateDetector)

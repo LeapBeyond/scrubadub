@@ -5,6 +5,7 @@ from scrubadub.detectors.base import RegexDetector
 from scrubadub.filth import NationalInsuranceNumberFilth
 
 
+@register_detector
 class NationalInsuranceNumberDetector(RegexDetector):
     """Use regular expressions to remove the UK National Insurance number (NINO),
     Simple pattern matching, no checksum solution.
@@ -31,6 +32,3 @@ class NationalInsuranceNumberDetector(RegexDetector):
         """
         language, region = cls.locale_split(locale)
         return region in ['GB']
-
-
-register_detector(NationalInsuranceNumberDetector)

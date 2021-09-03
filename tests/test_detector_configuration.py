@@ -10,7 +10,7 @@ class DetectorConfigTestCase(unittest.TestCase):
         class NewDetector(scrubadub.detectors.Detector):
             name = 'new_detector'
 
-        scrubadub.detectors.catalogue.register_detector(NewDetector, False)
+        scrubadub.detectors.catalogue.register_detector(NewDetector, autoload=False)
         self.assertTrue(NewDetector.name in scrubadub.detectors.catalogue.detector_catalogue)
         self.assertFalse(NewDetector.autoload)
         self.assertEqual(scrubadub.detectors.catalogue.detector_catalogue.get(NewDetector.name), NewDetector)
@@ -19,7 +19,7 @@ class DetectorConfigTestCase(unittest.TestCase):
         with self.assertRaises(catalogue.RegistryError):
             scrubadub.detectors.catalogue.detector_catalogue.get(NewDetector.name)
 
-        scrubadub.detectors.catalogue.register_detector(NewDetector, True)
+        scrubadub.detectors.catalogue.register_detector(NewDetector, autoload=True)
         self.assertTrue(NewDetector.name in scrubadub.detectors.catalogue.detector_catalogue)
         self.assertTrue(NewDetector.autoload)
         self.assertEqual(scrubadub.detectors.catalogue.detector_catalogue.get(NewDetector.name), NewDetector)

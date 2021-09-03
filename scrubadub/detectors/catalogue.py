@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 detector_catalogue = catalogue.create('scrubadub', 'detectors', entry_points=True)
 
 
-def register_detector(detector: Type['Detector'], autoload: Optional[bool] = None):
+def register_detector(detector: Type['Detector'], *, autoload: Optional[bool] = None) -> Type['Detector']:
     """Register a detector for use with the ``Scrubber`` class.
 
     You can use ``register_detector(NewDetector, autoload=True)`` after your detector definition to automatically
@@ -23,6 +23,7 @@ def register_detector(detector: Type['Detector'], autoload: Optional[bool] = Non
         >>> class NewDetector(scrubadub.detectors.Detector):
         ...     pass
         >>> scrubadub.detectors.register_detector(NewDetector, autoload=False)
+        <class 'scrubadub.detectors.catalogue.NewDetector'>
 
     :param detector: The ``Detector`` to register with the scrubadub detector configuration.
     :type detector: Detector class
@@ -37,6 +38,8 @@ def register_detector(detector: Type['Detector'], autoload: Optional[bool] = Non
 
     detector_catalogue.register(detector.name, func=detector)
 
+    return detector
+
 
 def remove_detector(detector: Union[Type['Detector'], str]):
     """Remove an already registered detector.
@@ -47,6 +50,7 @@ def remove_detector(detector: Union[Type['Detector'], str]):
         >>> class NewDetector(scrubadub.detectors.Detector):
         ...     pass
         >>> scrubadub.detectors.catalogue.register_detector(NewDetector, autoload=False)
+        <class 'scrubadub.detectors.catalogue.NewDetector'>
         >>> scrubadub.detectors.catalogue.remove_detector(NewDetector)
 
     :param detector: The ``Detector`` to register with the scrubadub detector configuration.

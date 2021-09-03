@@ -15,6 +15,7 @@ from ..filth import SkypeFilth, Filth
 BaseBlob.pos_tagger = PatternTagger()
 
 
+@register_detector
 class SkypeDetector(RegexDetector):
     """Skype usernames tend to be used inline in dirty dirty text quite
     often but also appear as ``skype: {{SKYPE}}`` quite a bit. This method
@@ -96,6 +97,3 @@ class SkypeDetector(RegexDetector):
             yield from super(SkypeDetector, self).iter_filth(text, document_name=document_name)
 
         return
-
-
-register_detector(SkypeDetector)

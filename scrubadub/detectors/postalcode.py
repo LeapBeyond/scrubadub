@@ -5,6 +5,7 @@ from .base import RegionLocalisedRegexDetector
 from ..filth.postalcode import PostalCodeFilth
 
 
+@register_detector
 class PostalCodeDetector(RegionLocalisedRegexDetector):
     """Detects postal codes, currently only British post codes are supported."""
     filth_cls = PostalCodeFilth
@@ -56,6 +57,3 @@ class PostalCodeDetector(RegionLocalisedRegexDetector):
             )
         """, re.VERBOSE),
     }
-
-
-register_detector(PostalCodeDetector)

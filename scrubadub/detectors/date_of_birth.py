@@ -21,6 +21,7 @@ from ..filth.base import Filth
 from ..filth.date_of_birth import DateOfBirthFilth
 
 
+@register_detector
 class DateOfBirthDetector(Detector):
     """This detector aims to detect dates of birth in text.
 
@@ -170,7 +171,5 @@ class DateOfBirthDetector(Detector):
         language, region = cls.locale_split(locale)
         return language in cls.context_words_language_map.keys()
 
-
-register_detector(DateOfBirthDetector)
 
 __all__ = ['DateOfBirthDetector']

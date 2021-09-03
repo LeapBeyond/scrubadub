@@ -5,6 +5,7 @@ from .base import RegexDetector
 from ..filth import UrlFilth
 
 
+@register_detector
 class UrlDetector(RegexDetector):
     """Use regular expressions to remove URLs that begin with ``http://``,
     ``https://`` or ``www.`` from dirty dirty ``text``.
@@ -30,6 +31,3 @@ class UrlDetector(RegexDetector):
             [\-\w@:%\+\.~\#?&/=]*                # rest of path, query, & hash
         )
     ''', re.VERBOSE)
-
-
-register_detector(UrlDetector)

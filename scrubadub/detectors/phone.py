@@ -7,6 +7,7 @@ from .base import Detector
 from ..filth import PhoneFilth
 
 
+@register_detector
 class PhoneDetector(Detector):
     """Remove phone numbers from dirty dirty ``text`` using
     `python-phonenumbers <https://github.com/daviddrysdale/python-phonenumbers>`_, a port of a
@@ -52,6 +53,3 @@ class PhoneDetector(Detector):
         :rtype: bool
         """
         return True
-
-
-register_detector(PhoneDetector)

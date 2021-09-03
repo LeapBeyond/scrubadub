@@ -15,6 +15,7 @@ from ..utils import CanonicalStringSet
 BaseBlob.pos_tagger = PatternTagger()
 
 
+@register_detector
 class TextBlobNameDetector(RegexDetector):
     """Use part of speech tagging from textblob to clean proper nouns out of the dirty dirty
     ``text``. Disallow particular nouns by adding them to the ``NameDetector.disallowed_nouns`` set.
@@ -74,6 +75,3 @@ class TextBlobNameDetector(RegexDetector):
         # fr and de are possible through plugins, but need to be implemented on this end
         # https://github.com/sloria/textblob-fr and https://github.com/markuskiller/textblob-de
         return language in ['en', ]
-
-
-register_detector(TextBlobNameDetector)

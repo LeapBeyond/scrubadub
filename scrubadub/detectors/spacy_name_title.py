@@ -67,6 +67,7 @@ def expand_person_entities(doc: spacy.tokens.doc.Doc) -> spacy.tokens.doc.Doc:
     return doc
 
 
+@register_detector
 class SpacyNameDetector(SpacyEntityDetector):
     """Add an extension to the spacy detector to look for tokens that often occur before or after names of people's
     names, a prefix might be Hello as in "Hello Jane", or Mrs as in "Mrs Jane Smith" and a suffix could be PhD as
@@ -275,7 +276,5 @@ class SpacyNameDetector(SpacyEntityDetector):
             language in SpacyNameDetector.NOUN_TAGS
         )
 
-
-register_detector(SpacyNameDetector)
 
 __all__ = ['SpacyNameDetector']

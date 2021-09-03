@@ -9,6 +9,7 @@ from scrubadub.detectors.base import RegexDetector
 from scrubadub.filth import Filth, SocialSecurityNumberFilth
 
 
+@register_detector
 class SocialSecurityNumberDetector(RegexDetector):
     """Use regular expressions to detect a social security number (SSN) in
     dirty dirty ``text``.
@@ -58,6 +59,3 @@ class SocialSecurityNumberDetector(RegexDetector):
         """
         language, region = cls.locale_split(locale)
         return region in ['US']
-
-
-register_detector(SocialSecurityNumberDetector)

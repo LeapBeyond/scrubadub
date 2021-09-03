@@ -38,6 +38,7 @@ pyap.source_GB.data.full_address = r"""
 )
 
 
+@register_detector
 class AddressDetector(Detector):
     """This ``Detector`` aims to detect addresses.
 
@@ -156,6 +157,3 @@ class AddressDetector(Detector):
                     document_name=document_name,
                     locale=self.locale,
                 )
-
-
-register_detector(AddressDetector)

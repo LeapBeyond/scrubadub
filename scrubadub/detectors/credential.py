@@ -5,6 +5,7 @@ from ..filth import CredentialFilth
 from scrubadub.detectors.catalogue import register_detector
 
 
+@register_detector
 class CredentialDetector(RegexDetector):
     """Remove username/password combinations from dirty drity ``text``.
     """
@@ -23,6 +24,3 @@ class CredentialDetector(RegexDetector):
         (password|pw|p:)\s*:?\s*       # password might have : and whitespace
         (?P<password>.*)               # password can be anything until EOL
     ''', re.MULTILINE | re.VERBOSE | re.IGNORECASE)
-
-
-register_detector(CredentialDetector)

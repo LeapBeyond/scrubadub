@@ -29,6 +29,7 @@ KnownFilthItem = TypedDict(
 )
 
 
+@register_detector
 class TaggedEvaluationFilthDetector(Detector):
     """Use this ``Detector`` to find tag filth as true ``Filth``. This is useful when you want evaluate the
     effectiveness of a Detector using Filth that has been selected by a human.
@@ -291,6 +292,3 @@ class TaggedEvaluationFilthDetector(Detector):
                     "Unknown keys in predefined PII item: "
                     "{}".format(pii_item.keys())
                 )
-
-
-register_detector(TaggedEvaluationFilthDetector)

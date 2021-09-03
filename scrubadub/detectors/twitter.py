@@ -5,6 +5,7 @@ from .base import RegexDetector
 from ..filth import TwitterFilth
 
 
+@register_detector
 class TwitterDetector(RegexDetector):
     """Use regular expression magic to remove twitter usernames from dirty
     dirty ``text``.
@@ -20,6 +21,3 @@ class TwitterDetector(RegexDetector):
     regex = re.compile((
         r"(?<!\w)@((?!((admin)|(twitter)))[a-z0-9_]){2,15}\b"
     ), re.VERBOSE | re.IGNORECASE)
-
-
-register_detector(TwitterDetector)

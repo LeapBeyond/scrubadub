@@ -5,6 +5,7 @@ from scrubadub.detectors.base import RegexDetector
 from scrubadub.filth import TaxReferenceNumberFilth
 
 
+@register_detector
 class TaxReferenceNumberDetector(RegexDetector):
     """Use regular expressions to detect the UK PAYE temporary reference number (TRN),
     Simple pattern matching, no checksum solution.
@@ -28,6 +29,3 @@ class TaxReferenceNumberDetector(RegexDetector):
         """
         language, region = cls.locale_split(locale)
         return region in ['GB']
-
-
-register_detector(TaxReferenceNumberDetector)

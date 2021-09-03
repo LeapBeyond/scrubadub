@@ -25,6 +25,7 @@ from ..filth import Filth, NameFilth, OrganizationFilth, LocationFilth, DateOfBi
 from ..utils import CanonicalStringSet
 
 
+@register_detector
 class SpacyEntityDetector(Detector):
     """Use spaCy's named entity recognition to identify possible ``Filth``.
 
@@ -314,7 +315,5 @@ class SpacyEntityDetector(Detector):
         """
         return True
 
-
-register_detector(SpacyEntityDetector)
 
 __all__ = ['SpacyEntityDetector']

@@ -6,6 +6,7 @@ from ..filth.base import Filth
 from .tagged import TaggedEvaluationFilthDetector
 
 
+@register_detector
 class UserSuppliedFilthDetector(TaggedEvaluationFilthDetector):
     """Use this ``Detector`` to find some known filth in the text. An example might be if you have a list of employee
     numbers that you wish to remove from a document, as shown below:
@@ -84,6 +85,3 @@ class UserSuppliedFilthDetector(TaggedEvaluationFilthDetector):
                 locale=locale,
             )
         raise KeyError(f"Unable to find filth '{comparison_type}'")
-
-
-register_detector(UserSuppliedFilthDetector)
