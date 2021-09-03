@@ -1,8 +1,10 @@
 import re
 
+from typing import Optional, Generator
+
 from scrubadub.detectors.catalogue import register_detector
 from .base import RegexDetector
-from ..filth import EmailFilth
+from ..filth import EmailFilth, Filth
 
 
 @register_detector
@@ -21,17 +23,21 @@ class EmailDetector(RegexDetector):
     #
     # adapted from https://gist.github.com/dideler/5219706
     regex = re.compile((
-        r"[a-z0-9!#$%&'*+\/=?^_`{|}~-]+"           # start with this character
-        r"(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*"    # valid next characters
-        r"(@|\sat\s)"                              # @ or at fanciness
+        r"[a-z0-9!#$%&'*+\/=?^_`{|}~-]"               # start with this character
         r"(?:"
-        r"[a-z0-9]"                                # domain starts like this
-        r"(?:[a-z0-9-]*[a-z0-9])?"                 # might have this
-        r"(\.|\sdot\s)"                            # . or dot fanciness
-        r")+"                                      # repeat as necessary
-        r"[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"         # end of domain
+        r"    [\.a-z0-9!#$%&'*+\/=?^_`{|}~-]{0,62}"   # valid next characters (max length 64 chars before @)
+        r"    [a-z0-9!#$%&'*+\/=?^_`{|}~-]"           # end with this character
+        r")?"
+        r"(@|\sat\s)"                                 # @ or the word 'at' instead
+        r"[a-z0-9]"                                   # domain starts like this
+        r"(?:"
+        r"    (?:\.|\sdot\s|[a-z0-9-]){0,251}"        # might have any of these, with '.' or the word 'dot' instead
+        r"    [a-z0-9]"                               # max 253 chars, ends with one of these
+        r")?"
     ), re.VERBOSE | re.IGNORECASE)
 
+    at_matcher = re.compile(r"(?:@|\sat\s)", re.IGNORECASE)
+    dot_matcher = re.compile(r"(?:\.|\sdot\s)", re.IGNORECASE)
 
     # def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
     #     """Yields discovered filth in the provided ``text``.
