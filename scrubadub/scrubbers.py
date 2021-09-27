@@ -376,6 +376,8 @@ class Scrubber:
             for filth in filth_iterator:
                 if not isinstance(filth, Filth):
                     raise TypeError('iter_filth must always yield Filth')
+                if not filth.is_valid():
+                    continue
                 filth_list.append(filth)
 
         # This is split up so that we only have to use lists if we have to post_process Filth
