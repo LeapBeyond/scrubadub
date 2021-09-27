@@ -92,6 +92,7 @@ class TaggedEvaluationFilthDetector(Detector):
 
     filth_cls = TaggedEvaluationFilth
     name = 'tagged'
+    autoload = False
 
     def __init__(self, known_filth_items: List[KnownFilthItem], **kwargs):
         """Initialise the ``Detector``.

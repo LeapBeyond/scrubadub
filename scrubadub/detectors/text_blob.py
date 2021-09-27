@@ -22,6 +22,7 @@ class TextBlobNameDetector(RegexDetector):
     """
     filth_cls = NameFilth
     name = 'text_blob_name'
+    autoload = False
 
     disallowed_nouns = CanonicalStringSet(["skype"])
 

@@ -30,6 +30,7 @@ class SkypeDetector(RegexDetector):
     """
     filth_cls = SkypeFilth
     name = 'skype'
+    autoload = False
 
     word_radius = 10
 
