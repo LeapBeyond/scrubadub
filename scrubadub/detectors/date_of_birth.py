@@ -26,7 +26,8 @@ class DateOfBirthDetector(Detector):
     """This detector aims to detect dates of birth in text.
 
     First all possible dates are found, then they are filtered to those that would result in people being between
-    ``min_age_years`` and ``max_age_years``, which default to 18 and 100 respectively.
+    ``DateOfBirthFilth.min_age_years`` and ``DateOfBirthFilth.max_age_years``, which default to 18 and 100
+    respectively.
 
     If ``require_context`` is True, we search for one of the possible ``context_words`` near the found date. We search
     up to ``context_before`` lines before the date and up to ``context_after`` lines after the date. The context that
@@ -34,8 +35,9 @@ class DateOfBirthDetector(Detector):
     birth. The context words can be set using the ``context_words`` parameter, which expects a list of strings.
 
     >>> import scrubadub, scrubadub.detectors.date_of_birth
+    >>> DateOfBirthFilth.min_age_years = 12
     >>> scrubber = scrubadub.Scrubber(detector_list=[
-    ...     scrubadub.detectors.date_of_birth.DateOfBirthDetector(min_age_years=12),
+    ...     scrubadub.detectors.date_of_birth.DateOfBirthDetector(),
     ... ])
     >>> scrubber.clean("I was born on 10-Nov-2008.")
     'I was born {{DATE_OF_BIRTH}}.'
@@ -43,26 +45,21 @@ class DateOfBirthDetector(Detector):
     """
     name = 'date_of_birth'
     filth_cls = DateOfBirthFilth
+    autoload = False
 
     context_words_language_map = {
         'en': ['birth', 'born', 'dob', 'd.o.b.'],
         'de': ['geburt', 'geboren', 'geb', 'geb.'],
     }
 
-    def __init__(self, context_before: int = 2, context_after: int = 1, min_age_years: int = 18,
-                 max_age_years: int = 100, require_context: bool = True, context_words: Optional[List[str]] = None,
-                 **kwargs):
+    def __init__(self, context_before: int = 2, context_after: int = 1, require_context: bool = True,
+                 context_words: Optional[List[str]] = None, **kwargs):
         """Initialise the detector.
 
         :param context_before: The number of lines of context to search before the date
         :type context_before: int
         :param context_after: The number of lines of context to search after the date
         :type context_after: int
-        :param min_age_years: The minimum age of the date of birth. This is particularly useful if your data only
-            contains adults and the other general dates are recent.
-        :type min_age_years: int
-        :param max_age_years: The maximum age of the date of birth.
-        :type max_age_years: int
         :param require_context: Set to False if your dates of birth are not near words that provide context (such as
             "birth" or "DOB").
         :type require_context: bool
@@ -79,8 +76,6 @@ class DateOfBirthDetector(Detector):
 
         self.context_before = context_before
         self.context_after = context_after
-        self.min_age_years = min_age_years
-        self.max_age_years = max_age_years
         self.require_context = require_context
 
         try:
@@ -124,7 +119,8 @@ class DateOfBirthDetector(Detector):
 
             # Skip any dates that fall outside of the configured age range
             years_since_identified_date = datetime.now().year - identified_date.year
-            within_age_range = self.min_age_years <= years_since_identified_date <= self.max_age_years
+            within_age_range = (DateOfBirthFilth.min_age_years <= years_since_identified_date <=
+                                DateOfBirthFilth.max_age_years)
             if not within_age_range:
                 continue
 
