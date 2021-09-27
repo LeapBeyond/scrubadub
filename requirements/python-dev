@@ -27,3 +27,5 @@ tabulate
 
 types-dateparser
 types-requests
+
+pandas
