@@ -28,3 +28,22 @@ exist that alter the replacement string.
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+Catalogue functions
+-------------------
+
+.. _scrubadub.post_processors.register_post_processor:
+
+scrubadub.post_processors.register_post_processor
+-------------------------------------------------
+
+.. autofunction:: scrubadub.post_processors.register_post_processor
+
+.. _scrubadub.post_processors.remove_post_processor:
+
+scrubadub.post_processors.remove_post_processor
+-----------------------------------------------
+
+.. autofunction:: scrubadub.post_processors.remove_post_processor
+
