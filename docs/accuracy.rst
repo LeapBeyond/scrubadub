@@ -101,11 +101,11 @@ This would need to be replaced with something to load real data such as in `the 
         >>> print(json.dumps(known_filth_items[1:], indent=4))
         [
             {
-                "match": "todd56@ryan-hanson.biz",
+                "match": "wwashington@reed-ryan.org",
                 "filth_type": "email"
             },
             {
-                "match": "http://sheppard.com/",
+                "match": "https://www.wong.com/",
                 "filth_type": "url"
             }
         ]
@@ -113,16 +113,17 @@ This would need to be replaced with something to load real data such as in `the 
         >>> scrubber.add_detector(scrubadub.detectors.TaggedEvaluationFilthDetector(known_filth_items=known_filth_items))
         >>> filth_list = list(scrubber.iter_filth(document))
         >>> print(scrubadub.comparison.get_filth_classification_report(filth_list))
-        filth     detector     locale    precision    recall  f1-score   support
+        filth    detector    locale      precision    recall  f1-score   support
         <BLANKLINE>
-          url          url      en_US         1.00      1.00      1.00         1
-        email        email      en_US         1.00      1.00      1.00         2
+        email    email       en_US            1.00      1.00      1.00         2
+        url      url         en_US            1.00      1.00      1.00         1
         <BLANKLINE>
                               micro avg       1.00      1.00      1.00         3
                               macro avg       1.00      1.00      1.00         3
                            weighted avg       1.00      1.00      1.00         3
                             samples avg       1.00      1.00      1.00         3
         <BLANKLINE>
+
 
 In addition to this classification report, there is also the ``get_filth_dataframe(filth_list)`` function that returns a pandas `DataFrame` that can be used to get more information on the types of `Filth` that were detected.
 
