@@ -1,3 +1,0 @@
-
-Creating New Detectors
-======================
