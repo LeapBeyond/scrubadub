@@ -7,7 +7,7 @@ Localization
 We have started to make scrubadub localised to support multiple languages and regions.
 We are on the beginning of this journey, so stay tuned.
 
-By setting a locale the ``Detector``\ s that need configuring based on your region or language will know what to expect.
+By setting a locale the ``Detector``\ s that need configuring based on your region or language will know what type of text to expect.
 This means that a ``Detector`` that needs to know how  ``Filth`` (such as a phone number) is formatted in your
 region will be able to look for ``Filth`` in that specific format.
 Other detectors that use machine learning models to identify entities in the text will be able to use models
@@ -68,7 +68,7 @@ Below is the full example:
 
 .. code:: pycon
 
-    >>> import scrubadub
+    >>> import scrubadub, re
 
     >>> class EmployeeNameFilth(scrubadub.filth.Filth):
     ...     type = 'employee_name'
@@ -76,8 +76,8 @@ Below is the full example:
     >>> class EmployeeDetector(scrubadub.detectors.Detector):
     ...     name = 'employee_detector'
     ...
-    ...     def __init__(self, **kwargs):
-    ...         super(EmployeeDetector, self).(**kwargs)
+    ...     def __init__(self, *args, **kwargs):
+    ...         super(EmployeeDetector, self).__init__(*args, **kwargs)
     ...         self.employees = {'DE': ['Walther'], 'US': ['Georgina'] }
     ...         self.regex = re.compile('|'.join(self.employees[self.region]))
     ...
@@ -98,7 +98,3 @@ Below is the full example:
     'Jane spoke with Georgina'
     >>> de_scrubber.clean('Luigi spoke with Walther')
     'Luigi spoke with {{EMPLOYEE_NAME}}'
-
-
-
-
