@@ -80,11 +80,11 @@ class Scrubber:
 
         .. code:: pycon
 
-            >>> import scrubadub, scrubadub.detectors.spacy, scrubadub.detectors.skype
-            >>> scrubber = scrubadub.Scrubber()
-            >>> scrubber.add_detector(scrubadub.detectors.spacy.SpacyEntityDetector)
+            >>> import scrubadub
+            >>> scrubber = scrubadub.Scrubber(detector_list=[])
+            >>> scrubber.add_detector(scrubadub.detectors.CreditCardDetector)
             >>> scrubber.add_detector('skype')
-            >>> detector = scrubadub.detectors.spacy.SpacyEntityDetector(name='spacy-2', model='en_core_web_sm')
+            >>> detector = scrubadub.detectors.DateOfBirthDetector(require_context=False)
             >>> scrubber.add_detector(detector)
 
         :param detector: The ``Detector`` to add to this scrubber.
