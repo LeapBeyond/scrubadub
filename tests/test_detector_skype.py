@@ -90,4 +90,4 @@ class SkypeTestCase(unittest.TestCase, BaseTestCase):
 
     def tearDown(self) -> None:
         from scrubadub.detectors.skype import SkypeDetector
-        scrubadub.detectors.catalogue.remove_detector(SkypeDetector)
+        scrubadub.detectors.catalogue.register_detector(SkypeDetector, autoload=False)
