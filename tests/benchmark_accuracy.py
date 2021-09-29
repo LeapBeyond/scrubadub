@@ -139,7 +139,7 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
         'user_supplied': False,
     }
     try:
-        import scrubadub_address_sklearn
+        import scrubadub_sklearn
         detector_available['sklearn_address'] = True
     except ImportError:
         pass

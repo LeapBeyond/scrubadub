@@ -336,8 +336,8 @@ def load_complicated_detectors(user_supplied_pii: Optional[Sequence[str]] = None
 
 
     try:
-        import scrubadub_address_sklearn
-        scrubadub_address_sklearn.detectors.SklearnAddressDetector.autoload = True
+        import scrubadub_sklearn
+        scrubadub_sklearn.detectors.SklearnAddressDetector.autoload = True
         detector_available['address_sklearn'] = True
     except ImportError:
         pass
