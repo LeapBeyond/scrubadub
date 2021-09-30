@@ -226,6 +226,8 @@ Examples of this are given below:
     KeyError: 'can not add Detector "example_email" to this Scrubber, this name is already in use. Try removing it first.'
 
 
+.. _user_supplied_filth_detector:
+
 Searching for supplied filth
 ----------------------------
 
