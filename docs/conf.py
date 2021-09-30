@@ -122,7 +122,7 @@ pygments_style = 'sphinx'
 autodoc_member_order = 'bysource'
 
 autodoc_default_options = {
-    'special-members': True,
+    'special-members': '__init__,__name__',
     'members': True,
     'undoc-members': True,
     'show-inheritance': True,

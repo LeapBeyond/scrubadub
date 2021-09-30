@@ -50,6 +50,10 @@ scrubadub.detectors.CredentialDetector
 --------------------------------------
 
 .. autoclass:: scrubadub.detectors.CredentialDetector
+    :exclude-members: regex
+
+    .. autodata:: scrubadub.detectors.CredentialDetector.regex
+        :no-value:
 
 .. _scrubadub.detectors.CreditCardDetector:
 
@@ -57,6 +61,10 @@ scrubadub.detectors.CreditCardDetector
 --------------------------------------
 
 .. autoclass:: scrubadub.detectors.CreditCardDetector
+    :exclude-members: regex
+
+    .. autodata:: scrubadub.detectors.CreditCardDetector.regex
+        :no-value:
 
 .. _scrubadub.detectors.DriversLicenceDetector:
 
@@ -64,6 +72,10 @@ scrubadub.detectors.DriversLicenceDetector
 ------------------------------------------
 
 .. autoclass:: scrubadub.detectors.DriversLicenceDetector
+    :exclude-members: region_regex
+
+    .. autoattribute:: scrubadub.detectors.DriversLicenceDetector.region_regex
+        :no-value:
 
 .. _scrubadub.detectors.EmailDetector:
 
@@ -71,6 +83,10 @@ scrubadub.detectors.EmailDetector
 ---------------------------------
 
 .. autoclass:: scrubadub.detectors.EmailDetector
+    :exclude-members: regex
+
+    .. autodata:: scrubadub.detectors.EmailDetector.regex
+        :no-value:
 
 .. _scrubadub.detectors.en_GB.NationalInsuranceNumberDetector:
 
@@ -78,6 +94,10 @@ scrubadub.detectors.en_GB.NationalInsuranceNumberDetector
 ---------------------------------------------------------
 
 .. autoclass:: scrubadub.detectors.en_GB.NationalInsuranceNumberDetector
+    :exclude-members: region_regex
+
+    .. autoattribute:: scrubadub.detectors.en_GB.NationalInsuranceNumberDetector.region_regex
+        :no-value:
 
 .. _scrubadub.detectors.PhoneDetector:
 
@@ -92,6 +112,10 @@ scrubadub.detectors.PostalCodeDetector
 --------------------------------------
 
 .. autoclass:: scrubadub.detectors.PostalCodeDetector
+    :exclude-members: region_regex
+
+    .. autoattribute:: scrubadub.detectors.PostalCodeDetector.region_regex
+        :no-value:
 
 .. _scrubadub.detectors.en_US.SocialSecurityNumberDetector:
 
@@ -99,6 +123,10 @@ scrubadub.detectors.en_US.SocialSecurityNumberDetector
 ------------------------------------------------------
 
 .. autoclass:: scrubadub.detectors.en_US.SocialSecurityNumberDetector
+    :exclude-members: region_regex
+
+    .. autoattribute:: scrubadub.detectors.en_US.SocialSecurityNumberDetector.region_regex
+        :no-value:
 
 .. _scrubadub.detectors.en_GB.TaxReferenceNumberDetector:
 
@@ -106,6 +134,10 @@ scrubadub.detectors.en_GB.TaxReferenceNumberDetector
 ----------------------------------------------------
 
 .. autoclass:: scrubadub.detectors.en_GB.TaxReferenceNumberDetector
+    :exclude-members: region_regex
+
+    .. autoattribute:: scrubadub.detectors.en_GB.TaxReferenceNumberDetector.region_regex
+        :no-value:
 
 .. _scrubadub.detectors.TwitterDetector:
 
@@ -113,6 +145,10 @@ scrubadub.detectors.TwitterDetector
 -----------------------------------
 
 .. autoclass:: scrubadub.detectors.TwitterDetector
+    :exclude-members: regex
+
+    .. autodata:: scrubadub.detectors.TwitterDetector.regex
+        :no-value:
 
 .. _scrubadub.detectors.UrlDetector:
 
@@ -120,6 +156,10 @@ scrubadub.detectors.UrlDetector
 -------------------------------
 
 .. autoclass:: scrubadub.detectors.UrlDetector
+    :exclude-members: regex
+
+    .. autodata:: scrubadub.detectors.UrlDetector.regex
+        :no-value:
 
 .. _scrubadub.detectors.VehicleLicencePlateDetector:
 
@@ -127,6 +167,10 @@ scrubadub.detectors.VehicleLicencePlateDetector
 -----------------------------------------------
 
 .. autoclass:: scrubadub.detectors.VehicleLicencePlateDetector
+    :exclude-members: region_regex
+
+    .. autoattribute:: scrubadub.detectors.VehicleLicencePlateDetector.region_regex
+        :no-value:
 
 
 Optional detectors
@@ -228,6 +272,8 @@ scrubadub_stanford.detectors.StanfordEntityDetector
 
 Catalogue functions
 -------------------
+
+These functions register or remove ``Detector``\ s from the ``Detector`` catalogue.
 
 .. _scrubadub.detectors.register_detector:
 
