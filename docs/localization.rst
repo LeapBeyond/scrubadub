@@ -16,7 +16,7 @@ corresponding to the correct language or location.
 To set your locale you can use the standard format ``xx_YY``, where ``xx`` is a
 lower-case `language code <https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>`_
 and ``YY`` is an upper-case `country code <https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2>`_.
-Examples of this include ``en_CA`` (Canadian english), ``fr_CA` (Canadian french)` and ``de_AT`` (Austrian german).
+Examples of this include ``en_CA`` (Canadian english), ``fr_CA`` (Canadian french)` and ``de_AT`` (Austrian german).
 These locales can be set by passing them directly to one of the functions in the ``scrubadub`` module or to a ``Scrubber`` instance:
 
 .. code:: pycon
