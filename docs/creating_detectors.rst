@@ -161,46 +161,6 @@ Below is an alternitive implemtation of the ``OrangeDetector`` utilising ``iter_
 
     >>> import scrubadub, re
 
-        >>> class FruitFilth(scrubadub.filth.Filth):
-        ...     type = 'fruit'
-
-        >>> class OrangeDetector(scrubadub.detectors.Detector):
-        ...     name = 'orange'
-        ...     regex = re.compile("orange(s)?", re.IGNORECASE)
-        ...     filth_cls = FruitFilth
-        ...     def iter_filth_documents(self, document_list: 'Sequence[str]',
-        ...                              document_names: 'Sequence[Optional[str]]') -> 'Generator[Filth, None, None]':
-        ...         for text, document_name in zip(document_list, document_names):
-        ...             for match in self.regex.finditer(text):
-        ...                 yield self.filth_cls(match=match, detector_name=self.name, document_name=document_name,
-        ...                                      locale=self.locale)
-
-        >>> scrubber = scrubadub.Scrubber(detector_list=[OrangeDetector()])
-        >>> scrubber.clean('Oranges grow in my garden.')
-        '{{FRUIT}} grow in my garden.'
-
-    Note that for a given detector only one of either
-
-        >>> class FruitFilth(scrubadub.filth.Filth):
-        ...     type = 'fruit'
-
-        >>> class OrangeDetector(scrubadub.detectors.Detector):
-        ...     name = 'orange'
-        ...     regex = re.compile("orange(s)?", re.IGNORECASE)
-        ...     filth_cls = FruitFilth
-        ...     def iter_filth_documents(self, document_list: 'Sequence[str]',
-        ...                              document_names: 'Sequence[Optional[str]]') -> 'Generator[Filth, None, None]':
-        ...         for text, document_name in zip(document_list, document_names):
-        ...             for match in self.regex.finditer(text):
-        ...                 yield self.filth_cls(match=match, detector_name=self.name, document_name=document_name,
-        ...                                      locale=self.locale)
-
-        >>> scrubber = scrubadub.Scrubber(detector_list=[OrangeDetector()])
-        >>> scrubber.clean('Oranges grow in my garden.')
-        '{{FRUIT}} grow in my garden.'
-
-    Note that for a given detector only one of either
-
     >>> class FruitFilth(scrubadub.filth.Filth):
     ...     type = 'fruit'
 
