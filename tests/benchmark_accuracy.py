@@ -5,6 +5,7 @@ import copy
 import click
 import random
 
+import scrubadub.detectors.catalogue
 from faker import Faker
 from typing import List, Union, Dict, Optional, Tuple
 
@@ -90,18 +91,18 @@ def document_accuracy_settings(locales: List[str], detector_available: Dict[str,
                             if x in detector_list:
                                 detectors.append(x)
                                 added_name_detector = True
-                if detector_available['spacy_title']:
-                    if detector_list is None or 'spacy_title' in detector_list:
-                        detectors.append('spacy_title_en_core_web_sm')
+                if detector_available['spacy_name']:
+                    if detector_list is None or 'spacy_name' in detector_list:
+                        detectors.append('spacy_name_en_core_web_sm')
                         added_name_detector = True
                         if run_slow:
                             detectors += [
-                                'spacy_title_en_core_web_md', 'spacy_title_en_core_web_lg',
-                                'spacy_title_en_core_web_trf'
+                                'spacy_name_en_core_web_md', 'spacy_name_en_core_web_lg',
+                                'spacy_name_en_core_web_trf'
                             ]
                     else:
-                        for x in ['spacy_title_en_core_web_sm', 'spacy_title_en_core_web_md',
-                                  'spacy_title_en_core_web_lg', 'spacy_title_en_core_web_trf']:
+                        for x in ['spacy_name_en_core_web_sm', 'spacy_name_en_core_web_md',
+                                  'spacy_name_en_core_web_lg', 'spacy_name_en_core_web_trf']:
                             if x in detector_list:
                                 detectors.append(x)
                                 added_name_detector = True
@@ -132,110 +133,134 @@ def load_complicated_detectors(run_slow: bool) -> Dict[str, bool]:
         'sklearn_address': False,
         'date_of_birth': False,
         'spacy': False,
-        'spacy_title': False,
+        'spacy_name': False,
         'stanford': False,
         'text_blob': False,
         'user_supplied': False,
     }
     try:
-        import scrubadub.detectors.sklearn_address
+        import scrubadub_sklearn
         detector_available['sklearn_address'] = True
+    except ImportError:
+        pass
+    if not detector_available['sklearn_address']:
+        try:
+            import scrubadub.detectors.sklearn_address
+            detector_available['sklearn_address'] = True
+        except ImportError:
+            pass
+    try:
+        import scrubadub.detectors.text_blob
+        detector_available['text_blob'] = True
     except ImportError:
         pass
     try:
         import scrubadub.detectors.date_of_birth
+        scrubadub.detectors.date_of_birth.DateOfBirthDetector.autoload = True
         detector_available['date_of_birth'] = True
-        detector_name = scrubadub.detectors.date_of_birth.DateOfBirthDetector.name
-        scrubadub.detectors.detector_configuration[detector_name]['autoload'] = True
+        # scrubadub.detectors.register_detector(scrubadub.detectors.date_of_birth.DateOfBirthDetector, autoload=True)
     except ImportError:
         pass
 
     if run_slow:
         try:
-            import scrubadub.detectors.stanford
+            import scrubadub_stanford
             detector_available['stanford'] = True
         except ImportError:
             pass
+        if not detector_available['stanford']:
+            try:
+                import scrubadub.detectors.stanford
+                detector_available['stanford'] = True
+            except ImportError:
+                pass
         try:
-            import scrubadub.detectors.address
+            import scrubadub_address
             detector_available['address'] = True
         except ImportError:
             pass
-        # try:
-        #     import scrubadub.detectors.text_blob
-        #     detector_available['text_blob'] = True
-        # except ImportError:
-        #     pass
+        if not detector_available['address']:
+            try:
+                import scrubadub.detectors.address
+                detector_available['address'] = True
+            except ImportError:
+                pass
         try:
-            import scrubadub.detectors.spacy
+            import scrubadub_spacy
             detector_available['spacy'] = True
         except ImportError:
             pass
+        if not detector_available['spacy']:
+            try:
+                import scrubadub.detectors.spacy
+                detector_available['spacy'] = True
+            except ImportError:
+                pass
         # Disable spacy due to thinc.config.ConfigValidationError
         if detector_available['spacy']:
-            del scrubadub.detectors.detector_configuration[scrubadub.detectors.spacy.SpacyEntityDetector.name]
+            SpacyEntityDetector = scrubadub.detectors.detector_catalogue.get('spacy')
 
             # TODO: this only supports english models for spacy, this should be improved
-            class SpacyEnSmDetector(scrubadub.detectors.spacy.SpacyEntityDetector):
+            class SpacyEnSmDetector(SpacyEntityDetector):
                 name = 'spacy_en_core_web_sm'
                 def __init__(self, **kwargs):
                     super(SpacyEnSmDetector, self).__init__(model='en_core_web_sm', **kwargs)
 
-            class SpacyEnMdDetector(scrubadub.detectors.spacy.SpacyEntityDetector):
+            class SpacyEnMdDetector(SpacyEntityDetector):
                 name = 'spacy_en_core_web_md'
                 def __init__(self, **kwargs):
                     super(SpacyEnMdDetector, self).__init__(model='en_core_web_md', **kwargs)
 
-            class SpacyEnLgDetector(scrubadub.detectors.spacy.SpacyEntityDetector):
+            class SpacyEnLgDetector(SpacyEntityDetector):
                 name = 'spacy_en_core_web_lg'
                 def __init__(self, **kwargs):
                     super(SpacyEnLgDetector, self).__init__(model='en_core_web_lg', **kwargs)
 
-            class SpacyEnTrfDetector(scrubadub.detectors.spacy.SpacyEntityDetector):
+            class SpacyEnTrfDetector(SpacyEntityDetector):
                 name = 'spacy_en_core_web_trf'
                 def __init__(self, **kwargs):
                     super(SpacyEnTrfDetector, self).__init__(model='en_core_web_trf', **kwargs)
 
-            scrubadub.detectors.register_detector(SpacyEnSmDetector, autoload=True)
-            scrubadub.detectors.register_detector(SpacyEnMdDetector, autoload=True)
-            scrubadub.detectors.register_detector(SpacyEnLgDetector, autoload=True)
-            scrubadub.detectors.register_detector(SpacyEnTrfDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyEnSmDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyEnMdDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyEnLgDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyEnTrfDetector, autoload=True)
+            scrubadub.detectors.remove_detector('spacy')
         try:
             import scrubadub.detectors.spacy_name_title
-            detector_available['spacy_title'] = True
+            detector_available['spacy_name'] = True
         except ImportError:
             pass
         # Disable spacy due to thinc.config.ConfigValidationError
-        if detector_available['spacy_title']:
-            del scrubadub.detectors.detector_configuration[
-                scrubadub.detectors.spacy_name_title.SpacyNameDetector.name
-            ]
+        if detector_available['spacy_name']:
+            SpacyNameDetector = scrubadub.detectors.detector_catalogue.get('spacy_name')
 
             # TODO: this only supports english models for spacy, this should be improved
-            class SpacyTitleEnSmDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):
-                name = 'spacy_title_en_core_web_sm'
+            class SpacyTitleEnSmDetector(SpacyNameDetector):
+                name = 'spacy_name_en_core_web_sm'
                 def __init__(self, **kwargs):
                     super(SpacyTitleEnSmDetector, self).__init__(model='en_core_web_sm', **kwargs)
 
-            class SpacyTitleEnMdDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):
-                name = 'spacy_title_en_core_web_md'
+            class SpacyTitleEnMdDetector(SpacyNameDetector):
+                name = 'spacy_name_en_core_web_md'
                 def __init__(self, **kwargs):
                     super(SpacyTitleEnMdDetector, self).__init__(model='en_core_web_md', **kwargs)
 
-            class SpacyTitleEnLgDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):
-                name = 'spacy_title_en_core_web_lg'
+            class SpacyTitleEnLgDetector(SpacyNameDetector):
+                name = 'spacy_name_en_core_web_lg'
                 def __init__(self, **kwargs):
                     super(SpacyTitleEnLgDetector, self).__init__(model='en_core_web_lg', **kwargs)
 
-            class SpacyTitleEnTrfDetector(scrubadub.detectors.spacy_name_title.SpacyNameDetector):
-                name = 'spacy_title_en_core_web_trf'
+            class SpacyTitleEnTrfDetector(SpacyNameDetector):
+                name = 'spacy_name_en_core_web_trf'
                 def __init__(self, **kwargs):
                     super(SpacyTitleEnTrfDetector, self).__init__(model='en_core_web_trf', **kwargs)
 
-            scrubadub.detectors.register_detector(SpacyTitleEnSmDetector, autoload=True)
-            scrubadub.detectors.register_detector(SpacyTitleEnMdDetector, autoload=True)
-            scrubadub.detectors.register_detector(SpacyTitleEnLgDetector, autoload=True)
-            scrubadub.detectors.register_detector(SpacyTitleEnTrfDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyTitleEnSmDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyTitleEnMdDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyTitleEnLgDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(SpacyTitleEnTrfDetector, autoload=True)
+            scrubadub.detectors.remove_detector('spacy_name')
 
     return detector_available
 

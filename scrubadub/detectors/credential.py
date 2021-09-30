@@ -2,13 +2,16 @@ import re
 
 from .base import RegexDetector
 from ..filth import CredentialFilth
+from scrubadub.detectors.catalogue import register_detector
 
 
+@register_detector
 class CredentialDetector(RegexDetector):
     """Remove username/password combinations from dirty drity ``text``.
     """
     filth_cls = CredentialFilth
     name = 'credential'
+    autoload = True
 
     # this regular expression searches for patterns like
     #     "username: root password: root"

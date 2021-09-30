@@ -4,6 +4,7 @@ import copy
 
 from typing import Optional, List, Generator
 
+from scrubadub.detectors.catalogue import register_detector
 from .base import Detector
 from ..filth.base import Filth
 from ..filth.tagged import TaggedEvaluationFilth
@@ -28,6 +29,7 @@ KnownFilthItem = TypedDict(
 )
 
 
+@register_detector
 class TaggedEvaluationFilthDetector(Detector):
     """Use this ``Detector`` to find tag filth as true ``Filth``. This is useful when you want evaluate the
     effectiveness of a Detector using Filth that has been selected by a human.
@@ -39,7 +41,7 @@ class TaggedEvaluationFilthDetector(Detector):
 
     >>> import scrubadub, scrubadub.comparison, scrubadub.detectors.text_blob
     >>> scrubber = scrubadub.Scrubber(detector_list=[
-    ...     scrubadub.detectors.TextBlobNameDetector(name='name_detector'),
+    ...     scrubadub.detectors.text_blob.TextBlobNameDetector(name='name_detector'),
     ...     scrubadub.detectors.TaggedEvaluationFilthDetector([
     ...         {'match': 'Tom', 'filth_type': 'name'},
     ...         {'match': 'tom@example.com', 'filth_type': 'email'},
@@ -90,6 +92,7 @@ class TaggedEvaluationFilthDetector(Detector):
 
     filth_cls = TaggedEvaluationFilth
     name = 'tagged'
+    autoload = False
 
     def __init__(self, known_filth_items: List[KnownFilthItem], **kwargs):
         """Initialise the ``Detector``.

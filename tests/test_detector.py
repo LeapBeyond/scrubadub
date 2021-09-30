@@ -1,4 +1,6 @@
 import unittest
+import catalogue
+import scrubadub.detectors.catalogue
 
 from scrubadub.detectors.base import Detector, RegexDetector
 from scrubadub.detectors.url import UrlDetector
@@ -63,10 +65,10 @@ class DetectorTestCase(unittest.TestCase):
 
         detector = scrubadub.detectors.TwitterDetector()
         with self.assertRaises(ValueError):
-            scrubadub.detectors.register_detector(detector, autoload=False)
+            scrubadub.detectors.catalogue.register_detector(detector, autoload=False)
 
         with self.assertRaises(ValueError):
-            scrubadub.detectors.register_detector(123, autoload=False)
+            scrubadub.detectors.catalogue.register_detector(123, autoload=False)
 
     def test_detector_registration(self):
         """Test to ensure adding a detector adds it to the configuration as expected"""
@@ -74,8 +76,14 @@ class DetectorTestCase(unittest.TestCase):
         class Temp(scrubadub.detectors.base.Detector):
             name = "temp"
 
-        scrubadub.detectors.register_detector(Temp, autoload=False)
+        with self.assertRaises(catalogue.RegistryError):
+            scrubadub.detectors.catalogue.detector_catalogue.get(Temp.name)
 
-        self.assertIn(Temp.name, scrubadub.detectors.detector_configuration.keys())
+        scrubadub.detectors.catalogue.register_detector(Temp, autoload=False)
 
-        del scrubadub.detectors.detector_configuration[Temp.name]
+        self.assertEqual(Temp, scrubadub.detectors.catalogue.detector_catalogue.get(Temp.name))
+
+        scrubadub.detectors.catalogue.remove_detector(Temp)
+
+        with self.assertRaises(catalogue.RegistryError):
+            scrubadub.detectors.catalogue.detector_catalogue.get(Temp.name)

@@ -279,7 +279,7 @@ def get_filth_classification_report(
 
         >>> import scrubadub, scrubadub.comparison, scrubadub.detectors.text_blob
         >>> scrubber = scrubadub.Scrubber(detector_list=[
-        ...     scrubadub.detectors.TextBlobNameDetector(name='name_detector'),
+        ...     scrubadub.detectors.text_blob.TextBlobNameDetector(name='name_detector'),
         ...     scrubadub.detectors.TaggedEvaluationFilthDetector([
         ...         {'match': 'Tom', 'filth_type': 'name'},
         ...         {'match': 'tom@example.com', 'filth_type': 'email'},
@@ -404,7 +404,7 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
 
         >>> import scrubadub, scrubadub.comparison, scrubadub.detectors.text_blob
         >>> scrubber = scrubadub.Scrubber(detector_list=[
-        ...     scrubadub.detectors.TextBlobNameDetector(name='name_detector'),
+        ...     scrubadub.detectors.text_blob.TextBlobNameDetector(name='name_detector'),
         ...     scrubadub.detectors.TaggedEvaluationFilthDetector([
         ...         {'match': 'Tom', 'filth_type': 'name'},
         ...         {'match': 'tom@example.com', 'filth_type': 'email'},

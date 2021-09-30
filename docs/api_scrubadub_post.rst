@@ -1,7 +1,7 @@
 .. _api_scrubadub_post:
 
 scrubadub.post_processors
--------------------------
+=========================
 
 ``PostProcessor``\ s generally can be used to process the detected ``Filth``
 objects and make changes to them.
@@ -28,3 +28,22 @@ exist that alter the replacement string.
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+Catalogue functions
+-------------------
+
+.. _scrubadub.post_processors.register_post_processor:
+
+scrubadub.post_processors.register_post_processor
+-------------------------------------------------
+
+.. autofunction:: scrubadub.post_processors.register_post_processor
+
+.. _scrubadub.post_processors.remove_post_processor:
+
+scrubadub.post_processors.remove_post_processor
+-----------------------------------------------
+
+.. autofunction:: scrubadub.post_processors.remove_post_processor
+

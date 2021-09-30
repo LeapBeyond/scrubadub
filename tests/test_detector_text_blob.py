@@ -1,5 +1,6 @@
 import unittest
 
+import scrubadub.detectors.catalogue
 from base import BaseTestCase
 
 import scrubadub
@@ -8,7 +9,7 @@ class TextBlobNameTestCase(unittest.TestCase, BaseTestCase):
 
     def setUp(self):
         from scrubadub.detectors.text_blob import TextBlobNameDetector
-        scrubadub.detectors.register_detector(TextBlobNameDetector, autoload=True)
+        scrubadub.detectors.catalogue.register_detector(TextBlobNameDetector, autoload=True)
 
     def test_john(self):
         """
@@ -41,4 +42,4 @@ class TextBlobNameTestCase(unittest.TestCase, BaseTestCase):
 
     def tearDown(self) -> None:
         from scrubadub.detectors.text_blob import TextBlobNameDetector
-        del scrubadub.detectors.detector_configuration[TextBlobNameDetector.name]
+        scrubadub.detectors.catalogue.remove_detector(TextBlobNameDetector)

@@ -10,26 +10,32 @@ text.
 Base classes
 ------------
 
-Every ``Detector`` that inherits from ``scrubadub.detectors.base.Detector``.
+Every ``Detector`` that inherits from ``scrubadub.detectors.Detector``.
 
-scrubadub.detectors.base.Detector
+.. _scrubadub.detectors.Detector:
+
+scrubadub.detectors.Detector
+----------------------------
+
+.. autoclass:: scrubadub.detectors.Detector
+
+.. _scrubadub.detectors.RegexDetector:
+
+scrubadub.detectors.RegexDetector
 ---------------------------------
-
-.. autoclass:: scrubadub.detectors.base.Detector
-
-scrubadub.detectors.base.RegexDetector
---------------------------------------
 
 For convenience, there is also a ``RegexDetector``, which makes it easy to
 quickly add new types of ``Filth`` that can be identified from regular
 expressions:
 
-.. autoclass:: scrubadub.detectors.base.RegexDetector
+.. autoclass:: scrubadub.detectors.RegexDetector
 
-scrubadub.detectors.base.RegionLocalisedRegexDetector
------------------------------------------------------
+.. _scrubadub.detectors.RegionLocalisedRegexDetector:
 
-.. autoclass:: scrubadub.detectors.base.RegionLocalisedRegexDetector
+scrubadub.detectors.RegionLocalisedRegexDetector
+------------------------------------------------
+
+.. autoclass:: scrubadub.detectors.RegionLocalisedRegexDetector
 
 
 Detectors enabled by default
@@ -37,113 +43,250 @@ Detectors enabled by default
 
 These are the detectors that are enabled in the scrubber by default.
 
+
+.. _scrubadub.detectors.CredentialDetector:
+
 scrubadub.detectors.CredentialDetector
 --------------------------------------
 
 .. autoclass:: scrubadub.detectors.CredentialDetector
+    :exclude-members: regex
+
+    .. autodata:: scrubadub.detectors.CredentialDetector.regex
+        :no-value:
+
+.. _scrubadub.detectors.CreditCardDetector:
 
 scrubadub.detectors.CreditCardDetector
 --------------------------------------
 
 .. autoclass:: scrubadub.detectors.CreditCardDetector
+    :exclude-members: regex
+
+    .. autodata:: scrubadub.detectors.CreditCardDetector.regex
+        :no-value:
+
+.. _scrubadub.detectors.DriversLicenceDetector:
 
 scrubadub.detectors.DriversLicenceDetector
 ------------------------------------------
 
 .. autoclass:: scrubadub.detectors.DriversLicenceDetector
+    :exclude-members: region_regex
+
+    .. autoattribute:: scrubadub.detectors.DriversLicenceDetector.region_regex
+        :no-value:
+
+.. _scrubadub.detectors.EmailDetector:
 
 scrubadub.detectors.EmailDetector
 ---------------------------------
 
 .. autoclass:: scrubadub.detectors.EmailDetector
+    :exclude-members: regex
 
-scrubadub.detectors.NationalInsuranceNumberDetector
----------------------------------------------------
+    .. autodata:: scrubadub.detectors.EmailDetector.regex
+        :no-value:
 
-.. autoclass:: scrubadub.detectors.NationalInsuranceNumberDetector
+.. _scrubadub.detectors.en_GB.NationalInsuranceNumberDetector:
+
+scrubadub.detectors.en_GB.NationalInsuranceNumberDetector
+---------------------------------------------------------
+
+.. autoclass:: scrubadub.detectors.en_GB.NationalInsuranceNumberDetector
+    :exclude-members: region_regex
+
+    .. autoattribute:: scrubadub.detectors.en_GB.NationalInsuranceNumberDetector.region_regex
+        :no-value:
+
+.. _scrubadub.detectors.PhoneDetector:
 
 scrubadub.detectors.PhoneDetector
 ---------------------------------
 
 .. autoclass:: scrubadub.detectors.PhoneDetector
 
+.. _scrubadub.detectors.PostalCodeDetector:
+
 scrubadub.detectors.PostalCodeDetector
 --------------------------------------
 
 .. autoclass:: scrubadub.detectors.PostalCodeDetector
+    :exclude-members: region_regex
 
-scrubadub.detectors.SocialSecurityNumberDetector
-------------------------------------------------
+    .. autoattribute:: scrubadub.detectors.PostalCodeDetector.region_regex
+        :no-value:
 
-.. autoclass:: scrubadub.detectors.SocialSecurityNumberDetector
+.. _scrubadub.detectors.en_US.SocialSecurityNumberDetector:
 
-scrubadub.detectors.TaxReferenceNumberDetector
-----------------------------------------------
+scrubadub.detectors.en_US.SocialSecurityNumberDetector
+------------------------------------------------------
 
-.. autoclass:: scrubadub.detectors.TaxReferenceNumberDetector
+.. autoclass:: scrubadub.detectors.en_US.SocialSecurityNumberDetector
+    :exclude-members: region_regex
+
+    .. autoattribute:: scrubadub.detectors.en_US.SocialSecurityNumberDetector.region_regex
+        :no-value:
+
+.. _scrubadub.detectors.en_GB.TaxReferenceNumberDetector:
+
+scrubadub.detectors.en_GB.TaxReferenceNumberDetector
+----------------------------------------------------
+
+.. autoclass:: scrubadub.detectors.en_GB.TaxReferenceNumberDetector
+    :exclude-members: region_regex
+
+    .. autoattribute:: scrubadub.detectors.en_GB.TaxReferenceNumberDetector.region_regex
+        :no-value:
+
+.. _scrubadub.detectors.TwitterDetector:
 
 scrubadub.detectors.TwitterDetector
 -----------------------------------
 
 .. autoclass:: scrubadub.detectors.TwitterDetector
+    :exclude-members: regex
+
+    .. autodata:: scrubadub.detectors.TwitterDetector.regex
+        :no-value:
+
+.. _scrubadub.detectors.UrlDetector:
 
 scrubadub.detectors.UrlDetector
 -------------------------------
 
 .. autoclass:: scrubadub.detectors.UrlDetector
+    :exclude-members: regex
+
+    .. autodata:: scrubadub.detectors.UrlDetector.regex
+        :no-value:
+
+.. _scrubadub.detectors.VehicleLicencePlateDetector:
 
 scrubadub.detectors.VehicleLicencePlateDetector
 -----------------------------------------------
 
 .. autoclass:: scrubadub.detectors.VehicleLicencePlateDetector
+    :exclude-members: region_regex
+
+    .. autoattribute:: scrubadub.detectors.VehicleLicencePlateDetector.region_regex
+        :no-value:
 
 
-Detectors that need to be enabled
----------------------------------
+Optional detectors
+------------------
 
-These detectors need to be imported first before they they can be added to a ``Scrubber``.
+These detectors need to be manually added to a ``Scrubber``, they are not loaded automatically.
+An example is shown below that demonstrates the various ways that a detector can be added to a ``Scrubber``:
 
-scrubadub.detectors.AddressDetector
------------------------------------
+.. code-block:: pycon
 
-.. autoclass:: scrubadub.detectors.AddressDetector
+    >>> import scrubadub
+    >>> scrubber = scrubadub.Scrubber(detector_list=[scrubadub.detectors.TextBlobNameDetector()])
+    >>> scrubber.add_detector(scrubadub.detectors.CreditCardDetector)
+    >>> scrubber.add_detector('skype')
+    >>> detector = scrubadub.detectors.DateOfBirthDetector(require_context=True)
+    >>> scrubber.add_detector(detector)
+
+For further information see the :ref:`usage<usage>` page.
+
+.. _scrubadub.detectors.DateOfBirthDetector:
 
 scrubadub.detectors.DateOfBirthDetector
 ---------------------------------------
 
 .. autoclass:: scrubadub.detectors.DateOfBirthDetector
 
+.. _scrubadub.detectors.SkypeDetector:
+
 scrubadub.detectors.SkypeDetector
 ---------------------------------
 
 .. autoclass:: scrubadub.detectors.SkypeDetector
 
-scrubadub.detectors.SpacyEntityDetector
----------------------------------------
-
-.. autoclass:: scrubadub.detectors.SpacyEntityDetector
-
-scrubadub.detectors.SpacyNameDetector 
----------------------------------------
-
-.. autoclass:: scrubadub.detectors.spacy_name_title.SpacyNameDetector
-
-scrubadub.detectors.StanfordEntityDetector
-------------------------------------------
-
-.. autoclass:: scrubadub.detectors.StanfordEntityDetector
+.. _scrubadub.detectors.TaggedEvaluationFilthDetector:
 
 scrubadub.detectors.TaggedEvaluationFilthDetector
 -------------------------------------------------
 
 .. autoclass:: scrubadub.detectors.TaggedEvaluationFilthDetector
 
+.. _scrubadub.detectors.TextBlobNameDetector:
+
 scrubadub.detectors.TextBlobNameDetector
 ----------------------------------------
 
 .. autoclass:: scrubadub.detectors.TextBlobNameDetector
 
+.. _scrubadub.detectors.UserSuppliedFilthDetector:
+
 scrubadub.detectors.UserSuppliedFilthDetector
 ---------------------------------------------
 
 .. autoclass:: scrubadub.detectors.UserSuppliedFilthDetector
+
+
+External detectors
+------------------
+
+These are detectors that are not included in the ``scrubadub`` package, usually because they come with large
+external dependencies that are not always needed.
+To use them you should first import their package and then add them to the ``Scrubber``, an example of this is shown
+below:
+
+.. code-block:: pycon
+
+    >>> import scrubadub, scrubadub_address
+    >>> scrubber = scrubadub.Scrubber()
+    >>> scrubber.add_detector(scrubadub_address.detectors.AddressDetector)
+
+
+.. _scrubadub_address.detectors.AddressDetector:
+
+scrubadub_address.detectors.AddressDetector
+-------------------------------------------
+
+.. autoclass:: scrubadub_address.detectors.AddressDetector
+
+.. _scrubadub_spacy.detectors.SpacyEntityDetector:
+
+scrubadub_spacy.detectors.SpacyEntityDetector
+---------------------------------------------
+
+.. autoclass:: scrubadub_spacy.detectors.SpacyEntityDetector
+
+.. _scrubadub_spacy.detectors.SpacyNameDetector:
+
+scrubadub_spacy.detectors.SpacyNameDetector
+-------------------------------------------
+
+.. autoclass:: scrubadub_spacy.detectors.SpacyNameDetector
+
+.. _scrubadub_stanford.detectors.StanfordEntityDetector:
+
+scrubadub_stanford.detectors.StanfordEntityDetector
+---------------------------------------------------
+
+.. autoclass:: scrubadub_stanford.detectors.StanfordEntityDetector
+
+
+Catalogue functions
+-------------------
+
+These functions register or remove ``Detector``\ s from the ``Detector`` catalogue.
+
+.. _scrubadub.detectors.register_detector:
+
+scrubadub.detectors.register_detector
+-------------------------------------
+
+.. autofunction:: scrubadub.detectors.register_detector
+
+.. _scrubadub.detectors.remove_detector:
+
+scrubadub.detectors.remove_detector
+-----------------------------------
+
+.. autofunction:: scrubadub.detectors.remove_detector
+
+

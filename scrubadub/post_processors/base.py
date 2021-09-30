@@ -5,6 +5,8 @@ from ..filth import Filth
 
 class PostProcessor(object):
     name = 'post_processor'  # type: str
+    autoload = False  # type: bool
+    index = 10000  # type: int
 
     def __init__(self, name: Optional[str] = None):
         if name is not None:

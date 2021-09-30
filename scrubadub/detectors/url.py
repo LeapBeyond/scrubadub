@@ -1,9 +1,11 @@
 import re
 
+from scrubadub.detectors.catalogue import register_detector
 from .base import RegexDetector
 from ..filth import UrlFilth
 
 
+@register_detector
 class UrlDetector(RegexDetector):
     """Use regular expressions to remove URLs that begin with ``http://``,
     ``https://`` or ``www.`` from dirty dirty ``text``.
@@ -15,6 +17,7 @@ class UrlDetector(RegexDetector):
     """
     filth_cls = UrlFilth
     name = 'url'
+    autoload = True
 
     # this regular expression is convenient for captures the domain name
     # and the path separately, which is useful for keeping the domain name

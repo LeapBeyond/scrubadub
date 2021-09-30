@@ -1,10 +1,12 @@
 from typing import Optional
 
+from scrubadub.detectors.catalogue import register_detector
 from .. import filth as filth_module
 from ..filth.base import Filth
 from .tagged import TaggedEvaluationFilthDetector
 
 
+@register_detector
 class UserSuppliedFilthDetector(TaggedEvaluationFilthDetector):
     """Use this ``Detector`` to find some known filth in the text. An example might be if you have a list of employee
     numbers that you wish to remove from a document, as shown below:

@@ -4,7 +4,7 @@ Name Detection
 
 There are several detectors that can be used to detect names:
 
-1. `Stanford NER <https://nlp.stanford.edu/software/CRF-NER.html>`_ detector
+1. `Stanford <https://nlp.stanford.edu/software/CRF-NER.html>`_ detector
     * Best accuracy, requires java to be installed
 2. `Spacy v3 <https://explosion.ai/blog/spacy-v3-nightly/>`_ detector
     * Almost as good as Stanford NER, but easier to install
@@ -29,21 +29,15 @@ And then the python dependencies can be installed with:
 
 .. code-block:: console
 
-    $ pip install scrubadub[stanford]
+    $ pip install scrubadub_stanford
 
-This is equivalent to
-
-.. code-block:: console
-
-    $ pip install nltk
-
-Once this has been done, the ``StanfordNERDetector`` can be used with the following:
+Once this has been done, the ``StanfordEntityDetector`` can be used with the following:
 
 .. code-block:: pycon
 
-    >>> import scrubadub, scrubadub.detectors.stanford
+    >>> import scrubadub, scrubadub_stanford
     >>> scrubber = scrubadub.Scrubber()
-    >>> scrubber.add_detector(scrubadub.detectors.stanford.StanfordNERDetector)
+    >>> scrubber.add_detector(scrubadub_stanford.detectors.StanfordEntityDetector)
     >>> scrubber.clean("My name is John")
     'My name is {{NAME}}'
 
@@ -51,30 +45,21 @@ Spacy
 -----
 
 This is the suggested named detector, since its easy to install and works pretty well.
-However, this uses spacy v3 (v2 is the stable version) and so might break if spacy change things, since v3 is only in preview.
-The v3 version of the entity detection works much better than in v2.
-
 Spacy v3 requires python version >= 3.6 and < 3.9, as python 3.9 is not yet supported by spacy.
 
 To install all dependencies for the Spacy detector you can do:
 
 .. code-block:: console
 
-    $ pip install scrubadub[spacy]
-
-This is equivalent to:
-
-.. code-block:: console
-
-    $ pip install spacy-nightly[transformers]>=3.0.0rc1
+    $ pip install scrubadub_spacy
 
 Then to run it you can add it to your ``Scrubber``, like so:
 
 .. code-block:: pycon
 
-    >>> import scrubadub, scrubadub.detectors.spacy
+    >>> import scrubadub, scrubadub_spacy
     >>> scrubber = scrubadub.Scrubber()
-    >>> scrubber.add_detector(scrubadub.detectors.spacy.SpacyEntityDetector)
+    >>> scrubber.add_detector(scrubadub_spacy.detectors.SpacyEntityDetector)
     >>> scrubber.clean("My name is John")
     'My name is {{NAME}}'
 
@@ -83,39 +68,32 @@ This can be done with the ``enable_*`` parameters in the initialiser:
 
 .. code-block:: pycon
 
-    >>> import scrubadub, scrubadub.detectors.stanford
+    >>> import scrubadub, scrubadub_stanford
     >>> scrubber = scrubadub.Scrubber()
-    >>> scrubber.add_detector(scrubadub.detectors.stanford.StanfordNERDetector(
+    >>> scrubber.add_detector(scrubadub_stanford.detectors.StanfordEntityDetector(
     ...     enable_person=True, enable_organization=True, enable_location=True
     ... ))
-    >>> scrubber.clean("My name is John and I work at the United Nations")
-    'My name is {{NAME}} and I work at the {{ORGANIZATION}}'
+    >>> scrubber.clean("My name is John and I work at the United Nations in Geneva")
+    'My name is {{NAME}} and I work at the {{ORGANIZATION}} in {{LOCATION}}'
 
 TextBlob
 --------
 
 It is suggested not to use this detector due to its high false positive rate, however it is useful in some situations.
 Please test it on your data to ensure it works well.
-
-To install all dependencies for the TextBlob detector you can do:
-
-.. code-block:: console
-
-    $ pip install scrubadub[textblob]
-
-This is equivalent to:
+This detector is already installed in the base scrubadub package and os you only need scrubadub installed to run it.
 
 .. code-block:: console
 
-    $ pip install textblob
+    $ pip install scrubadub
 
 Then to run it you can add it to your ``Scrubber``, like so:
 
 .. code-block:: pycon
 
-    >>> import scrubadub, scrubadub.detectors.text_blob
+    >>> import scrubadub
     >>> scrubber = scrubadub.Scrubber()
-    >>> scrubber.add_detector(scrubadub.detectors.text_blob.TextBlobNameDetector)
+    >>> scrubber.add_detector(scrubadub.detectors.TextBlobNameDetector)
     >>> scrubber.clean("My name is John")
     'My name is {{NAME}}'
 

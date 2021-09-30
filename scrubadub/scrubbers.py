@@ -40,13 +40,15 @@ class Scrubber:
         self._locale = locale  # type: str
 
         if detector_list is None:
+            # First we gather all detectors that should automatically load
             detector_list = [
-                config['detector']
-                for name, config in detectors.detector_configuration.items()
-                if config['autoload'] and (
-                    not hasattr(config['detector'], 'supported_locale') or (
-                        hasattr(config['detector'], 'supported_locale') and
-                        config['detector'].supported_locale(locale)  # type: ignore
+                detector
+                for detector in detectors.catalogue.detector_catalogue.get_all().values()
+                if detector.autoload and (
+                    # Then we filter out ones that don't support the current locale
+                    not hasattr(detector, 'supported_locale') or (
+                        hasattr(detector, 'supported_locale') and
+                        detector.supported_locale(locale)  # type: ignore
                     )
                 )
             ]
@@ -56,12 +58,12 @@ class Scrubber:
 
         if post_processor_list is None:
             post_processor_list = [
-                config['post_processor']
-                for config in sorted(
-                    post_processors.post_processor_configuration.values(),
-                    key=lambda x: x['index'],
+                post_processor
+                for post_processor in sorted(
+                    post_processors.catalogue.post_processor_catalogue.get_all().values(),
+                    key=lambda pp: pp.index,
                 )
-                if config['autoload']
+                if post_processor.autoload
             ]
 
         for post_processor in post_processor_list:
@@ -78,11 +80,11 @@ class Scrubber:
 
         .. code:: pycon
 
-            >>> import scrubadub, scrubadub.detectors.spacy, scrubadub.detectors.skype
-            >>> scrubber = scrubadub.Scrubber()
-            >>> scrubber.add_detector(scrubadub.detectors.spacy.SpacyEntityDetector)
+            >>> import scrubadub
+            >>> scrubber = scrubadub.Scrubber(detector_list=[])
+            >>> scrubber.add_detector(scrubadub.detectors.CreditCardDetector)
             >>> scrubber.add_detector('skype')
-            >>> detector = scrubadub.detectors.spacy.SpacyEntityDetector(name='spacy-2', model='en_core_web_sm')
+            >>> detector = scrubadub.detectors.DateOfBirthDetector(require_context=False)
             >>> scrubber.add_detector(detector)
 
         :param detector: The ``Detector`` to add to this scrubber.
@@ -99,11 +101,8 @@ class Scrubber:
         elif isinstance(detector, Detector):
             self._check_and_add_detector(detector, warn=warn)
         elif isinstance(detector, str):
-            if detector in detectors.detector_configuration:
-                detector_cls = detectors.detector_configuration[detector]['detector']
-                self._check_and_add_detector(detector_cls(locale=self._locale), warn=warn)
-            else:
-                raise ValueError("Unknown Detector: {}".format(detector))
+            detector_cls = detectors.catalogue.detector_catalogue.get(detector)
+            self._check_and_add_detector(detector_cls(locale=self._locale), warn=warn)
 
     def remove_detector(self, detector: Union[Detector, Type[Detector], str]):
         """Remove a ``Detector`` from a Scrubber
@@ -182,9 +181,9 @@ class Scrubber:
         elif isinstance(post_processor, PostProcessor):
             self._check_and_add_post_processor(post_processor, index=index)
         elif isinstance(post_processor, str):
-            if post_processor in post_processors.post_processor_configuration:
+            if post_processor in post_processors.catalogue.post_processor_catalogue:
                 self._check_and_add_post_processor(
-                    post_processors.post_processor_configuration[post_processor]['post_processor'](), index=index
+                    post_processors.catalogue.post_processor_catalogue.get(post_processor)(), index=index
                 )
             else:
                 raise ValueError("Unknown PostProcessor: {}".format(post_processor))
@@ -377,6 +376,8 @@ class Scrubber:
             for filth in filth_iterator:
                 if not isinstance(filth, Filth):
                     raise TypeError('iter_filth must always yield Filth')
+                if not filth.is_valid():
+                    continue
                 filth_list.append(filth)
 
         # This is split up so that we only have to use lists if we have to post_process Filth

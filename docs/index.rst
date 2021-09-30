@@ -39,6 +39,7 @@ Contents
     accuracy
     names
     addresses
+    creating_detectors
     localization
     contributing
     changelog

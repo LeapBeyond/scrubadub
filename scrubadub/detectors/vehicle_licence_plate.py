@@ -1,13 +1,16 @@
 import re
 
+from scrubadub.detectors.catalogue import register_detector
 from .base import RegionLocalisedRegexDetector
 from ..filth.vehicle_licence_plate import VehicleLicencePlateFilth
 
 
+@register_detector
 class VehicleLicencePlateDetector(RegionLocalisedRegexDetector):
     """Detects standard british licence plates."""
     filth_cls = VehicleLicencePlateFilth
     name = 'vehicle_licence_plate'
+    autoload = True
 
     # Vehicle Registration Plates from:
     # https://gist.github.com/harry-jones/755501192139820eeb65e030fe878f75

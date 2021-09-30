@@ -21,32 +21,22 @@ sys.path.insert(0, project_root)
 import scrubadub
 
 try:
-    import scrubadub.detectors.address
+    import scrubadub_address
 except Exception:
     pass
 
 try:
-    import scrubadub.detectors.date_of_birth
+    import scrubadub_address_sklearn
 except Exception:
     pass
 
 try:
-    import scrubadub.detectors.skype
+    import scrubadub_spacy
 except Exception:
     pass
 
 try:
-    import scrubadub.detectors.spacy
-except Exception:
-    pass
-
-try:
-    import scrubadub.detectors.text_blob
-except Exception:
-    pass
-
-try:
-    import scrubadub.detectors.stanford
+    import scrubadub_stanford
 except Exception:
     pass
 
@@ -132,7 +122,7 @@ pygments_style = 'sphinx'
 autodoc_member_order = 'bysource'
 
 autodoc_default_options = {
-    'special-members': True,
+    'special-members': '__init__,__name__',
     'members': True,
     'undoc-members': True,
     'show-inheritance': True,

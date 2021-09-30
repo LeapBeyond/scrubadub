@@ -8,6 +8,7 @@ from collections import defaultdict
 
 from scrubadub.filth import Filth, MergedFilth, TaggedEvaluationFilth
 from scrubadub.post_processors.base import PostProcessor
+from scrubadub.post_processors.catalogue import register_post_processor
 from scrubadub import utils
 
 
@@ -36,6 +37,8 @@ class FilthReplacer(PostProcessor):
     'Contact me at EMAIL-0 or EMAIL-1, but EMAIL-0 is probably better.'
     """
     name = 'filth_replacer'  # type: str
+    autoload = False
+    index = 0
 
     # NOTE: this is not an efficient way to store this in memory. could
     # alternatively hash the type and text and do away with the overhead
@@ -159,5 +162,7 @@ class FilthReplacer(PostProcessor):
 
         return filth_list
 
+
+register_post_processor(FilthReplacer)
 
 __all__ = ['FilthReplacer']

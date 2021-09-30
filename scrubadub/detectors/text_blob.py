@@ -6,7 +6,7 @@ from textblob.en.taggers import PatternTagger
 
 from typing import Optional, Generator
 
-from . import register_detector
+from scrubadub.detectors.catalogue import register_detector
 from .base import RegexDetector
 from ..filth import NameFilth, Filth
 from ..utils import CanonicalStringSet
@@ -15,12 +15,14 @@ from ..utils import CanonicalStringSet
 BaseBlob.pos_tagger = PatternTagger()
 
 
+@register_detector
 class TextBlobNameDetector(RegexDetector):
     """Use part of speech tagging from textblob to clean proper nouns out of the dirty dirty
     ``text``. Disallow particular nouns by adding them to the ``NameDetector.disallowed_nouns`` set.
     """
     filth_cls = NameFilth
     name = 'text_blob_name'
+    autoload = False
 
     disallowed_nouns = CanonicalStringSet(["skype"])
 
@@ -74,6 +76,3 @@ class TextBlobNameDetector(RegexDetector):
         # fr and de are possible through plugins, but need to be implemented on this end
         # https://github.com/sloria/textblob-fr and https://github.com/markuskiller/textblob-de
         return language in ['en', ]
-
-
-register_detector(TextBlobNameDetector, autoload=False)

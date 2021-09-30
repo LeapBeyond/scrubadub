@@ -1,8 +1,10 @@
 import copy
 import warnings
 import unittest
+import catalogue
 
 import scrubadub
+import scrubadub.detectors.catalogue
 import scrubadub.post_processors
 from scrubadub.filth import MergedFilth, Filth
 
@@ -431,13 +433,13 @@ class ScrubberTestCase(unittest.TestCase):
                 language, region = cls.locale_split(locale)
                 return region == 'FR'
 
-        orig_config = copy.copy(scrubadub.detectors.detector_configuration)
+        orig_catalogue = copy.copy(catalogue.REGISTRY)
+        catalogue.REGISTRY = {}
         try:
-            scrubadub.detectors.detector_configuration = {}
-            scrubadub.detectors.register_detector(FRLocaleDetector, autoload=True)
+            scrubadub.detectors.catalogue.register_detector(FRLocaleDetector, autoload=True)
 
             scrubber = scrubadub.Scrubber(locale='en_GB')
-            self.assertEqual(len(scrubber._detectors), 0)
+            self.assertEqual(0, len(scrubber._detectors))
 
             with warnings.catch_warnings(record=True) as warning_context:
                 warnings.simplefilter("always")
@@ -447,9 +449,9 @@ class ScrubberTestCase(unittest.TestCase):
                     warnings.simplefilter("default")
                 self.assertEqual(sum([issubclass(w.category, UserWarning) for w in warning_context]), 1)
 
-            self.assertEqual(len(scrubber._detectors), 1)
+            self.assertEqual(1, len(scrubber._detectors))
 
             scrubber = scrubadub.Scrubber(locale='fr_FR')
-            self.assertEqual(len(scrubber._detectors), 1)
+            self.assertEqual(1, len(scrubber._detectors))
         finally:
-            scrubadub.detectors.detector_configuration = orig_config
+            catalogue.REGISTRY = orig_catalogue

@@ -138,3 +138,6 @@ class FilthTypeReplacerTestCase(unittest.TestCase):
             filth_replacer.filth_label(scrubadub.filth.TaggedEvaluationFilth(0, 1, 'a', comparison_type='phone')),
             'FILTH'
         )
+
+    def tearDown(self) -> None:
+        FilthReplacer.reset_lookup()

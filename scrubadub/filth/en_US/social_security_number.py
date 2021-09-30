@@ -21,3 +21,6 @@ class SocialSecurityNumberFilth(Filth):
             while not stdnum.us.ssn.is_valid(ssn):
                 ssn = faker.ssn()
         return faker.ssn()
+
+    def is_valid(self) -> bool:
+        return stdnum.us.ssn.is_valid(''.join(char for char in self.text if char not in '. -'))

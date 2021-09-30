@@ -2,10 +2,12 @@ import phonenumbers
 
 from typing import Optional
 
+from scrubadub.detectors.catalogue import register_detector
 from .base import Detector
 from ..filth import PhoneFilth
 
 
+@register_detector
 class PhoneDetector(Detector):
     """Remove phone numbers from dirty dirty ``text`` using
     `python-phonenumbers <https://github.com/daviddrysdale/python-phonenumbers>`_, a port of a
@@ -17,6 +19,7 @@ class PhoneDetector(Detector):
     """
     filth_cls = PhoneFilth
     name = 'phone'
+    autoload = True
 
     def iter_filth(self, text, document_name: Optional[str] = None):
         """Yields discovered filth in the provided ``text``.

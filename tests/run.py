@@ -1,18 +1,26 @@
-#!/usr/bin/env python
-
-"""Run the test suite that is specified in the .travis.yml file
-"""
+#!/usr/bin/env python3
 
 import os
 import sys
 import subprocess
 
-import yaml
 from wasabi import msg
+
+tests = [
+    "mypy --config-file setup.cfg scrubadub/",
+    "flake8  --config setup.cfg scrubadub/",
+    # If py3.5 then examples with spacy don't work so disable doctests
+    'if python3 --version | grep -Evq "Python (3\\.5\\.)" ; then nosetests --with-doctest --doctest-extension=rst ./tests/ ./scrubadub/ ./docs/ ; else nosetests ; fi',
+    "python3 ./tests/benchmark_accuracy.py --fast",
+    "python3 ./tests/benchmark_time.py",
+    'if python3 --version | grep -Evq "Python (3\\.5\\.)" ; then cd docs && make html && cd - ; fi',
+]
+
 
 def run_test(command, directory):
     """Execute a command that runs a test"""
-    wrapped_command = "cd %s && %s" % (directory, command)
+    msg.text("RUNNING  " + command)
+    wrapped_command = f"cd {directory} && {command}"
     pipe = subprocess.Popen(
         wrapped_command, shell=True,
     )
@@ -21,15 +29,11 @@ def run_test(command, directory):
         msg.good("TEST PASSED")
     else:
         msg.fail("TEST FAILED")
+    msg.text('')
     return pipe.returncode
 
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# load the script tests from the .travis.yml file
-with open(os.path.join(root_dir, '.travis.yml')) as stream:
-    travis_yml = yaml.safe_load(stream.read())
-tests = travis_yml['script']
 
 # run the tests
 if isinstance(tests, str):

@@ -1,15 +1,18 @@
 import re
 
+from scrubadub.detectors.catalogue import register_detector
 from .base import RegionLocalisedRegexDetector
 from ..filth import DriversLicenceFilth
 
 
+@register_detector
 class DriversLicenceDetector(RegionLocalisedRegexDetector):
     """Use regular expressions to detect UK driving licence numbers,
     Simple pattern matching, no checksum solution.
     """
 
     name = 'drivers_licence'
+    autoload = True
     filth_cls = DriversLicenceFilth
 
     region_regex = {

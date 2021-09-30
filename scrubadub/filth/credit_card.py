@@ -1,9 +1,11 @@
+import string
+import stdnum.luhn
 from faker import Faker
 
-from .base import RegexFilth
+from .base import Filth
 
 
-class CreditCardFilth(RegexFilth):
+class CreditCardFilth(Filth):
     type = 'credit_card'
 
     @staticmethod
@@ -16,3 +18,6 @@ class CreditCardFilth(RegexFilth):
         :rtype: str
         """
         return faker.credit_card_number()
+
+    def is_valid(self) -> bool:
+        return stdnum.luhn.is_valid(''.join(char for char in self.text if char in string.digits))

@@ -1,10 +1,20 @@
+# For the TextBlobNameDetecotr
 textblob==0.15.3
-argcomplete
+
+# For the PhoneDetector
 phonenumbers
-pandas
-sklearn
-typing_extensions
-wasabi
+
+# For SSN, credit cards and TRN
 python-stdnum
-faker
+
+# For the DateOfBirthDetector, master version due to an unfixed bug... but which one?
 dateparser @ git+https://github.com/scrapinghub/dateparser.git
+
+# For the detector/post-processor catalogues
+catalogue
+
+# For scrubadub.comparison
+sklearn
+
+typing_extensions
+faker
