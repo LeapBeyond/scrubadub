@@ -1,7 +1,7 @@
 .. _api_scrubadub_post:
 
 scrubadub.post_processors
--------------------------
+=========================
 
 ``PostProcessor``\ s generally can be used to process the detected ``Filth``
 objects and make changes to them.
