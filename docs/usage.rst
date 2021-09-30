@@ -180,8 +180,6 @@ As an example, to display a hash of the Filth in bold HTML, you could to do this
     >>> scrubber.clean("contact me on (478)345-1309 or joe@example.com")
     'contact me on <b>PHONE-DB92D</b> or <b>EMAIL-028CC</b>'
 
-# TODO: fix above
-
 Adding and removing detectors
 -----------------------------
 
@@ -226,6 +224,40 @@ Examples of this are given below:
     Traceback (most recent call last):
         ...
     KeyError: 'can not add Detector "example_email" to this Scrubber, this name is already in use. Try removing it first.'
+
+
+Searching for supplied filth
+----------------------------
+
+You can provide scrubadub with known filth to remove.
+This is particularly useful if you have a database of PII that you want to be certain is removed.
+
+If you're trying to remove names from a document, it can be very hard: Is River Farrier the name of a river or the daughter of Mr Farrier?
+The name detectors will do their best, given the context, but can never be 100% accurate.
+However, if you know that `River Farrier` is indeed a person you can instruct scrubadub to always remove it using the `scrubadub.detectors.UserSuppliedFilthDetector`.
+
+The ``UserSuppliedFilthDetector`` takes a list of dictionaries in it's constructor.
+Each dictionary represents one piece of filth that you want to remove.
+The two fields are required in the dictionary: ``match`` (the text to find) and ``filth_type`` (the type of filth, taken from ``Filth.type``).
+There are also other optional fields that change how the match is made.
+In the example below we're looking for the name `river farrier` and ignoring the case of the match.
+
+.. code:: pycon
+
+    >>> import scrubadub, scrubadub_spacy
+    >>> supplied_filth_detector = scrubadub.detectors.UserSuppliedFilthDetector([
+    ...     {'match': 'river farrier', 'filth_type': 'name', 'ignore_case': True},
+    ... ])
+    >>> scrubber = scrubadub.Scrubber()
+    >>> text = "Who can find River Farrier further down the river?"
+    >>> scrubber.add_detector(scrubadub_spacy.detectors.SpacyEntityDetector(model='en_core_web_lg'))
+    >>> scrubber.clean(text)
+    'Who can find River Farrier further down the river?'
+    >>> scrubber.add_detector(supplied_filth_detector)
+    >>> scrubber.clean(text)
+    'Who can find {{NAME}} further down the river?'
+
+A full list of the supported optional fields in the dictonary (such as ``ignore_case``), can be found in the `scrubadub.detectors.UserSuppliedFilthDetector documentation <scrubadub.detectors.UserSuppliedFilthDetector>`_.
 
 
 .. _create-detector:
