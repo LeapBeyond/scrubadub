@@ -8,7 +8,9 @@ phonenumbers
 python-stdnum
 
 # For the DateOfBirthDetector, master version due to an unfixed bug... but which one?
-dateparser @ git+https://github.com/scrapinghub/dateparser.git
+# Can't upload to PyPi with a dependency on a GH repo, so removed link to dateparser repo
+dateparser
+# @ git+https://github.com/scrapinghub/dateparser.git
 
 # For the detector/post-processor catalogues
 catalogue
