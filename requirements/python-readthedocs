@@ -1,0 +1,11 @@
+# install everything in the python requirements too.
+-r python
+
+# for documentation
+sphinx>=3
+sphinx_rtd_theme>=0.5
+
+# Needed for the docs
+scrubadub_address
+scrubadub_spacy
+scrubadub_stanford
