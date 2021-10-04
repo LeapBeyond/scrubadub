@@ -252,7 +252,7 @@ In the example below we're looking for the name `river farrier` and ignoring the
     ... ])
     >>> scrubber = scrubadub.Scrubber()
     >>> text = "Who can find River Farrier further down the river?"
-    >>> scrubber.add_detector(scrubadub_spacy.detectors.SpacyEntityDetector(model='en_core_web_lg'))
+    >>> scrubber.add_detector(scrubadub_spacy.detectors.SpacyEntityDetector(model='en_core_web_trf'))
     >>> scrubber.clean(text)
     'Who can find River Farrier further down the river?'
     >>> scrubber.add_detector(supplied_filth_detector)
