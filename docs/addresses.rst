@@ -27,9 +27,7 @@ Once you have installed libpostal, the remaining python dependencies can be inst
 
 .. code-block:: console
 
-    $ pip install scrubadub_address
-
-This will also bring along the ``pypostal`` and ``pyap`` python packages as dependencies.
+    $ pip install pypostal scrubadub_address
 
 Usage
 -----
