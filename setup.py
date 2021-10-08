@@ -60,6 +60,9 @@ setup(
     ],
     install_requires=get_package_list('python'),
     include_package_data=True,
-    package_data={'': ['scrubadub/detectors/models/sklearn_address/*.json']},
-    zip_safe=False,
+    entry_points={
+        "console_scripts": [
+            "scrubadub = scrubadub.cli.main:main",
+        ]
+    },
 )

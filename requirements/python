@@ -20,3 +20,6 @@ sklearn
 
 typing_extensions
 faker
+
+# For the CLI tools
+click
