@@ -10,7 +10,6 @@ Using 18+ years may not be suitable for all use cases; use with caution.
 """
 import re
 import logging
-from dateparser.search import search_dates
 from datetime import datetime
 
 from typing import Optional, List, Generator
@@ -98,6 +97,8 @@ class DateOfBirthDetector(Detector):
         :return: The found Filth in the text
         :rtype: Generator[Filth]
         """
+
+        from dateparser.search import search_dates
 
         # using the dateparser lib - locale can be set here
         try:

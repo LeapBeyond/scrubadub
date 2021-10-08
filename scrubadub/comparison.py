@@ -9,10 +9,10 @@ from . import filth as filth_module
 from .filth import Filth
 from .detectors.tagged import KnownFilthItem
 
-from typing import List, Dict, Union, Optional, Tuple, Callable, Iterable, Type, Set
-import numpy as np
-import pandas as pd
-import sklearn.metrics
+from typing import List, Dict, Union, Optional, Tuple, Callable, Iterable, Type, Set, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 # I was originally thinking of building this into the Filth system, but they serve subtlly different purposes:
 #   * Filths need to be merged by text location so that replacements can be made
@@ -96,7 +96,8 @@ class FilthTypePositions(ToStringMixin, object):
     def merge_positions(self):
         self.positions = self._merge_position_list(self.positions)
 
-    def get_counts(self) -> pd.DataFrame:
+    def get_counts(self) -> "pd.DataFrame":
+        import pandas as pd
         self.merge_positions()
 
         data_list = []  # type: List[Dict[Tuple[str, ...], int]]
@@ -243,14 +244,15 @@ class FilthGrouper(ToStringMixin, object):
         grouper.merge_positions()
         return grouper
 
-    def expand_missing(self, df: pd.DataFrame) -> pd.DataFrame:
+    def expand_missing(self, df: "pd.DataFrame") -> "pd.DataFrame":
         set_list = [set(s) for s in zip(*df.columns.values.tolist())]
         for column in itertools.product(*set_list):
             if column not in df.columns:
                 df.loc[:, column] = 0
         return df
 
-    def get_counts(self, expand_missing: bool = False) -> pd.DataFrame:
+    def get_counts(self, expand_missing: bool = False) -> "pd.DataFrame":
+        import pandas as pd
         if len(self.types) == 0:
             return pd.DataFrame()
         df_list = []  # type: List[pd.DataFrame]
@@ -307,6 +309,8 @@ def get_filth_classification_report(
     :return: The report in JSON (a `dict`) or in plain text
     :rtype: `str` or `dict`
     """
+    import numpy as np
+
     if len(filth_list) == 0:
         return None
 
@@ -379,6 +383,7 @@ def get_filth_classification_report(
         report_labels = [class_labels.index(x) for x in sorted(class_labels)]
         class_labels = sorted(class_labels)
 
+    import sklearn.metrics
     report = sklearn.metrics.classification_report(
         true_classes,
         detected_classes,
@@ -395,14 +400,15 @@ def get_filth_classification_report(
     return report
 
 
-def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
-    """Produces a pandas `DataFrame` to allow debugging and improving detectors.
+def get_filth_dataframe(filth_list: List[Filth]) -> "pd.DataFrame":
+    """Produces a pandas `pd.DataFrame` to allow debugging and improving detectors.
 
     An example of using this is shown below:
 
     .. code:: pycon
 
         >>> import scrubadub, scrubadub.comparison, scrubadub.detectors.text_blob
+        >>> import pandas as pd
         >>> scrubber = scrubadub.Scrubber(detector_list=[
         ...     scrubadub.detectors.text_blob.TextBlobNameDetector(name='name_detector'),
         ...     scrubadub.detectors.TaggedEvaluationFilthDetector([
@@ -431,6 +437,7 @@ def get_filth_dataframe(filth_list: List[Filth]) -> pd.DataFrame:
     :rtype: `pd.DataFrame`
 
     """
+    import pandas as pd
     results = []
     for group_id, filth_item in enumerate(filth_list):
         sub_filths = [filth_item]

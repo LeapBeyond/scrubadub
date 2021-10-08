@@ -1,8 +1,4 @@
 import re
-import textblob
-
-from textblob.blob import BaseBlob
-from textblob.en.taggers import PatternTagger
 
 from typing import Optional, Generator
 
@@ -10,9 +6,6 @@ from scrubadub.detectors.catalogue import register_detector
 from .base import RegexDetector
 from ..filth import NameFilth, Filth
 from ..utils import CanonicalStringSet
-
-# BaseBlob uses NLTKTagger as a pos_tagger, but it works wrong
-BaseBlob.pos_tagger = PatternTagger()
 
 
 @register_detector
@@ -26,6 +19,15 @@ class TextBlobNameDetector(RegexDetector):
 
     disallowed_nouns = CanonicalStringSet(["skype"])
 
+    def __init__(self, *args, **kwargs):
+        super(SkypeDetector, self).__init__(*args, **kwargs)
+
+        from textblob.blob import BaseBlob
+        from textblob.en.taggers import PatternTagger
+
+        # BaseBlob uses NLTKTagger as a pos_tagger, but it works wrong
+        BaseBlob.pos_tagger = PatternTagger()
+
     def iter_filth(self, text, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
         """Yields discovered filth in the provided ``text``.
 
@@ -37,6 +39,8 @@ class TextBlobNameDetector(RegexDetector):
         :rtype: Iterator[:class:`Filth`]
         """
 
+        from textblob import TextBlob
+
         if not isinstance(self.disallowed_nouns, CanonicalStringSet):
             raise TypeError(
                 'NameDetector.disallowed_nouns must be CanonicalStringSet'
@@ -44,7 +48,7 @@ class TextBlobNameDetector(RegexDetector):
 
         # find the set of proper nouns using textblob.
         proper_nouns = set()
-        blob = textblob.TextBlob(text)
+        blob = TextBlob(text)
         for word, part_of_speech in blob.tags:
             is_proper_noun = part_of_speech in ("NNP", "NNPS")
             if is_proper_noun and word.lower() not in self.disallowed_nouns:

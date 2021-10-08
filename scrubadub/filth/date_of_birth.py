@@ -1,6 +1,5 @@
 import random
 import datetime
-import dateparser
 from faker import Faker
 
 from .base import Filth
@@ -32,6 +31,7 @@ class DateOfBirthFilth(Filth):
 
     def is_valid(self) -> bool:
         """Check to see if the found filth is valid."""
+        import dateparser
         found_date = dateparser.parse(self.text)
         if found_date is None:
             return False

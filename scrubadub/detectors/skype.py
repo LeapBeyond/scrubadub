@@ -1,18 +1,10 @@
 import re
-import nltk
-import textblob
-
-from textblob.blob import BaseBlob
-from textblob.en.taggers import PatternTagger
 
 from typing import Optional, Generator
 
 from scrubadub.detectors.catalogue import register_detector
 from .base import RegexDetector
 from ..filth import SkypeFilth, Filth
-
-# BaseBlob uses NLTKTagger as a pos_tagger, but it works wrong
-BaseBlob.pos_tagger = PatternTagger()
 
 
 @register_detector
@@ -45,6 +37,23 @@ class SkypeDetector(RegexDetector):
     SKYPE_TOKEN = _SKYPE + '+'
     SKYPE_USERNAME = re.compile(_SKYPE+'{5,31}')
 
+    def __init__(self, *args, **kwargs):
+        super(SkypeDetector, self).__init__(*args, **kwargs)
+
+        import nltk
+        from textblob.blob import BaseBlob
+        from textblob.en.taggers import PatternTagger
+
+        # BaseBlob uses NLTKTagger as a pos_tagger, but it works wrong
+        BaseBlob.pos_tagger = PatternTagger()
+
+        # find 'skype' in the text using a customized tokenizer. this makes
+        # sure that all valid skype usernames are kept as tokens and not split
+        # into different words
+        self.tokenizer = nltk.tokenize.regexp.RegexpTokenizer(
+            self.SKYPE_TOKEN
+        )
+
     def iter_filth(self, text, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
         """Yields discovered filth in the provided ``text``.
 
@@ -55,14 +64,9 @@ class SkypeDetector(RegexDetector):
         :return: An iterator to the discovered :class:`Filth`
         :rtype: Iterator[:class:`Filth`]
         """
+        from textblob import TextBlob, Word
 
-        # find 'skype' in the text using a customized tokenizer. this makes
-        # sure that all valid skype usernames are kept as tokens and not split
-        # into different words
-        tokenizer = nltk.tokenize.regexp.RegexpTokenizer(
-            self.SKYPE_TOKEN
-        )
-        blob = textblob.TextBlob(text, tokenizer=tokenizer)
+        blob = TextBlob(text, tokenizer=self.tokenizer)
         skype_indices, tokens = [], []
         for i, token in enumerate(blob.tokens):
             tokens.append(token)
@@ -86,7 +90,7 @@ class SkypeDetector(RegexDetector):
                     # whether the word is misspelled
                     if token.isupper():
                         token = token.lower()
-                    word = textblob.Word(token)
+                    word = Word(token)
                     suggestions = word.spellcheck()
                     corrected_word, score = suggestions[0]
                     if score < 0.5:
