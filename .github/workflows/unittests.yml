@@ -79,6 +79,8 @@ jobs:
 
     - name: Download models and NLTK data
       run: |
+        # Needed for stanford model
+        python3 -c "import nltk; nltk.download('punkt')"
         # Needed for the TextBlob model
         python -m textblob.download_corpora
         # One of the possible spacy models, should
