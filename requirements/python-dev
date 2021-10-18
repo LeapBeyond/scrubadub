@@ -30,6 +30,7 @@ types-requests
 wasabi
 
 # Needed for the docs
+postal
 scrubadub_address
 scrubadub_spacy
 scrubadub_stanford
