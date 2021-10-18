@@ -116,11 +116,11 @@ If you cannot get real data, you can generate fake data, but this is never as re
         >>> print(json.dumps(tagged_pii[1:], indent=4))
         [
             {
-                "match": "wwashington@reed-ryan.org",
+                "match": "ronaldbrown@example.com",
                 "filth_type": "email"
             },
             {
-                "match": "https://www.wong.com/",
+                "match": "https://wilson-collins.com/",
                 "filth_type": "url"
             }
         ]
