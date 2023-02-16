@@ -16,7 +16,7 @@ dateparser
 catalogue
 
 # For scrubadub.comparison
-sklearn
+scikit-learn
 
 typing_extensions
 faker
