@@ -2,7 +2,6 @@ import re
 import phonenumbers
 
 from faker import Faker
-from typing import List
 
 from .base import Filth
 from .. import utils
@@ -22,7 +21,7 @@ class PhoneFilth(Filth):
         """
         phone_number = ''
         language, region = utils.locale_split(faker._locales[0])
-        results = []  # type: List[phonenumbers.PhoneNumberMatch]
+        results = []  # type: list[phonenumbers.PhoneNumberMatch]
         # Here I'm filtering for numbers that pass validation by the phonenumbers package
         while len(results) < 1:
             # Faker generates random numbers of the right format eg (###)###-####

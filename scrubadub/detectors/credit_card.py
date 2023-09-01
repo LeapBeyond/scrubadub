@@ -29,7 +29,7 @@ class CreditCardDetector(RegexDetector):
     # TODO: regex doesn't match if the credit card number has spaces/dashes in
 
     regex = re.compile((
-        r"(?<=\s)"
+        r"\b"
         r"(?:4[0-9]{12}(?:[0-9]{3})?"  		# Visa
         r"|(?:5[1-5][0-9]{2}"          		# MasterCard
         r"|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9]{12}"
@@ -37,4 +37,5 @@ class CreditCardDetector(RegexDetector):
         r"|3(?:0[0-5]|[68][0-9])[0-9]{11}"   	# Diners Club
         r"|6(?:011|5[0-9]{2})[0-9]{12}"      	# Discover
         r"|(?:2131|1800|35\d{3})\d{11})"      	# JCB
+        r"\b"
     ), re.VERBOSE)

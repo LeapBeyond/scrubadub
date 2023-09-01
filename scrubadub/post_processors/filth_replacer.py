@@ -3,7 +3,7 @@ import os
 import math
 import hashlib
 
-from typing import Sequence, Optional, Union, Dict
+from typing import Sequence, Optional, Union
 from collections import defaultdict
 
 from scrubadub.filth import Filth, MergedFilth, TaggedEvaluationFilth
@@ -43,7 +43,7 @@ class FilthReplacer(PostProcessor):
     # NOTE: this is not an efficient way to store this in memory. could
     # alternatively hash the type and text and do away with the overhead
     # bits of storing the tuple in the lookup
-    typed_lookup = defaultdict(lambda: utils.Lookup(), {})  # type: Dict[str, utils.Lookup]
+    typed_lookup = defaultdict(lambda: utils.Lookup(), {})  # type: dict[str, utils.Lookup]
 
     def __init__(self, include_type: bool = True, include_count: bool = False, include_hash: bool = False,
                  uppercase: bool = True, separator: Optional[str] = None, hash_length: Optional[int] = None,
@@ -101,9 +101,11 @@ class FilthReplacer(PostProcessor):
             replacement_pieces = []
 
             if self.include_type:
-                filth_type = getattr(f, 'type', None)
-                if filth_type is None:
+                filth_type_check: Optional[str] = getattr(f, 'type', None)
+                if filth_type_check is None:
                     continue
+                else:
+                    filth_type: str = filth_type_check
                 if filth_type == TaggedEvaluationFilth.type:
                     filth_comparison_type = getattr(f, 'comparison_type', None)
                     if filth_comparison_type is not None:

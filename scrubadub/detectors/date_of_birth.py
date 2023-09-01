@@ -78,6 +78,8 @@ class DateOfBirthDetector(Detector):
         self.context_after = context_after
         self.require_context = require_context
 
+        if self.language is None:
+            raise ValueError("Langauge is not set.")
         try:
             self.context_words = self.context_words_language_map[self.language]
         except KeyError:
@@ -100,6 +102,8 @@ class DateOfBirthDetector(Detector):
         """
 
         # using the dateparser lib - locale can be set here
+        if self.language is None:
+            raise ValueError("Langauge is not set.")
         try:
             date_picker = search_dates(text, languages=[self.language])
         except RecursionError:

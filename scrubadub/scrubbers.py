@@ -152,7 +152,8 @@ class Scrubber:
             ) % locals())
         self._detectors[name] = detector
 
-    def add_post_processor(self, post_processor: Union[PostProcessor, Type[PostProcessor], str], index: int = None):
+    def add_post_processor(self, post_processor: Union[PostProcessor, Type[PostProcessor], str],
+                           index: Optional[int] = None):
         """Add a ``PostProcessor`` to a Scrubber
 
         You can add a post-processor to a ``Scrubber`` by passing one of three objects to this function:
@@ -215,7 +216,7 @@ class Scrubber:
         elif isinstance(post_processor, str):
             self._post_processors = [x for x in self._post_processors if x.name != post_processor]
 
-    def _check_and_add_post_processor(self, post_processor: PostProcessor, index: int = None):
+    def _check_and_add_post_processor(self, post_processor: PostProcessor, index: Optional[int] = None):
         """Check the types and add the PostProcessor to the scrubber"""
         if not isinstance(post_processor, PostProcessor):
             raise TypeError((

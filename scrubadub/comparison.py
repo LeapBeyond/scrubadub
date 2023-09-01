@@ -9,7 +9,7 @@ from . import filth as filth_module
 from .filth import Filth
 from .detectors.tagged import KnownFilthItem
 
-from typing import List, Dict, Union, Optional, Tuple, Callable, Iterable, Type, Set
+from typing import List, Dict, Union, Optional, Tuple, Callable, Iterable, Type
 import numpy as np
 import pandas as pd
 import sklearn.metrics
@@ -27,8 +27,8 @@ class TextPosition(ToStringMixin):
     def __init__(self, filth: Filth, grouping_function: GroupingFunction):
         self.beg = filth.beg
         self.end = filth.end
-        self.detected = set()  # type: Set[Tuple[str, ...]]
-        self.tagged = set()  # type: Set[Tuple[str, ...]]
+        self.detected: set[Tuple[str, ...]] = set()
+        self.tagged: set[Tuple[str, ...]] = set()
         self.document_name = str(filth.document_name or '')  # type: str
 
         if isinstance(filth, filth_module.TaggedEvaluationFilth):

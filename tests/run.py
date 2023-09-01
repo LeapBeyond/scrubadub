@@ -9,11 +9,10 @@ from wasabi import msg
 tests = [
     "mypy --config-file setup.cfg scrubadub/",
     "flake8  --config setup.cfg scrubadub/",
-    # If py3.5 then examples with spacy don't work so disable doctests
-    'if python3 --version | grep -Evq "Python (3\\.5\\.)" ; then nosetests --with-doctest --doctest-extension=rst ./tests/ ./scrubadub/ ./docs/ ; else nosetests ; fi',
+    'pytest --doctest-glob="*.rst" ./tests/ ./scrubadub/ ./docs/',
     "python3 ./tests/benchmark_accuracy.py --fast",
     "python3 ./tests/benchmark_time.py",
-    'if python3 --version | grep -Evq "Python (3\\.5\\.)" ; then cd docs && make html && cd - ; fi',
+    'cd docs && make html && cd -',
 ]
 
 

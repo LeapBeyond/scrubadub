@@ -246,11 +246,11 @@ class ComparisonTestCase(unittest.TestCase):
         self.assertEqual(['filth', 'detector', 'locale'], df.columns.names)
         self.assertEqual(
             [
-                ('name', 'tagged', 'en_US'),
                 ('phone', 'phone', 'en_GB'),
-                ('phone', 'phone', 'en_US'),
                 ('phone', 'tagged', 'en_GB'),
-                ('phone', 'tagged', 'en_US')
+                ('phone', 'phone', 'en_US'),
+                ('phone', 'tagged', 'en_US'),
+                ('name', 'tagged', 'en_US'),
             ],
             df.columns.values.tolist(),
         )

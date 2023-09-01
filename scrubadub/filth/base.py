@@ -13,18 +13,18 @@ class Filth(object):
 
     # this allows people to customize the output, especially for placeholder
     # text and identifier replacements
-    prefix = u'{{'  # type: ClassVar[str]
-    suffix = u'}}'  # type: ClassVar[str]
+    prefix: ClassVar[str] = u'{{'
+    suffix: ClassVar[str] = u'}}'
 
     # the `type` is used when filths are merged to come up with a sane label
-    type = 'unknown'  # type: ClassVar[str]
+    type: ClassVar[str] = 'unknown'
 
     # the `lookup` is used to keep track of all of the different types of filth
     # that are encountered across all `Filth` types.
     lookup = utils.Lookup()
 
     # For backwards compatibility, but this is deprecated.
-    regex = None  # type: Optional[Pattern[str]]
+    regex: Optional[Pattern[str]] = None
 
     def __init__(self, beg: Optional[int] = None, end: Optional[int] = None, text: Optional[str] = None,
                  match: Optional[Match] = None, detector_name: Optional[str] = None,
