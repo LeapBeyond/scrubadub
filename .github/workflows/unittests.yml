@@ -65,7 +65,7 @@ jobs:
         export LD_LIBRARY_PATH=${{ env.LD_LIBRARY_PATH }}
         export C_INCLUDE_PATH=${{ env.C_INCLUDE_PATH }}
         export CPP_INCLUDE_PATH=${{ env.CPP_INCLUDE_PATH }}
-        python -m pip install --upgrade pip wheel setuptools
+        python -m pip install --upgrade pip wheel setuptools Cython
         pip install -r requirements/python-dev
 
     - name: Cache restore nltk data
