@@ -99,3 +99,10 @@ class CreditCardTestCase(unittest.TestCase, BaseTestCase):
         AFTER:  My credit card is {{CREDIT_CARD}}.
         """
         self.compare_before_after()
+
+    def test_start_of_string(self):
+        """
+        BEFORE: 4012888888881881.
+        AFTER:  {{CREDIT_CARD}}.
+        """
+        self.compare_before_after()
