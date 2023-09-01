@@ -34,7 +34,7 @@ jobs:
 
     - name: Install apt dependencies
       run: |
-        sudo apt-get update && sudo apt-get install -y curl autoconf automake libtool pkg-config default-jre python-dev
+        sudo apt-get update && sudo apt-get install -y curl autoconf automake libtool pkg-config default-jre python3-dev
 
     - name: Cache restore libpostal
       id: cache-libpostal
