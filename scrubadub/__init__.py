@@ -8,7 +8,7 @@ from . import detectors
 from . import post_processors
 from .filth import Filth
 
-__version__ = VERSION = "2.0.0"
+__version__ = VERSION = "2.0.1"
 __all__ = [
     'Scrubber', 'filth', 'detectors', 'post_processors', 'clean', 'clean_documents', 'list_filth',
     'list_filth_documents',
