@@ -26,15 +26,16 @@ jobs:
       CPP_INCLUDE_PATH: /home/runner/prefix/include
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
+        cache: 'pip'
 
     - name: Install apt dependencies
       run: |
-        sudo apt-get update && sudo apt-get install -y curl autoconf automake libtool pkg-config default-jre
+        sudo apt-get update && sudo apt-get install -y curl autoconf automake libtool pkg-config default-jre python-dev
 
     - name: Cache restore libpostal
       id: cache-libpostal
@@ -52,14 +53,14 @@ jobs:
         git clone https://github.com/openvenues/libpostal ${{ env.LIBPOSTAL }} && cd ${{ env.LIBPOSTAL }} &&
         ./bootstrap.sh && ./configure --prefix=${{ env.PREFIX }} && sudo make -j4 && sudo make install && cd - ; fi
 
-    - name: Cache restore pip
-      id: cache-pip
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements/python*') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+#    - name: Cache restore pip
+#      id: cache-pip
+#      uses: actions/cache@v2
+#      with:
+#        path: ~/.cache/pip
+#        key: ${{ runner.os }}-pip-${{ hashFiles('requirements/python*') }}
+#        restore-keys: |
+#          ${{ runner.os }}-pip-
 
     - name: Install pip dependencies
       run: |
