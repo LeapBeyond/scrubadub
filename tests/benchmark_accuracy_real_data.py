@@ -7,9 +7,7 @@ import glob
 import click
 import magic
 import dotenv
-# import chardet
-# try a new chardet package, its a drop in replacement based on a mozilla project.
-import cchardet as chardet
+import chardet
 import logging
 import posixpath
 import azure.storage.blob

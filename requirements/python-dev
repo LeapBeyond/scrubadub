@@ -4,7 +4,7 @@
 # needed to run the tests
 flake8
 coveralls
-nose
+pytest
 mypy
 tox
 
@@ -13,7 +13,7 @@ sphinx>=3
 sphinx_rtd_theme>=0.5
 
 # This is for the tests/benchmark_accuracy_real_data.py script
-cchardet
+chardet
 pandas
 click
 python-magic
