@@ -32,9 +32,9 @@ class Detector(object):
     ```Detector.supported_local()``` function.
     """
 
-    filth_cls = Filth  # type: ClassVar[Type[Filth]]
-    name = 'detector'  # type: str
-    autoload = False  # type: bool
+    filth_cls: ClassVar[Type[Filth]] = Filth
+    name: str = 'detector'
+    autoload: bool = False
 
     def __init__(self, name: Optional[str] = None, locale: str = 'en_US'):
         """Initialise the ``Detector``.
@@ -46,7 +46,7 @@ class Detector(object):
         :type locale: str, optional
         """
         if getattr(self, 'name', 'detector') == 'detector' and getattr(self, 'filth_cls', None) is not None:
-            if getattr(self.filth_cls, 'type', None) is not None and type(self) != Detector:
+            if getattr(self.filth_cls, 'type', None) is not None and type(self) is not Detector:
                 self.name = self.filth_cls.type
                 warnings.warn(
                     "Setting the detector name from the filth_cls.type is depreciated, please declare an explicit name"
@@ -111,8 +111,8 @@ class RegexDetector(Detector):
         'This url will be found {{URL}}'
     """
 
-    regex = None  # type: Optional[Pattern[str]]
-    filth_cls = Filth  # type: ClassVar[Type[Filth]]
+    regex: Optional[Pattern[str]] = None
+    filth_cls: ClassVar[Type[Filth]] = Filth
 
     def iter_filth(self, text: str, document_name: Optional[str] = None) -> Generator[Filth, None, None]:
         """Yields discovered filth in the provided ``text``.
@@ -145,7 +145,7 @@ class RegexDetector(Detector):
 
 class RegionLocalisedRegexDetector(RegexDetector):
     """Detector to detect ``Filth`` localised using regular expressions localised by the region"""
-    region_regex = {}  # type: Dict[str, Pattern]
+    region_regex: Dict[str, Pattern] = {}
 
     def __init__(self, **kwargs):
         """Initialise the ``Detector``.
