@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9, 3.8, 3.7, 3.6]
+        python-version: ["3.11", "3.10", "3.9", "3.8"]
 
     env:
       PREFIX: /home/runner/prefix
@@ -26,15 +26,15 @@ jobs:
       CPP_INCLUDE_PATH: /home/runner/prefix/include
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: Install apt dependencies
       run: |
-        sudo apt-get update && sudo apt-get install -y curl autoconf automake libtool pkg-config default-jre
+        sudo apt-get update && sudo apt-get install -y curl autoconf automake libtool pkg-config default-jre python3-dev
 
     - name: Cache restore libpostal
       id: cache-libpostal
@@ -58,8 +58,6 @@ jobs:
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements/python*') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
 
     - name: Install pip dependencies
       run: |
