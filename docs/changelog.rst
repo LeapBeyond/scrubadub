@@ -11,6 +11,13 @@ latest changes in development for next release
 
 .. THANKS FOR CONTRIBUTING; MENTION WHAT YOU DID IN THIS SECTION HERE!
 
+2.0.1
+-----
+
+ * Fix an issue with the name of the scikit-learn dependency (#141, thanks @theconor, @Parth-1612 and @sadams-evi)
+ * Fix a typo in the docs (#140, thanks @hilaryp)
+
+
 2.0.0
 -----
 
